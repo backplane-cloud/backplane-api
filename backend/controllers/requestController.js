@@ -37,10 +37,13 @@ const setRequest = asyncHandler(async (req, res) => {
   //     res.status(400);
   //     throw new Error("Please add a text field");
   //   }
+  const approvalCode = Math.random().toString().substring(2, 10);
+  console.log(approvalCode);
 
   const request = await Request.create({
     ...req.body,
     orgId: req.user.orgId,
+    approvalCode,
   });
 
   const transporter = nodemailer.createTransport({
@@ -57,13 +60,13 @@ const setRequest = asyncHandler(async (req, res) => {
   async function main() {
     // send mail with defined transport object
     const info = await transporter.sendMail({
-      from: '"Backplane Server" <lewis@backplane.cloud>', // sender address
+      from: '"Backplane" <lewis@backplane.cloud>', // sender address
       to: "lewis@backplane.cloud", // list of receivers
-      subject: "Hello ✔", // Subject line
+      subject: `Approval Request `, // Subject line
       text: "Hello world?", // plain text body
-      html: `<b>${req.user.name}</b>`, // html body
+      html: `An ${request.requestType} approval request requires your approval: </b> <a href='http://localhost:8000/api/requests/${request.id}/approve?code=${request.approvalCode}'>Click here to Approve</a>`, // html body
     });
-
+    console.log(info);
     console.log("Message sent: %s", info.messageId);
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
   }
@@ -78,13 +81,6 @@ const setRequest = asyncHandler(async (req, res) => {
 // @route PUT /api/requests/:id
 // @access Private
 const updateRequest = asyncHandler(async (req, res) => {
-  const request = await Request.findById(req.params.id);
-
-  if (!request) {
-    res.status(400);
-    throw new Error("Request not found");
-  }
-
   const updatedRequest = await Request.findByIdAndUpdate(
     req.params.id,
     req.body,
@@ -92,9 +88,41 @@ const updateRequest = asyncHandler(async (req, res) => {
       new: true,
     }
   );
-
+  if (!updatedRequest) {
+    res.status(400);
+    throw new Error("Request not found");
+  }
   console.log(updatedRequest);
   res.status(200).json(updatedRequest);
+});
+
+// @desc  Approve Request
+// @route GET /api/requests/:id/approve
+// @access Private
+const approveRequest = asyncHandler(async (req, res) => {
+  console.log("approving request", req.params.id);
+  const request = await Request.findById(req.params.id);
+
+  if (!request) {
+    res.status(400);
+    throw new Error("Request not found");
+  }
+
+  if (request.approvalCode === req.query.code) {
+    if (request.approvalStatus != "approved") {
+      request.approvalStatus = "approved";
+      request.save();
+    } else {
+      res.send("Request already approved");
+      return;
+    }
+  } else {
+    res.send("Invalid Approval Code");
+    return;
+  }
+
+  console.log(request);
+  res.status(200).json("Request Successfully Approved");
 });
 
 // @desc  Delete Request
@@ -111,4 +139,11 @@ const deleteRequest = asyncHandler(async (req, res) => {
   res.status(200).json({ id: req.params.id });
 });
 
-export { getRequest, getRequests, setRequest, updateRequest, deleteRequest };
+export {
+  getRequest,
+  getRequests,
+  setRequest,
+  updateRequest,
+  deleteRequest,
+  approveRequest,
+};

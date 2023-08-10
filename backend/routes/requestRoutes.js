@@ -9,12 +9,16 @@ import {
   setRequest,
   updateRequest,
   deleteRequest,
+  approveRequest,
 } from "../controllers/requestController.js";
 
 router
   .route("/")
   .get(protect, authz, getRequests)
   .post(protect, authz, setRequest);
+
+router.route("/:id/approve").get(approveRequest);
+
 router
   .route("/:id")
   .get(protect, authz, getRequest)
