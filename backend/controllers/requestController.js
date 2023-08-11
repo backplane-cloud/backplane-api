@@ -87,6 +87,20 @@ const getRequest = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get My Requests
+// @route GET /api/requests/me
+// @access Private
+const getMyRequests = asyncHandler(async (req, res) => {
+  const requests = await Request.find({ requestedBy: req.user.id });
+
+  if (requests) {
+    res.status(200).json(requests);
+  } else {
+    res.status(400);
+    throw new Error("No Requests Found");
+  }
+});
+
 // @desc  Create Request
 // @route POST /api/requests
 // @access Private
@@ -218,4 +232,5 @@ export {
   deleteRequest,
   approveRequest,
   rejectRequest,
+  getMyRequests,
 };
