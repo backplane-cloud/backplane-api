@@ -3,6 +3,7 @@ import asyncHandler from "express-async-handler";
 import Request from "../models/requestModel.js";
 import nodemailer from "nodemailer";
 import EventEmitter from "events";
+import User from "../models/userModel.js";
 
 // EVENT CODE
 
@@ -10,36 +11,47 @@ import EventEmitter from "events";
 const events = new EventEmitter();
 
 // Create an Event Listener for approval Request Created.
-events.on("approvalRequestCreated", function (id, requestType, approvalCode) {
-  // console.log("First subscriber: " + data);
-
-  const transporter = nodemailer.createTransport({
-    host: "smtp.mailersend.net",
-    port: 587,
-    //secure: true,
-    auth: {
-      user: process.env.MAILSENDER_USERNAME,
-      pass: process.env.MAILSENDER_PASSWORD,
-    },
-  });
-
-  // async..await is not allowed in global scope, must use a wrapper
-  async function main() {
-    // send mail with defined transport object
-    const info = await transporter.sendMail({
-      from: '"Backplane" <lewis@backplane.cloud>', // sender address
-      to: "lewis@backplane.cloud", // list of receivers
-      subject: `Approval Request `, // Subject line
-      text: "Hello world?", // plain text body
-      html: `An ${requestType} approval request requires your approval: </b> <a href='http://localhost:8000/api/requests/${id}/approve?code=${approvalCode}'>Click here to Approve</a>`, // html body
-    });
-    //console.log(info);
-    console.log("Message sent: %s", info.messageId);
-    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-  }
-
-  main().catch(console.error);
+events.on("approvalRequestApproved", function (id, requestType, approvalCode) {
+  console.log("Request Approved");
+  // Enter Code here for budget approval or applink approval.
 });
+
+events.on(
+  "approvalRequestCreated",
+  async function (id, requestType, approvalCode, approver) {
+    // console.log("First subscriber: " + data);
+
+    // Get Approve E-mail Address
+    const { email } = await User.findById(approver);
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.mailersend.net",
+      port: 587,
+      //secure: true,
+      auth: {
+        user: process.env.MAILSENDER_USERNAME,
+        pass: process.env.MAILSENDER_PASSWORD,
+      },
+    });
+
+    // async..await is not allowed in global scope, must use a wrapper
+    async function main() {
+      // send mail with defined transport object
+      const info = await transporter.sendMail({
+        from: '"Backplane" <lewis@backplane.cloud>', // sender address
+        to: email, //"lewis@backplane.cloud", // list of receivers
+        subject: `Approval Request `, // Subject line
+        text: "Hello world?", // plain text body
+        html: `An ${requestType} approval request requires your approval: </b> <a href='http://localhost:8000/api/requests/${id}/approve?code=${approvalCode}'>Click here to Approve</a>`, // html body
+      });
+      //console.log(info);
+      console.log("Message sent: %s", info.messageId);
+      // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+    }
+
+    main().catch(console.error);
+  }
+);
 
 // @desc  Get Requests
 // @route GET /api/requests
@@ -89,7 +101,8 @@ const setRequest = asyncHandler(async (req, res) => {
     "approvalRequestCreated",
     request.id,
     request.requestType,
-    request.approvalCode
+    request.approvalCode,
+    request.approver
   );
 
   console.log(request);
@@ -131,6 +144,7 @@ const approveRequest = asyncHandler(async (req, res) => {
     if (request.approvalStatus != "approved") {
       request.approvalStatus = "approved";
       request.save();
+      events.emit("approvalRequestApproved", request.id);
     } else {
       res.send("Request already approved");
       return;
