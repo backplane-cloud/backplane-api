@@ -24,12 +24,18 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
 
   if (request.requestType === "applink") {
     const product = await Product.findById(request.requestedForId);
+
     if (product.apps.includes(data)) {
       console.log(`Requested App is already linked to ${product.name}`);
       return;
     }
     product.apps.push(request.data);
     product.save();
+
+    // Set Product ID on App
+    const app = await App.findById(request.data);
+    app.productId = request.requestedForId;
+    app.save();
   }
 
   console.log(`Request ${approvalStatus}`);
