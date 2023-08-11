@@ -15,14 +15,14 @@ import Platform from "../models/platformModel.js";
 const events = new EventEmitter();
 
 // Create an Event Listener for approval Request Created.
-events.on("approvalRequestApproved", async function (id) {
+events.on("approvalRequest", async function (id, approvalStatus) {
   // Get Request
   const request = await Request.findById(id);
 
   // Get Requester
   const requester = await User.findById(request.requestedBy);
 
-  console.log("Request Approved");
+  console.log(`Request ${approvalStatus}`);
   // Enter Code here for budget approval or applink approval.
   const transporter = nodemailer.createTransport({
     host: "smtp.mailersend.net",
@@ -40,9 +40,9 @@ events.on("approvalRequestApproved", async function (id) {
     const info = await transporter.sendMail({
       from: '"Backplane" <lewis@backplane.cloud>', // sender address
       to: requester.email, //"lewis@backplane.cloud", // list of receivers
-      subject: `Your Request has been Approved`, // Subject line
+      subject: `Your Request has been ${approvalStatus}`, // Subject line
       text: "Hello world?", // plain text body
-      html: `Request with ID <b>${request.id}</b> has been approved.`, // html body
+      html: `Request with ID <b>${request.id}</b> has been ${approvalStatus}.`, // html body
     });
     //console.log(info);
     console.log("Message sent: %s", info.messageId);
@@ -50,12 +50,6 @@ events.on("approvalRequestApproved", async function (id) {
   }
 
   main().catch(console.error);
-});
-
-// Create an Event Listener for approval Request Rejected.
-events.on("approvalRequestRejected", function (id, requestType, approvalCode) {
-  console.log("Request Rejected");
-  // Enter Code here for budget approval or applink approval.
 });
 
 events.on(
@@ -222,7 +216,7 @@ const approveRequest = asyncHandler(async (req, res) => {
     if (request.approvalStatus != "approved") {
       request.approvalStatus = "approved";
       request.save();
-      events.emit("approvalRequestApproved", request.id);
+      events.emit("approvalRequest", request.id, request.approvalStatus);
     } else {
       res.send("Request already approved");
       return;
@@ -252,7 +246,7 @@ const rejectRequest = asyncHandler(async (req, res) => {
     if (request.approvalStatus != "rejected") {
       request.approvalStatus = "rejected";
       request.save();
-      events.emit("approvalRequestRejected", request.id);
+      events.emit("approvalRequest", request.id, request.approvalStatus);
     } else {
       res.send("Request already rejected");
       return;
