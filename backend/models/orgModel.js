@@ -43,7 +43,7 @@ const orgSchema = mongoose.Schema(
     license: {
       type: String,
     },
-    owner: {
+    ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",

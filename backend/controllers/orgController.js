@@ -71,7 +71,7 @@ const setOrg = asyncHandler(async (req, res) => {
     license: req.body.license,
     type: req.body.type,
     status: req.body.status,
-    owner: req.body.owner,
+    ownerId: req.body.owner,
     status: "active",
     type: "org",
     csp,

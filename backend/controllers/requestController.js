@@ -3,7 +3,11 @@ import asyncHandler from "express-async-handler";
 import Request from "../models/requestModel.js";
 import nodemailer from "nodemailer";
 import EventEmitter from "events";
+
 import User from "../models/userModel.js";
+import App from "../models/appModel.js";
+import Product from "../models/productModel.js";
+import Platform from "../models/platformModel.js";
 
 // EVENT CODE
 
@@ -11,9 +15,41 @@ import User from "../models/userModel.js";
 const events = new EventEmitter();
 
 // Create an Event Listener for approval Request Created.
-events.on("approvalRequestApproved", function (id, requestType, approvalCode) {
+events.on("approvalRequestApproved", async function (id) {
+  // Get Request
+  const request = await Request.findById(id);
+
+  // Get Requester
+  const requester = await User.findById(request.requestedBy);
+
   console.log("Request Approved");
   // Enter Code here for budget approval or applink approval.
+  const transporter = nodemailer.createTransport({
+    host: "smtp.mailersend.net",
+    port: 587,
+    //secure: true,
+    auth: {
+      user: process.env.MAILSENDER_USERNAME,
+      pass: process.env.MAILSENDER_PASSWORD,
+    },
+  });
+
+  // async..await is not allowed in global scope, must use a wrapper
+  async function main() {
+    // send mail with defined transport object
+    const info = await transporter.sendMail({
+      from: '"Backplane" <lewis@backplane.cloud>', // sender address
+      to: requester.email, //"lewis@backplane.cloud", // list of receivers
+      subject: `Your Request has been Approved`, // Subject line
+      text: "Hello world?", // plain text body
+      html: `Request with ID <b>${request.id}</b> has been approved.`, // html body
+    });
+    //console.log(info);
+    console.log("Message sent: %s", info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+  }
+
+  main().catch(console.error);
 });
 
 // Create an Event Listener for approval Request Rejected.
@@ -25,8 +61,6 @@ events.on("approvalRequestRejected", function (id, requestType, approvalCode) {
 events.on(
   "approvalRequestCreated",
   async function (id, requestType, approvalCode, approver) {
-    // console.log("First subscriber: " + data);
-
     // Get Approve E-mail Address
     const { email } = await User.findById(approver);
 
@@ -110,12 +144,34 @@ const setRequest = asyncHandler(async (req, res) => {
   //     throw new Error("Please add a text field");
   //   }
   const approvalCode = Math.random().toString().substring(2, 10);
-  console.log(approvalCode);
+  const requestedBy = req.user.id;
+  const orgId = req.user.orgId;
+  const requestedForId = req.body.requestedForId;
+
+  // Get the Object that Approval is sought for
+  let approver;
+  switch (req.body.requestedForType) {
+    case "org":
+      approver = await Org.findById(requestedForId);
+      break;
+    case "platform":
+      approver = await Platform.findById(requestedForId);
+      break;
+    case "product":
+      approver = await Product.findById(requestedForId);
+      break;
+
+    case "app":
+      approver = await App.findById(requestedForId);
+      break;
+  }
 
   const request = await Request.create({
     ...req.body,
-    orgId: req.user.orgId,
+    requestedBy,
+    orgId,
     approvalCode,
+    approver: approver.ownerId,
   });
 
   // Raising FirstEvent
