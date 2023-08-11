@@ -15,12 +15,22 @@ import Platform from "../models/platformModel.js";
 const events = new EventEmitter();
 
 // Create an Event Listener for approval Request Created.
-events.on("approvalRequest", async function (id, approvalStatus) {
+events.on("approvalRequest", async function (id, approvalStatus, data) {
   // Get Request
   const request = await Request.findById(id);
 
   // Get Requester
   const requester = await User.findById(request.requestedBy);
+
+  if (request.requestType === "applink") {
+    const product = await Product.findById(request.requestedForId);
+    if (product.apps.includes(data)) {
+      console.log(`Requested App is already linked to ${product.name}`);
+      return;
+    }
+    product.apps.push(request.data);
+    product.save();
+  }
 
   console.log(`Request ${approvalStatus}`);
   // Enter Code here for budget approval or applink approval.
@@ -78,6 +88,15 @@ events.on(
         text: "Hello world?", // plain text body
         html: `An ${requestType} approval request requires your approval: </b> <a href='http://localhost:8000/api/requests/${id}/approve?code=${approvalCode}'>Click here to Approve</a>
         or <a href='http://localhost:8000/api/requests/${id}/reject?code=${approvalCode}'>Click here to Reject</a>
+
+
+        <h2>Request Details</h2>
+        <table>
+        <tr>
+          <td>Request Type:</td><td>${requestType}</td>
+        </tr>
+
+        </table>
         `, // html body
       });
       //console.log(info);
@@ -213,10 +232,18 @@ const approveRequest = asyncHandler(async (req, res) => {
   }
 
   if (request.approvalCode === req.query.code) {
-    if (request.approvalStatus != "approved") {
+    if (
+      request.approvalStatus != "approved" &&
+      request.approvalStatus != "rejected"
+    ) {
       request.approvalStatus = "approved";
       request.save();
-      events.emit("approvalRequest", request.id, request.approvalStatus);
+      events.emit(
+        "approvalRequest",
+        request.id,
+        request.approvalStatus,
+        request.data
+      );
     } else {
       res.send("Request already approved");
       return;
@@ -243,7 +270,10 @@ const rejectRequest = asyncHandler(async (req, res) => {
   }
 
   if (request.approvalCode === req.query.code) {
-    if (request.approvalStatus != "rejected") {
+    if (
+      request.approvalStatus != "rejected" &&
+      request.approvalStatus != "approved"
+    ) {
       request.approvalStatus = "rejected";
       request.save();
       events.emit("approvalRequest", request.id, request.approvalStatus);

@@ -14,6 +14,9 @@ const requestSchema = mongoose.Schema(
       required: true,
       ref: "Org",
     },
+    data: {
+      type: String,
+    },
     approvalStatus: {
       type: String,
     },
