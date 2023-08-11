@@ -10,6 +10,7 @@ import {
   updateRequest,
   deleteRequest,
   approveRequest,
+  rejectRequest,
 } from "../controllers/requestController.js";
 
 router
@@ -18,6 +19,7 @@ router
   .post(protect, authz, setRequest);
 
 router.route("/:id/approve").get(approveRequest);
+router.route("/:id/reject").get(rejectRequest);
 
 router
   .route("/:id")

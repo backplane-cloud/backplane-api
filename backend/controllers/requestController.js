@@ -16,6 +16,12 @@ events.on("approvalRequestApproved", function (id, requestType, approvalCode) {
   // Enter Code here for budget approval or applink approval.
 });
 
+// Create an Event Listener for approval Request Rejected.
+events.on("approvalRequestRejected", function (id, requestType, approvalCode) {
+  console.log("Request Rejected");
+  // Enter Code here for budget approval or applink approval.
+});
+
 events.on(
   "approvalRequestCreated",
   async function (id, requestType, approvalCode, approver) {
@@ -42,7 +48,9 @@ events.on(
         to: email, //"lewis@backplane.cloud", // list of receivers
         subject: `Approval Request `, // Subject line
         text: "Hello world?", // plain text body
-        html: `An ${requestType} approval request requires your approval: </b> <a href='http://localhost:8000/api/requests/${id}/approve?code=${approvalCode}'>Click here to Approve</a>`, // html body
+        html: `An ${requestType} approval request requires your approval: </b> <a href='http://localhost:8000/api/requests/${id}/approve?code=${approvalCode}'>Click here to Approve</a>
+        or <a href='http://localhost:8000/api/requests/${id}/reject?code=${approvalCode}'>Click here to Reject</a>
+        `, // html body
       });
       //console.log(info);
       console.log("Message sent: %s", info.messageId);
@@ -158,6 +166,36 @@ const approveRequest = asyncHandler(async (req, res) => {
   res.status(200).json("Request Successfully Approved");
 });
 
+// @desc  Reject Request
+// @route GET /api/requests/:id/reject
+// @access Private
+const rejectRequest = asyncHandler(async (req, res) => {
+  console.log("Rejecting Request", req.params.id);
+  const request = await Request.findById(req.params.id);
+
+  if (!request) {
+    res.status(400);
+    throw new Error("Request not found");
+  }
+
+  if (request.approvalCode === req.query.code) {
+    if (request.approvalStatus != "rejected") {
+      request.approvalStatus = "rejected";
+      request.save();
+      events.emit("approvalRequestRejected", request.id);
+    } else {
+      res.send("Request already rejected");
+      return;
+    }
+  } else {
+    res.send("Invalid Approval Code");
+    return;
+  }
+
+  console.log(request);
+  res.status(200).json("Request Successfully Rejected");
+});
+
 // @desc  Delete Request
 // @route DELETE /api/requests/:id
 // @access Private
@@ -179,4 +217,5 @@ export {
   updateRequest,
   deleteRequest,
   approveRequest,
+  rejectRequest,
 };
