@@ -14,7 +14,7 @@ import Platform from "../models/platformModel.js";
 //create an object of EventEmitter class by using above reference
 const events = new EventEmitter();
 
-// Create an Event Listener for approval Request Created.
+// Create Event Listener for Request Approval/Rejection
 events.on("approvalRequest", async function (id, approvalStatus, data) {
   // Get Request
   const request = await Request.findById(id);
@@ -22,20 +22,60 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
   // Get Requester
   const requester = await User.findById(request.requestedBy);
 
-  if (request.requestType === "applink") {
+  if (request.approvalStatus === "approved") {
     const product = await Product.findById(request.requestedForId);
 
-    if (product.apps.includes(data)) {
-      console.log(`Requested App is already linked to ${product.name}`);
-      return;
-    }
-    product.apps.push(request.data);
-    product.save();
+    if (request.requestType === "link") {
+      // Add the App ID to Product.apps
+      const product = await Product.findById(request.requestedForId);
+      if (product.apps.includes(data)) {
+        console.log(`Requested App is already linked to ${product.name}`);
+        return;
+      }
+      product.apps.push(request.data);
+      product.save();
 
-    // Set Product ID on App
-    const app = await App.findById(request.data);
-    app.productId = request.requestedForId;
-    app.save();
+      // Update App with parent Product ID
+      const app = await App.findById(request.data);
+      app.productId = request.requestedForId;
+      app.save();
+    }
+
+    if (request.requestType === "budget") {
+      if (request.requestedForType === "product") {
+        // Add Budget to Product
+        const budget = {
+          year: "2023",
+          budget: request.data,
+          currency: "USD",
+          approvalId: request.id,
+        };
+        product.budget.push(budget);
+        product.save();
+
+        // Update Budget Allocated on Parent Platform
+
+        const platform = await Platform.findById(product.platformId);
+        const currentBudget = platform.budget[platform.budget.length - 1];
+        platform.budget.pop(); // Remove last budget and replace with updated Budget
+        const budgetAllocated =
+          parseInt(currentBudget.budgetAllocated) + parseInt(request.data);
+        console.log("budget allocated:", budgetAllocated);
+
+        if (budgetAllocated <= currentBudget.budget) {
+          const updatedBudget = {
+            year: currentBudget.year,
+            budget: currentBudget.budget,
+            budgetAllocated,
+            currency: currentBudget.currency,
+          };
+          platform.budget.push(updatedBudget);
+          platform.save();
+        } else {
+          approvalStatus = "Insufficient Budget available";
+        }
+      }
+    }
   }
 
   console.log(`Request ${approvalStatus}`);
@@ -56,9 +96,9 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
     const info = await transporter.sendMail({
       from: '"Backplane" <lewis@backplane.cloud>', // sender address
       to: requester.email, //"lewis@backplane.cloud", // list of receivers
-      subject: `Your Request has been ${approvalStatus}`, // Subject line
+      subject: `Your Request status: ${approvalStatus}`, // Subject line
       text: "Hello world?", // plain text body
-      html: `Request with ID <b>${request.id}</b> has been ${approvalStatus}.`, // html body
+      html: `Request with ID <b>${request.id}</b> status: ${approvalStatus}.`, // html body
     });
     //console.log(info);
     console.log("Message sent: %s", info.messageId);
@@ -68,10 +108,11 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
   main().catch(console.error);
 });
 
+// Create an Event Listener for approval Request Created.
 events.on(
   "approvalRequestCreated",
   async function (id, requestType, approvalCode, approver) {
-    // Get Approve E-mail Address
+    // Get Approver E-mail Address
     const { email } = await User.findById(approver);
 
     const transporter = nodemailer.createTransport({
@@ -175,9 +216,11 @@ const setRequest = asyncHandler(async (req, res) => {
       break;
     case "platform":
       approver = await Platform.findById(requestedForId);
+
       break;
     case "product":
-      approver = await Product.findById(requestedForId);
+      const product = await Product.findById(requestedForId);
+      approver = await Platform.findById(product.platformId);
       break;
 
     case "app":

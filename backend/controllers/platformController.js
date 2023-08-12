@@ -82,13 +82,13 @@ const updatePlatform = asyncHandler(async (req, res) => {
   // return;
   let updatePlatform = req.body;
 
-  // if (req.body.budget) {
-  //   let budget = JSON.parse(req.body.budget);
-  //   updatePlatform = {
-  //     ...req.body,
-  //     budget,
-  //   };
-  // }
+  if (req.body.budget) {
+    let budget = JSON.parse(req.body.budget);
+    updatePlatform = {
+      ...req.body,
+      budget,
+    };
+  }
 
   const updatedPlatform = await Platform.findByIdAndUpdate(
     req.params.id,
