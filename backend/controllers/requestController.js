@@ -8,6 +8,7 @@ import User from "../models/userModel.js";
 import App from "../models/appModel.js";
 import Product from "../models/productModel.js";
 import Platform from "../models/platformModel.js";
+import Org from "../models/orgModel.js";
 
 // EVENT CODE
 
@@ -23,8 +24,6 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
   const requester = await User.findById(request.requestedBy);
 
   if (request.approvalStatus === "approved") {
-    const product = await Product.findById(request.requestedForId);
-
     if (request.requestType === "link") {
       // Add the App ID to Product.apps
       const product = await Product.findById(request.requestedForId);
@@ -43,26 +42,20 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
 
     if (request.requestType === "budget") {
       if (request.requestedForType === "product") {
-        // Add Budget to Product
-        const budget = {
-          year: "2023",
-          budget: request.data,
-          currency: "USD",
-          approvalId: request.id,
-        };
-        product.budget.push(budget);
-        product.save();
+        const product = await Product.findById(request.requestedForId);
+        const platform = await Platform.findById(product.platformId);
 
         // Update Budget Allocated on Parent Platform
 
-        const platform = await Platform.findById(product.platformId);
         const currentBudget = platform.budget[platform.budget.length - 1];
+
         platform.budget.pop(); // Remove last budget and replace with updated Budget
         const budgetAllocated =
           parseInt(currentBudget.budgetAllocated) + parseInt(request.data);
         console.log("budget allocated:", budgetAllocated);
 
         if (budgetAllocated <= currentBudget.budget) {
+          //Check budget allocation doesn't exceed budget
           const updatedBudget = {
             year: currentBudget.year,
             budget: currentBudget.budget,
@@ -70,6 +63,52 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
             currency: currentBudget.currency,
           };
           platform.budget.push(updatedBudget);
+          platform.save();
+
+          // Add Budget to Product
+          const budget = {
+            year: "2023",
+            budget: request.data,
+            currency: "USD",
+            approvalId: request.id,
+          };
+          product.budget.push(budget);
+          product.save();
+        } else {
+          approvalStatus = "Insufficient Budget available";
+        }
+      }
+
+      if (request.requestedForType === "platform") {
+        // Update Budget Allocated on Parent Org
+        const platform = await Platform.findById(request.requestedForId);
+        const org = await Org.findById(platform.orgId);
+        const currentBudget = org.budget[org.budget.length - 1];
+
+        org.budget.pop(); // Remove last budget and replace with updated Budget
+        const budgetAllocated =
+          parseInt(currentBudget.budgetAllocated) + parseInt(request.data);
+        console.log("budget allocated:", budgetAllocated);
+
+        if (budgetAllocated <= currentBudget.budget) {
+          //Check budget allocation doesn't exceed budget
+          const updatedBudget = {
+            year: currentBudget.year,
+            budget: currentBudget.budget,
+            budgetAllocated,
+            currency: currentBudget.currency,
+          };
+          org.budget.push(updatedBudget);
+          org.save();
+
+          // Add Budget to Platform
+          const budget = {
+            year: "2023",
+            budget: request.data,
+            currency: "USD",
+            approvalId: request.id,
+          };
+          platform.budget.push(budget);
           platform.save();
         } else {
           approvalStatus = "Insufficient Budget available";
