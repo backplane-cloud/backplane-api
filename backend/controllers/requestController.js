@@ -24,6 +24,7 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
   const requester = await User.findById(request.requestedBy);
 
   if (request.approvalStatus === "approved") {
+    // REQUEST - LINK
     if (request.requestType === "link") {
       // Add the App ID to Product.apps
       const product = await Product.findById(request.requestedForId);
@@ -40,16 +41,19 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
       app.save();
     }
 
+    // REQUEST - BUDGET
     if (request.requestType === "budget") {
       if (request.requestedForType === "product") {
         const product = await Product.findById(request.requestedForId);
         const platform = await Platform.findById(product.platformId);
 
         // Update Budget Allocated on Parent Platform
-
         const currentBudget = platform.budget[platform.budget.length - 1];
-
         platform.budget.pop(); // Remove last budget and replace with updated Budget
+
+        // Increase budget allocated
+        console.log("current budget allocated:", currentBudget.budgetAllocated);
+        console.log("request data:", request.data);
         const budgetAllocated =
           parseInt(currentBudget.budgetAllocated) + parseInt(request.data);
         console.log("budget allocated:", budgetAllocated);
@@ -106,6 +110,7 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
             year: "2023",
             budget: request.data,
             currency: "USD",
+            budgetAllocated: 0,
             approvalId: request.id,
           };
           platform.budget.push(budget);

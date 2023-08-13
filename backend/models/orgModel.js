@@ -14,10 +14,6 @@ const budgetSchema = mongoose.Schema({
   budget: Number,
   budgetAllocated: Number,
   currency: String,
-  approvalId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Request",
-  },
 });
 
 const appTypeSchema = mongoose.Schema({
