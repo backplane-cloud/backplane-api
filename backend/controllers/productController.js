@@ -59,8 +59,8 @@ const setProduct = asyncHandler(async (req, res) => {
   // console.log("req.body.orgId:", req.body.orgId);
   // console.log("req.user.orgId:", req.user.orgId);
   // console.log(req.body.orgId === req.user.orgId.toHexString());
-
-  if (req.body.orgId != req.user.orgId.toHexString()) {
+  let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
+  if (orgId != req.user.orgId.toHexString()) {
     res.send("You cannot create Products in Other Orgs");
     return;
   }
@@ -80,8 +80,8 @@ const setProduct = asyncHandler(async (req, res) => {
   const product = await Product.create({
     code: req.body.code,
     name: req.body.name,
-    orgId: req.body.orgId,
-    ownerId: req.body.ownerId,
+    orgId,
+    ownerId: req.body.ownerId ? req.body.ownerId : req.user.id,
     platformId: req.body.platformId,
     status: "active",
     type: "product",
