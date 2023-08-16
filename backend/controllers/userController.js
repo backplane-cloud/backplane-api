@@ -169,6 +169,21 @@ const registerUser = asyncHandler(async (req, res) => {
     orgId: org.id,
   });
 
+  // Create Contributor and Reader RBAC Roles for Org
+  await setInternalRole({
+    name: `Contributor for ${org.name}`,
+    type: "builtin",
+    allowActions: [`/write`, `/delete`],
+    orgId: org.id,
+  });
+
+  await setInternalRole({
+    name: `Reader for ${org.name}`,
+    type: "builtin",
+    allowActions: [`/read`],
+    orgId: org.id,
+  });
+
   // Raise Event to Send Welcome E-mail
   events.emit(
     "newUserRegistered",
