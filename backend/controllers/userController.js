@@ -1,23 +1,75 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
+import Org from "../models/orgModel.js";
+
 import generateToken from "../utils/generateToken.js";
+
+import nodemailer from "nodemailer";
+import EventEmitter from "events";
 
 import {
   getUserAssignments,
   getTeamAssignments,
-  getAssignments,
+  setAssignment,
 } from "../controllers/assignmentController.js";
 import {
-  getInternalRoles,
+  setInternalRole,
   getInternalRoleActions,
 } from "../controllers/roleController.js";
+
+import { setOrg } from "../controllers/orgController.js";
+
+//create an object of EventEmitter class by using above reference
+const events = new EventEmitter();
+
+events.on("newUserRegistered", async function (name, email, orgId, userType) {
+  const org = await Org.findById(orgId);
+
+  const transporter = nodemailer.createTransport({
+    host: "smtp.mailersend.net",
+    port: 587,
+    //secure: true,
+    auth: {
+      user: process.env.MAILSENDER_USERNAME,
+      pass: process.env.MAILSENDER_PASSWORD,
+    },
+  });
+
+  // async..await is not allowed in global scope, must use a wrapper
+  async function main() {
+    // send mail with defined transport object
+    const info = await transporter.sendMail({
+      from: '"Backplane" <lewis@backplane.cloud>', // sender address
+      to: email, //"lewis@backplane.cloud", // list of receivers
+      subject: `Welcome ${name} `, // Subject line
+      text: "", // plain text body
+      html: `
+<h2>Welcome, ${name}</h2>
+        
+Your Backplane account is now ready to use for Organisation: <b>${org.name}</b>
+
+<br/><br/>
+<b>Username</b>: ${email}<br/>
+<b>User Type</b>: ${userType}
+
+        `, // html body
+    });
+    //console.log(info);
+    console.log("Message sent: %s", info.messageId);
+    // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+  }
+
+  main().catch(console.error);
+});
 
 // @desc    Get Users
 // route    GET /api/users
 // @access  Private
 
 const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find();
+  const users = await User.find(
+    req.user.userType != "root" ? { orgId: req.user.orgId } : null
+  );
   if (users) {
     res.status(200).json(users);
   } else {
@@ -63,28 +115,68 @@ const getUserInternal = asyncHandler(async (req, res) => {
 // @access  Public
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, orgId, userType } = req.body;
+  //const { name, email, password, userType, orgName } = req.body
 
   // Validate data supplied
-  if (!name || !email || !password) {
+  if (!req.body.name || !req.body.email || !req.body.password) {
     res.status(400);
     throw new Error("Please add name, email and password");
   }
 
   // Check User doesn't already exist
-  const userExists = await User.findOne({ email });
+  const userExists = await User.findOne({ email: req.body.email });
   if (userExists) {
     res.status(400);
     throw new Error("User already exists");
   }
 
+  // Create Org
+  let name = req.body.orgName;
+  // let owner = "1";
+  const org = await setOrg({ name });
+  console.log("org:", org);
+
+  // Create User
   const user = await User.create({
-    name,
-    email,
-    password,
-    orgId,
-    userType,
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    userType: req.body.userType,
+    orgId: org.id,
   });
+  console.log("Created User", User.name);
+
+  // Update Owner on Org
+  await Org.findByIdAndUpdate(org.id, { ownerId: user.id });
+  console.log("Updated Org Owner ID", Org.name);
+
+  // Create Role
+  const role = await setInternalRole({
+    name: `Org Owner for ${org.name}`,
+    type: "builtin",
+    allowActions: [`/write`, `/delete`, `/read`],
+    orgId: org.id,
+  });
+  console.log(role);
+
+  // Create Assignment
+  setAssignment({
+    type: "user",
+    principal: user.id,
+    principalRef: "User",
+    scope: `/orgs/${org.id}`,
+    role: role.id,
+    orgId: org.id,
+  });
+
+  // Raise Event to Send Welcome E-mail
+  events.emit(
+    "newUserRegistered",
+    req.body.name,
+    req.body.email,
+    org.id,
+    req.body.userType
+  );
 
   if (user) {
     generateToken(res, user._id);
@@ -101,6 +193,9 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Create a new user within existing Org
+// route    POST /api/users/create
+// @access  Public
 const createUser = asyncHandler(async (req, res) => {
   const { name, email, password, userType } = req.body;
 

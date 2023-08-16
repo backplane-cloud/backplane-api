@@ -203,7 +203,9 @@ events.on(
 // @route GET /api/requests
 // @access Private
 const getRequests = asyncHandler(async (req, res) => {
-  const requests = await Request.find();
+  const requests = await Request.find(
+    req.user.userType != "root" ? { orgId: req.user.orgId } : null
+  );
   if (requests) {
     res.status(200).json(requests);
   } else {

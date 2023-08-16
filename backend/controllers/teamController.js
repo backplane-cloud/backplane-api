@@ -7,7 +7,9 @@ import User from "../models/userModel.js";
 // @route GET /api/teams
 // @access Private
 const getTeams = asyncHandler(async (req, res) => {
-  const teams = await Team.find();
+  const teams = await Team.find(
+    req.user.userType != "root" ? { orgId: req.user.orgId } : null
+  );
 
   if (teams) {
     res.status(200).json(teams);
@@ -45,7 +47,7 @@ const setTeam = asyncHandler(async (req, res) => {
     //members: req.body.members,
     owners: req.body.owner,
     scope: `/orgs/${req.user.orgId}${req.body.scope}`,
-    orgId: req.user.orgId,
+    orgId: req.body.orgid || req.user.orgId,
   });
   console.log(team);
   res.status(200).json(team);

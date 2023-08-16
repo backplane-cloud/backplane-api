@@ -6,7 +6,9 @@ import Role from "../models/roleModel.js";
 // @route GET /api/roles
 // @access Private
 const getRoles = asyncHandler(async (req, res) => {
-  const roles = await Role.find();
+  const roles = await Role.find(
+    req.user.userType != "root" ? { orgId: req.user.orgId } : null
+  );
   if (roles) {
     res.status(200).json(roles);
   } else {
@@ -88,6 +90,24 @@ const setRole = asyncHandler(async (req, res) => {
   });
   console.log(role);
   res.status(200).json(role);
+});
+
+// @desc  Create Role
+// @route POST /api/roles
+// @access Private
+const setInternalRole = asyncHandler(async (req, res) => {
+  //   if (!req.body.text) {
+  //     res.status(400);
+  //     throw new Error("Please add a text field");
+  //   }
+  req.body = req;
+  // console.log(req.body);
+  // return;
+  const role = await Role.create({
+    ...req.body,
+  });
+
+  return role;
 });
 
 // @desc  Update Role
@@ -202,4 +222,5 @@ export {
   deleteRoleActions,
   getInternalRoles,
   getInternalRoleActions,
+  setInternalRole,
 };

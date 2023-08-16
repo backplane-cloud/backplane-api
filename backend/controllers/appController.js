@@ -28,7 +28,7 @@ const getApps = asyncHandler(async (req, res) => {
     req.user.userType != "root" ? { orgId: req.user.orgId } : null
   );
 
-  if (!(apps.length === 0)) {
+  if (apps) {
     res.status(200).json(apps);
   } else {
     res.status(400);

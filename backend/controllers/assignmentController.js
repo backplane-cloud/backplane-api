@@ -98,6 +98,9 @@ const setAssignment = asyncHandler(async (req, res) => {
   For Team Assignments, the Assignment cannot be at a higher scope than the Team is scoped to. 
   For example a platform level team cannot be assigned at an Org level. 
   */
+  if (!req.body) {
+    req.body = req; // This is for internal code calls for Registering first user
+  }
 
   if (req.body.type === "team") {
     // Get Team Scope
@@ -130,13 +133,21 @@ const setAssignment = asyncHandler(async (req, res) => {
     return;
   }
 
-  const assignment = await Assignment.create({
-    ...req.body,
-    orgId: req.user.orgId,
-    createdBy: req.user.id,
-  });
-  console.log(req.body);
-  res.status(200).json(assignment);
+  let assignment;
+  if (req.user) {
+    assignment = await Assignment.create({
+      ...req.body,
+      orgId: req.user.orgId,
+      createdBy: req.user.id,
+    });
+    console.log(req.body);
+    res.status(200).json(assignment);
+  } else {
+    assignment = await Assignment.create({
+      ...req.body,
+    });
+    return;
+  }
 });
 
 // @desc  Update Assignment

@@ -6,7 +6,9 @@ import Service from "../models/serviceModel.js";
 // @route GET /api/services
 // @access Private
 const getServices = asyncHandler(async (req, res) => {
-  const services = await Service.find();
+  const services = await Service.find(
+    req.user.userType != "root" ? { orgId: req.user.orgId } : null
+  );
   if (services) {
     res.status(200).json(services);
   } else {

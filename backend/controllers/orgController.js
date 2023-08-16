@@ -51,8 +51,18 @@ const getOrg = asyncHandler(async (req, res) => {
 // @route POST /api/orgs
 // @access Private
 const setOrg = asyncHandler(async (req, res) => {
+  let post;
+  if (!req.body) {
+    req.body = req;
+    post = false;
+  } else {
+    post = true;
+  }
+  console.log("req body", req.body);
+
   // Check if Org already exists
-  const exists = await Org.findOne({ code: req.body.code });
+  const code = req.body.name.toLowerCase().replace(" ", "-");
+  const exists = await Org.findOne({ code });
   if (exists) {
     console.log(exists);
     res.status(400);
@@ -61,24 +71,63 @@ const setOrg = asyncHandler(async (req, res) => {
 
   // Create New Org
 
+  // Set Default App Type
+  const appType = {
+    name: "default",
+    description: "Default App Type",
+    services: ["github"],
+  };
+
+  // Set Default Budget
+  const budget = [
+    {
+      year: new Date().getFullYear(),
+      budget: req.body.budget || 0,
+      budgetAllocated: 0,
+      currency: req.body.currency || "USD",
+    },
+  ];
+  console.log("Budget:", budget);
+  console.log("Code:", req.body.name.toLowerCase().replace(" ", "-"));
+  console.log(appType);
+
   // If request from CLI then JSON.parse not required.
   let csp = "";
-  csp = req.cookies.jwt ? JSON.parse(req.body.csp) : req.body.csp;
+  if (req.cookies) {
+    csp = req.cookies.jwt ? JSON.parse(req.body.csp) : req.body.csp;
+  } else {
+    csp = req.body.csp;
+  }
 
   const org = await Org.create({
-    code: req.body.code,
+    code,
     name: req.body.name,
     license: req.body.license,
     type: req.body.type,
     status: req.body.status,
-    ownerId: req.body.owner,
+    //ownerId: req.body.owner || req.user.id,
     status: "active",
     type: "org",
     csp,
-    appType: req.body.appType,
+    appType,
+    budget,
   });
-  console.log(req.body);
-  res.status(200).json(org);
+
+  // console.log(req.body);
+  // console.log({
+  //   name: `Org Owner for ${org.name}`,
+  //   type: "builtin",
+  //   allowActions: `/orgs/${org.id}/write,/orgs/${org.id}/delete,/orgs/${org.id}/read,`,
+  //   orgId: org.id,
+  // });
+  // return;
+
+  if (post) {
+    res.status(200); // Only valid when request is from HTTP Post
+    res.json(org);
+  } else {
+    return org;
+  }
 });
 
 // @desc  Update Org
