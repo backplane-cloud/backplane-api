@@ -60,6 +60,7 @@ const setProduct = asyncHandler(async (req, res) => {
   // console.log("req.user.orgId:", req.user.orgId);
   // console.log(req.body.orgId === req.user.orgId.toHexString());
   let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
+  let code = req.body.name.toLowerCase().replace(" ", "-");
   if (orgId != req.user.orgId.toHexString()) {
     res.send("You cannot create Products in Other Orgs");
     return;
@@ -67,9 +68,10 @@ const setProduct = asyncHandler(async (req, res) => {
 
   // Check if Product already exists
   const exists = await Product.findOne({
-    code: req.body.code,
-    Id: req.body.orgId,
+    code,
+    id: orgId,
   });
+
   if (exists) {
     console.log(exists);
     res.status(400);
@@ -78,7 +80,7 @@ const setProduct = asyncHandler(async (req, res) => {
 
   // Create New Product
   const product = await Product.create({
-    code: req.body.code,
+    code,
     name: req.body.name,
     orgId,
     ownerId: req.body.ownerId ? req.body.ownerId : req.user.id,
