@@ -23,6 +23,9 @@ const productSchema = mongoose.Schema(
       type: String,
       required: [true, "Please add a Name value"],
     },
+    description: {
+      type: String,
+    },
     type: {
       type: String,
     },
