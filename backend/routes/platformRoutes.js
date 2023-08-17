@@ -22,6 +22,6 @@ router
   .put(protect, authz, updatePlatform)
   .delete(protect, authz, deletePlatform);
 
-router.route("/:id/requests").get(protect, getPlatformRequests);
+router.route("/:id/requests").get(protect, authz, getPlatformRequests);
 
 export default router;
