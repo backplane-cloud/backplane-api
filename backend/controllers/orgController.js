@@ -215,7 +215,7 @@ const deleteOrg = asyncHandler(async (req, res) => {
 // @route GET /api/orgs/:id/requests
 // @access Private
 const getOrgRequests = asyncHandler(async (req, res) => {
-  const requests = await Request.find({ requestedForId: req.params.id });
+  const requests = await Request.find({ orgId: req.params.id });
   if (requests) {
     res.status(200).json(requests);
   } else {
