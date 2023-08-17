@@ -19,6 +19,6 @@ router
   .put(protect, authz, updateOrg)
   .delete(protect, authz, deleteOrg);
 
-router.route("/:id/requests").get(protect, getOrgRequests);
+router.route("/:id/requests").get(protect, authz, getOrgRequests);
 
 export default router;
