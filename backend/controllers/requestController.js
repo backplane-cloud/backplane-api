@@ -76,7 +76,7 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
             currency: "USD",
             approvalId: request.id,
           };
-          product.budget.push(budget);
+          product.budget = [budget];
           product.save();
         } else {
           approvalStatus = "Insufficient Budget available";
@@ -113,7 +113,7 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
             budgetAllocated: 0,
             approvalId: request.id,
           };
-          platform.budget.push(budget);
+          platform.budget = [budget];
           platform.save();
         } else {
           approvalStatus = "Insufficient Budget available";
@@ -325,14 +325,16 @@ const approveRequest = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Request not found");
   }
-
+  console.log("payload:", request.approvalCode, req.query.code);
   if (request.approvalCode === req.query.code) {
+    console.log("Approval Code Successfully Validated");
     if (
       request.approvalStatus != "approved" &&
       request.approvalStatus != "rejected"
     ) {
       request.approvalStatus = "approved";
       request.save();
+      console.log("Emitting Approval Event");
       events.emit(
         "approvalRequest",
         request.id,
