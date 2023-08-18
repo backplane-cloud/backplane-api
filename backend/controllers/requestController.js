@@ -113,6 +113,7 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
             budgetAllocated: 0,
             approvalId: request.id,
           };
+          console.log("platform budget:", budget);
           platform.budget = [budget];
           platform.save();
         } else {
