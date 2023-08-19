@@ -141,7 +141,7 @@ const registerUser = asyncHandler(async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    userType: req.body.userType,
+    userType: "Organisation Owner",
     orgId: org.id,
   });
   console.log("Created User", User.name);

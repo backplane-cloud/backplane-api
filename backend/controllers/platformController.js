@@ -41,8 +41,10 @@ const getPlatform = asyncHandler(async (req, res) => {
 // @access Private
 const setPlatform = asyncHandler(async (req, res) => {
   // Check if Platform already exists
+  let code = req.body.name.toLowerCase().replace(" ", "-");
+
   const exists = await Platform.findOne({
-    code: req.body.code,
+    code,
     orgId: req.user.orgId,
   });
   if (exists) {
@@ -53,11 +55,9 @@ const setPlatform = asyncHandler(async (req, res) => {
 
   // Create New Platform
   const platform = await Platform.create({
-    code: req.body.code,
+    code,
     name: req.body.name,
-    // orgId: req.body.orgId,
     orgId: req.user.orgId,
-    // ownerId: req.body.ownerId,
     ownerId: req.user.id,
     status: "active",
     type: "platform",

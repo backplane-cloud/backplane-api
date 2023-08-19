@@ -68,9 +68,13 @@ const getAppRequests = asyncHandler(async (req, res) => {
 // @access Private
 const setApp = asyncHandler(async (req, res) => {
   // Check if App already exists
+  let ownerId = req.body.ownerId ? req.body.ownerId : req.user.id;
+  let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
+  let code = req.body.name.toLowerCase().replace(" ", "-");
+
   const exists = await App.findOne({
-    code: req.body.code,
-    orgId: req.body.orgId,
+    code,
+    orgId,
   });
   if (exists) {
     console.log(exists);
@@ -81,7 +85,17 @@ const setApp = asyncHandler(async (req, res) => {
   }
 
   // Get Org
-  const org = await Org.findById(req.body.orgId);
+  const org = await Org.findById(orgId);
+
+  if (!org.csp) {
+    res.send("No Cloud Credentials Specified for Org, aborting App Creation");
+    return;
+  }
+
+  // Get Cloud Credentials from Org
+  const cloudCredentials = org.csp.find(
+    (cloud) => cloud.provider === req.body.cloud
+  );
 
   console.log(`App ${req.body.name} belongs to Organisation ${org.name}`);
 
@@ -97,21 +111,17 @@ const setApp = asyncHandler(async (req, res) => {
   const apikey = serviceObj.apikey;
   const url = serviceObj.url;
 
-  console.log("Creating Repo" + req.body.code);
+  console.log(`Creating Repo: ${code}`);
+
   const repo = await axios.post(
     url,
     {
-      name: req.body.code,
+      name: code,
       description: "Backplane Generated Repo",
     },
     { headers: { Authorization: "Bearer " + apikey } }
   );
   console.log(repo.data.full_name, repo.data.owner.html_url);
-
-  // Get Cloud Credentials from Org
-  const cloudCredentials = org.csp.find(
-    (cloud) => cloud.provider === req.body.cloud
-  );
 
   // Set Environs for Account Creation
   const environs = ["prod", "nonprod", "test", "dev"];
@@ -185,9 +195,9 @@ const setApp = asyncHandler(async (req, res) => {
 
     // Create New App
     const app = await App.create({
-      orgId: req.body.orgId,
-      ownerId: req.body.ownerId,
-      code: req.body.code,
+      orgId,
+      ownerId,
+      code,
       name: req.body.name,
       cloud: req.body.cloud,
       environments: environments,
@@ -202,7 +212,7 @@ const setApp = asyncHandler(async (req, res) => {
 
   // GCP CODE
   if (req.body.cloud === "gcp") {
-    const projectName = `bp-${org.code}-${req.body.code}-prod`;
+    const projectName = `bp-${org.code}-${code}-prod`;
     const projectId = projectName.toLowerCase();
     const project = projectId;
     console.log(`Creating GCP App ${projectId}`);
@@ -242,9 +252,9 @@ const setApp = asyncHandler(async (req, res) => {
 
       // Create New App
       const app = await App.create({
-        orgId: req.body.orgId,
-        ownerId: req.body.ownerId,
-        code: req.body.code,
+        orgId,
+        ownerId,
+        code,
         name: req.body.name,
         cloud: req.body.cloud,
         environments: project,
