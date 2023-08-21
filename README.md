@@ -1,6 +1,6 @@
-# Backplane 
+# Backplane Core
 
-Backplane is an open source cloud abstraction API.   
+Backplane Core is an open source cloud abstraction API.   
 
 The vision for Backplane is to build an abstracted Cloud API to remove the development complexity with interfacing with multiple public cloud providers. 
 
