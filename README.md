@@ -144,7 +144,7 @@ Apps are allowed to be created immediately, this is part of the self-service dev
 
 > [!NOTE]
 > A product can contain multiple Apps. Apps are the cloud workload, and will contain environments and a repository.
-> 
+
 
 Congratulations, you have setup Backplane, configured your Org, Platform and created a Product and created an App. 
 
@@ -153,3 +153,7 @@ To link an app to a Product:
 `bp request add --requestType link --requestedForType product --requestedForId <productId>`
 
 And once approved, the `productId` of the App becomes the actual Product it is linked to, and the Product keeps an array of linked Apps. 
+
+You can now run `bp org show --id <orgId> --tree` to see a visual hierarchy on the terminal. The CLI walkthrough in this getting started represents a new setup. Apps can be created quickly and easily, with the segregated concerns of account provisioning, resource provider registering, access implementation being left to Backplane API. 
+
+
