@@ -59,8 +59,9 @@ const getAccess = asyncHandler(async (req, res) => {
 
   async function roleAssignments_listForResourceGroup() {
     let result = [];
+
     for await (const item of client.roleAssignments.listForResourceGroup(
-      "backplane-prod"
+      "backplane-prod" // Need to reafactor this code so it retrieves the Resource Groups for the app object. i.e. app.environments.map(env =>...)
     )) {
       result.push(item);
     }
