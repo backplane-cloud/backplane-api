@@ -159,7 +159,7 @@ const setApp = asyncHandler(async (req, res) => {
       };
 
       for (let env of environs) {
-        let resourceGroupName = `_bp-${org.code}-${req.body.code}-${env}`;
+        let resourceGroupName = `_bp-${org.code}-${req.body.name}-${env}`;
         console.log("\n Creating resource group: " + resourceGroupName);
         const resCreate = await resourceClient.resourceGroups.createOrUpdate(
           resourceGroupName,

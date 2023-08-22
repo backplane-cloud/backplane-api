@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@azure/arm-authorization": "^9.0.0",
     "@azure/arm-billing": "^4.1.0",
+    "@azure/arm-policy": "^5.1.0",
     "@azure/arm-resources": "^5.2.0",
     "@azure/arm-subscriptions": "^5.1.0",
     "@azure/identity": "^3.2.3",

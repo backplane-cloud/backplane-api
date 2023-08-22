@@ -18,6 +18,8 @@ import appRoutes from "./routes/appRoutes.js";
 import requestRoutes from "./routes/requestRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 
+import cloudRoutes from "./routes/cloudRoutes.js";
+
 dotenv.config();
 
 connectDB();
@@ -42,6 +44,8 @@ app.use("/api/apps", appRoutes);
 
 app.use("/api/requests", requestRoutes);
 app.use("/api/services", serviceRoutes);
+
+app.use("/api/cloud", cloudRoutes);
 
 app.get("/", (req, res) => res.send("Backplane REST API Server is ready"));
 
