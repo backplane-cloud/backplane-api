@@ -57,6 +57,7 @@ Apps are the actual cloud workload can can reside in any cloud service provider 
 | `/roles` | Roles are a set of allowed actions and these are used in the Authorisation middleware to provide fine grained access controls |
 | `/assignments` | A security principal such as a User or Team can be Assigned a Role at the scope of Org, Platform, Product or App |
 | `/auth` | This is used for Authentication, whereby a JWT will be issued as a HTTP-only cookie if client is a web browser |
+| `/cloud` | The Cloud Service Providers' cost, access and policy data is exposed from this endpoint e.g. `/cloud/azure/cost/:id` |
 
 Please refer to the technical documentation for more details. 
 
