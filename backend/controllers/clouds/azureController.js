@@ -15,7 +15,7 @@ import { AuthorizationManagementClient } from "@azure/arm-authorization";
 import { PolicyClient } from "@azure/arm-policy";
 
 // GET ACCESS ASSIGNMENTS
-const getAccess = asyncHandler(async (req, res) => {
+const getAzureAccess = asyncHandler(async (req, res) => {
   // Get App
   const app = await App.findById(req.params.id);
   if (!app) {
@@ -46,6 +46,7 @@ const getAccess = asyncHandler(async (req, res) => {
   const subscription = app.environments.map(
     (env) => env.accountId.split("/")[2]
   )[0];
+  console.log(subscription);
 
   async function roleAssignments_listForScope() {
     let result = [];
@@ -58,14 +59,22 @@ const getAccess = asyncHandler(async (req, res) => {
   }
 
   async function roleAssignments_listForResourceGroup() {
-    let result = [];
+    let masterResult = [];
+    const resultArr = await Promise.all(
+      app.environments.map(async (env) => {
+        let result = [];
+        let rg = env.accountId.split("/")[4];
+        console.log(rg);
+        for await (const item of client.roleAssignments.listForResourceGroup(
+          rg
+        )) {
+          result.push(item);
+        }
+        masterResult.push({ environment: env, assignments: result });
+      })
+    );
 
-    for await (const item of client.roleAssignments.listForResourceGroup(
-      "backplane-prod" // Need to reafactor this code so it retrieves the Resource Groups for the app object. i.e. app.environments.map(env =>...)
-    )) {
-      result.push(item);
-    }
-    return result;
+    return masterResult;
   }
 
   let client = {};
@@ -80,7 +89,7 @@ const getAccess = asyncHandler(async (req, res) => {
 });
 
 // GET POLICY ASSIGNMENTS
-const getPolicy = asyncHandler(async (req, res) => {
+const getAzurePolicy = asyncHandler(async (req, res) => {
   // Get App
   const app = await App.findById(req.params.id);
   if (!app) {
@@ -134,7 +143,7 @@ const getPolicy = asyncHandler(async (req, res) => {
 });
 
 // GET BILLING
-const getCost = asyncHandler(async (req, res) => {
+const getAzureCost = asyncHandler(async (req, res) => {
   console.log;
   // Get App
   const app = await App.findById(req.params.id);
@@ -229,4 +238,4 @@ const getCost = asyncHandler(async (req, res) => {
     });
 });
 
-export { getCost, getAccess, getPolicy };
+export { getAzureCost, getAzureAccess, getAzurePolicy };
