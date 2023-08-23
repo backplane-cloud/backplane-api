@@ -6,6 +6,13 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 import Service from "../models/serviceModel.js";
 
+import {
+  getAzureCost,
+  getAzureAccess,
+  getAzurePolicy,
+  createAzureEnv,
+} from "./clouds/azureController.js";
+
 // Azure SDK API
 import { ClientSecretCredential } from "@azure/identity";
 import { SubscriptionClient } from "@azure/arm-subscriptions";
@@ -70,7 +77,7 @@ const setApp = asyncHandler(async (req, res) => {
   // Check if App already exists
   let ownerId = req.body.ownerId ? req.body.ownerId : req.user.id;
   let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
-  let code = req.body.name.toLowerCase().replace(" ", "-");
+  let code = req.body.name.trim().toLowerCase().replace(" ", "-");
 
   const exists = await App.findOne({
     code,
@@ -83,6 +90,14 @@ const setApp = asyncHandler(async (req, res) => {
       `App ${req.body.code} already exists for this organisation.`
     );
   }
+
+  /*
+    Lookup Org.apptype so that the correct services and environments can be created. 
+
+    For example, appType sandbox will have appType.environs = ['sandbox']
+
+    This way the create environment call will just create a sandbox RG. 
+  */
 
   // Get Org
   const org = await Org.findById(orgId);
@@ -123,92 +138,32 @@ const setApp = asyncHandler(async (req, res) => {
   );
   console.log(repo.data.full_name, repo.data.owner.html_url);
 
-  // Set Environs for Account Creation
-  const environs = ["prod", "nonprod", "test", "dev"];
+  // Create Azure Environs - calls azureController.js
+  const subscriptionId = "2a04f460-f517-4085-808d-7877fd30ea72";
+  const environs = ["prod", "nonprod", "test", "dev"]; // Update this to retrieve from appType.environs
+  const environments = await createAzureEnv({
+    cloudCredentials,
+    environs,
+    subscriptionId,
+    orgId,
+    orgCode: org.code,
+    appCode: code,
+  });
 
-  // AZURE API CODE
-  if (req.body.cloud === "azure") {
-    console.log(`Cloud Credentials: ${cloudCredentials}`);
-    const tenantId = cloudCredentials.tenantId;
-    const clientId = cloudCredentials.clientId;
-    const clientSecret = cloudCredentials.clientSecret;
-    const subscriptionId = "2a04f460-f517-4085-808d-7877fd30ea72";
-
-    // Authenticate to Cloud Platform
-    const credentials = new ClientSecretCredential(
-      tenantId,
-      clientId,
-      clientSecret
-    );
-
-    // Do something in the Cloud platform.
-
-    // Azure services
-    const resourceClient = new ResourceManagementClient(
-      credentials,
-      subscriptionId
-    );
-
-    // Create Resource Groups
-    const location = "ukwest";
-
-    async function createResourceGroups() {
-      let collectResults = [];
-      const groupParameters = {
-        location: location,
-      };
-
-      for (let env of environs) {
-        let resourceGroupName = `_bp-${org.code}-${req.body.name}-${env}`;
-        console.log("\n Creating resource group: " + resourceGroupName);
-        const resCreate = await resourceClient.resourceGroups.createOrUpdate(
-          resourceGroupName,
-          groupParameters
-        );
-
-        collectResults.push(resCreate);
-      }
-
-      return collectResults;
-    }
-
-    const rgResult = await createResourceGroups();
-    //console.log("Environments:", rgResult);
-
-    // Build Environment Array of Object for App document
-    //const environments = [];
-    const getenvirons = () => {
-      let collectEnv = [];
-      for (let environ of environs) {
-        collectEnv.push({
-          name: environ,
-          accountId: rgResult[environs.indexOf(environ)].id,
-          spn: {},
-        });
-      }
-      return collectEnv;
-    };
-
-    const environments = getenvirons();
-
-    console.log("Environments:", environments);
-
-    // Create New App
-    const app = await App.create({
-      orgId,
-      ownerId,
-      code,
-      name: req.body.name,
-      cloud: req.body.cloud,
-      environments: environments,
-      type: "app",
-      status: "active",
-      repo: repo.data.full_name,
-    });
-    console.log(`App Successfully Provisioned in ${req.body.cloud}`);
-
-    res.status(200).json({ rgResult, app });
-  }
+  // Create New App
+  const app = await App.create({
+    orgId,
+    ownerId,
+    code,
+    name: req.body.name,
+    cloud: req.body.cloud,
+    environments: environments,
+    type: "app",
+    status: "active",
+    repo: repo.data.full_name,
+  });
+  console.log(`App Successfully Provisioned in ${req.body.cloud}`);
+  res.status(200).json({ app });
 
   // GCP CODE
   if (req.body.cloud === "gcp") {
