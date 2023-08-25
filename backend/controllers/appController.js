@@ -77,7 +77,7 @@ const setApp = asyncHandler(async (req, res) => {
   // Check if App already exists
   let ownerId = req.body.ownerId ? req.body.ownerId : req.user.id;
   let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
-  let code = req.body.name.trim().toLowerCase().replace(" ", "-");
+  let code = req.body.name.trim().toLowerCase().replace(/\s+/g, "-");
 
   const exists = await App.findOne({
     code,
