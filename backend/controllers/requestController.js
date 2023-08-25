@@ -25,20 +25,23 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
 
   if (request.approvalStatus === "approved") {
     // REQUEST - LINK
+
     if (request.requestType === "link") {
       // Add the App ID to Product.apps
       const product = await Product.findById(request.requestedForId);
+
       if (product.apps.includes(data)) {
         console.log(`Requested App is already linked to ${product.name}`);
         return;
       }
+
       product.apps.push(request.data);
-      product.save();
+      await product.save();
 
       // Update App with parent Product ID
       const app = await App.findById(request.data);
       app.productId = request.requestedForId;
-      app.save();
+      await app.save();
     }
 
     // REQUEST - BUDGET
