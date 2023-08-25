@@ -178,16 +178,16 @@ const updateOrg = asyncHandler(async (req, res) => {
     };
   }
 
-  if (req.body.appType) {
+  if (req.body.appTemplate) {
     // console.log(JSON.parse(req.body.appType));
     // return;
-    let appType = req.cookies.jwt
-      ? JSON.parse(req.body.appType)
-      : req.body.appType;
+    let appTemplate = req.cookies.jwt
+      ? JSON.parse(req.body.appTemplate)
+      : req.body.appTemplate;
 
     updateOrg = {
       ...updateOrg,
-      appType,
+      appTemplate,
     };
   }
 

@@ -52,6 +52,10 @@ const appSchema = mongoose.Schema(
       type: String,
       required: [false, "Please add type e.g. ..."],
     },
+    appTemplate: {
+      type: String,
+      required: [false, "Please add type e.g. ..."],
+    },
     repo: {
       type: String,
       required: [false, "Please add a Name value e.g. 'My App'"],

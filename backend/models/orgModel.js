@@ -16,11 +16,12 @@ const budgetSchema = mongoose.Schema({
   currency: String,
 });
 
-const appTypeSchema = mongoose.Schema({
+const appTemplateSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
   name: String,
   description: String,
   services: [String],
+  environments: [String],
 });
 
 const orgSchema = mongoose.Schema(
@@ -56,7 +57,10 @@ const orgSchema = mongoose.Schema(
       type: [budgetSchema],
       default: undefined,
     },
-    appType: [appTypeSchema],
+    appTemplate: {
+      type: [appTemplateSchema],
+      default: undefined,
+    },
   },
   {
     timestamps: true,

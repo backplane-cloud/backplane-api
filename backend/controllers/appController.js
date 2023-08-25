@@ -116,51 +116,64 @@ const setApp = asyncHandler(async (req, res) => {
 
   // Create Repo
   // Get appType from Org
-  const apptype = req.body.type ? req.body.type : "default";
-  const appType = org.appType.find((type) => type.name === apptype);
-
-  const service = appType.services[0];
-
-  // Get Service
-  const serviceObj = await Service.findOne({ code: service });
-  const apikey = serviceObj.apikey;
-  const url = serviceObj.url;
-
-  console.log(`Creating Repo: ${code}`);
-
-  const repo = await axios.post(
-    url,
-    {
-      name: code,
-      description: "Backplane Generated Repo",
-    },
-    { headers: { Authorization: "Bearer " + apikey } }
+  const apptemplate = req.body.template ? req.body.template : "default";
+  const appTemplate = org.appTemplate.find(
+    (template) => template.name === apptemplate
   );
-  console.log(repo.data.full_name, repo.data.owner.html_url);
 
-  // Create Azure Environs - calls azureController.js
-  const subscriptionId = "2a04f460-f517-4085-808d-7877fd30ea72";
-  const environs = ["prod", "nonprod", "test", "dev"]; // Update this to retrieve from appType.environs
-  const environments = await createAzureEnv({
-    cloudCredentials,
-    environs,
-    subscriptionId,
-    orgId,
-    orgCode: org.code,
-    appCode: code,
-  });
+  let repo;
+  if (appTemplate.services.length != 0) {
+    const service = appTemplate.services[0]; // Need to Map through other services and genericify this code
+
+    // Get Service
+    const serviceObj = await Service.findOne({ code: service });
+    const apikey = serviceObj.apikey;
+    const url = serviceObj.url;
+
+    console.log(`Creating Repo: ${code}`);
+
+    repo = await axios.post(
+      url,
+      {
+        name: code,
+        description: "Backplane Generated Repo",
+      },
+      { headers: { Authorization: "Bearer " + apikey } }
+    );
+
+    console.log(repo.data.full_name, repo.data.owner.html_url);
+  }
+
+  let environments;
+  if (req.body.cloud === "azure") {
+    // Create Azure Environs - calls azureController.js
+    const subscriptionId = "2a04f460-f517-4085-808d-7877fd30ea72";
+    //const environs = ["prod", "nonprod", "test", "dev"]; // Update this to retrieve from appType.environs
+    const environs = appTemplate.environments;
+
+    environments = await createAzureEnv({
+      cloudCredentials,
+      environs,
+      subscriptionId,
+      orgId,
+      orgCode: org.code,
+      appCode: code,
+    });
+  }
 
   // Create New App
+
   const app = await App.create({
     orgId,
     ownerId,
     code,
     name: req.body.name,
     cloud: req.body.cloud,
-    environments: environments,
+    environments,
     type: "app",
+    appTemplate: apptemplate,
     status: "active",
-    repo: repo.data.full_name,
+    repo: req.body.template === "sandbox" ? "No Repo" : repo.data.full_name,
   });
   console.log(`App Successfully Provisioned in ${req.body.cloud}`);
   res.status(200).json({ app });
