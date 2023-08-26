@@ -13,16 +13,12 @@ import {
   createAzureEnv,
 } from "./clouds/azureController.js";
 
-// Azure SDK API
-import { ClientSecretCredential } from "@azure/identity";
-import { SubscriptionClient } from "@azure/arm-subscriptions";
-import { BillingManagementClient } from "@azure/arm-billing";
-import { ResourceManagementClient } from "@azure/arm-resources";
-
-// GCP SDK API
-import { ProjectsClient } from "@google-cloud/resource-manager";
-import { CloudBillingClient } from "@google-cloud/billing";
-import { BigQuery } from "@google-cloud/bigquery";
+import {
+  getGCPCost,
+  getGCPAccess,
+  getGCPPolicy,
+  createGCPEnvironments,
+} from "./clouds/gcpController.js";
 
 // GITHUB REPO
 import axios from "axios";
@@ -73,8 +69,9 @@ const getAppRequests = asyncHandler(async (req, res) => {
 // @desc  Create App
 // @route POST /api/apps
 // @access Private
+
 const setApp = asyncHandler(async (req, res) => {
-  // Check if App already exists
+  // Check if App already exists in Organisation
   let ownerId = req.body.ownerId ? req.body.ownerId : req.user.id;
   let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
   let code = req.body.name.trim().toLowerCase().replace(/\s+/g, "-");
@@ -91,36 +88,29 @@ const setApp = asyncHandler(async (req, res) => {
     );
   }
 
-  /*
-    Lookup Org.apptype so that the correct services and environments can be created. 
-
-    For example, appType sandbox will have appType.environs = ['sandbox']
-
-    This way the create environment call will just create a sandbox RG. 
-  */
-
   // Get Org
   const org = await Org.findById(orgId);
 
   if (!org.csp) {
+    // Check for Cloud Service Provider Credentials
     res.send("No Cloud Credentials Specified for Org, aborting App Creation");
     return;
   }
 
-  // Get Cloud Credentials from Org
+  // Get Cloud Credentials from Org for Cloud
   const cloudCredentials = org.csp.find(
     (cloud) => cloud.provider === req.body.cloud
   );
 
   console.log(`App ${req.body.name} belongs to Organisation ${org.name}`);
 
-  // Create Repo
-  // Get appType from Org
+  // Get App Template to determine the environments to create and services to provision
   const apptemplate = req.body.template ? req.body.template : "default";
   const appTemplate = org.appTemplate.find(
     (template) => template.name === apptemplate
   );
 
+  // Create Repo
   let repo;
   if (appTemplate.services.length != 0) {
     const service = appTemplate.services[0]; // Need to Map through other services and genericify this code
@@ -145,11 +135,12 @@ const setApp = asyncHandler(async (req, res) => {
   }
 
   let environments;
+  const environs = appTemplate.environments;
+
+  // Create Azure Environments
   if (req.body.cloud === "azure") {
     // Create Azure Environs - calls azureController.js
-    const subscriptionId = "2a04f460-f517-4085-808d-7877fd30ea72";
-    //const environs = ["prod", "nonprod", "test", "dev"]; // Update this to retrieve from appType.environs
-    const environs = appTemplate.environments;
+    const subscriptionId = "2a04f460-f517-4085-808d-7877fd30ea72"; // Need to store this at Org level. e.g. org.cloudParent
 
     environments = await createAzureEnv({
       cloudCredentials,
@@ -161,8 +152,19 @@ const setApp = asyncHandler(async (req, res) => {
     });
   }
 
-  // Create New App
+  // Create GCP Environments
+  if (req.body.cloud === "gcp") {
+    const parent = "organizations/447090138215"; // Need to store this at Org level. e.g. org.cloudParent
 
+    environments = await createGCPEnvironments({
+      environs,
+      parent,
+      orgCode: org.code,
+      appCode: code,
+    });
+  }
+
+  // Create App
   const app = await App.create({
     orgId,
     ownerId,
@@ -177,62 +179,6 @@ const setApp = asyncHandler(async (req, res) => {
   });
   console.log(`App Successfully Provisioned in ${req.body.cloud}`);
   res.status(200).json({ app });
-
-  // GCP CODE
-  if (req.body.cloud === "gcp") {
-    const projectName = `bp-${org.code}-${code}-prod`;
-    const projectId = projectName.toLowerCase();
-    const project = projectId;
-    console.log(`Creating GCP App ${projectId}`);
-
-    // Creates a client
-    const client = new ProjectsClient();
-
-    // async function quickstart() {
-    //   // Lists current projects
-    //   const projects = client.searchProjectsAsync();
-    //   console.log("Projects:");
-    //   for await (const project of projects) {
-    //     console.info(project);
-    //   }
-    // }
-    // quickstart();
-
-    async function callCreateProject() {
-      // Construct request
-      const project = {
-        projectId,
-        displayName: projectName,
-        parent: "organizations/447090138215",
-      };
-
-      const request = {
-        project,
-      };
-
-      console.log("Project Object:", project);
-      console.log("POST Request Body:", request);
-
-      // Run request
-      const [operation] = await client.createProject(request);
-      const [response] = await operation.promise();
-      console.log(response);
-
-      // Create New App
-      const app = await App.create({
-        orgId,
-        ownerId,
-        code,
-        name: req.body.name,
-        cloud: req.body.cloud,
-        environments: project,
-      });
-      console.log(`App Successfully Provisioned in ${req.body.cloud}`);
-      res.status(200).json(app);
-    }
-
-    callCreateProject();
-  }
 });
 
 // @desc  Update App
