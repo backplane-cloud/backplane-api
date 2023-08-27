@@ -21,6 +21,7 @@
     "@google-cloud/bigquery": "^6.2.1",
     "@google-cloud/billing": "^3.4.0",
     "@google-cloud/iam": "^1.0.0",
+    "@google-cloud/org-policy": "^3.0.0",
     "@google-cloud/resource-manager": "^4.3.0",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
