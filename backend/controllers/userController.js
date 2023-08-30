@@ -7,6 +7,8 @@ import generateToken from "../utils/generateToken.js";
 import nodemailer from "nodemailer";
 import EventEmitter from "events";
 
+import logger from "../utils/logger.js";
+
 import {
   getUserAssignments,
   getTeamAssignments,
@@ -55,7 +57,10 @@ Your Backplane account is now ready to use for Organisation: <b>${org.name}</b>
         `, // html body
     });
     //console.log(info);
-    console.log("Message sent: %s", info.messageId);
+    //console.log("Message sent: %s", info.messageId);
+    winston.info("Message sent: %s", info.messageId);
+    //winston.error("here is an error message");
+
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
   }
 
@@ -72,9 +77,15 @@ const getUsers = asyncHandler(async (req, res) => {
   );
   if (users) {
     res.status(200).json(users);
+    //console.log(req);
+    logger.info("Retrieving Users", {
+      caller: req.user.name,
+      org: req.user.orgId,
+    });
   } else {
     res.status(404);
     throw new Error("No Users found");
+    logger.error(new Error("No users Found"));
   }
 });
 
