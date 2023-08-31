@@ -75,6 +75,7 @@ const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find(
     req.user.userType != "root" ? { orgId: req.user.orgId } : null
   );
+
   if (users) {
     res.status(200).json(users);
     //console.log(req);
@@ -84,7 +85,7 @@ const getUsers = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(404);
-    throw new Error("No Users found");
+    //throw new Error("No Users found");
     logger.error(new Error("No users Found"));
   }
 });
@@ -94,14 +95,21 @@ const getUsers = asyncHandler(async (req, res) => {
 // @access  Private
 
 const getUser = asyncHandler(async (req, res) => {
-  console.log("get user");
+  logger.info("Get a User", {
+    caller: req.user.name,
+    org: req.user.orgId,
+    url: req.baseUrl,
+    method: req.method,
+  });
+
   const user = await User.findById(req.params.id);
 
   if (user) {
     res.status(200).json(user);
   } else {
-    res.status(404);
-    throw new Error("No Users found");
+    //throw new Error("No Users found");\
+    logger.warn("No users Found");
+    res.status(404).send("No Users Found");
   }
 });
 // @desc    Get a User
@@ -117,7 +125,8 @@ const getUserInternal = asyncHandler(async (req, res) => {
     //res.status(200).json(user);
   } else {
     res.status(404);
-    throw new Error("No Users found");
+    //throw new Error("No Users found");
+    logger.warn("No users Found");
   }
 });
 
@@ -126,6 +135,13 @@ const getUserInternal = asyncHandler(async (req, res) => {
 // @access  Public
 
 const registerUser = asyncHandler(async (req, res) => {
+  logger.info("User Registration", {
+    caller: req.user.name,
+    org: req.user.orgId,
+    url: req.baseUrl,
+    method: req.method,
+  });
+
   //const { name, email, password, userType, orgName } = req.body
 
   // Validate data supplied
@@ -272,10 +288,16 @@ const loginUser = asyncHandler(async (req, res) => {
 
   if (user && (await user.matchPasswords(password))) {
     const token = generateToken(res, user._id);
-    console.log(
-      `User ${email} has successfully signed in. JWT Token: \n${token}`
-    );
-
+    // console.log(
+    //   `User ${email} has successfully signed in. JWT Token: \n${token}`
+    // );
+    logger.info(`Successful authentication for ${email}`, {
+      user: email,
+      name: user.name,
+      orgId: user.orgId.toString(),
+      allowedActions: user.allowedActions,
+      userType: user.userType,
+    });
     // Retrieve Allowed Actions
 
     //console.log("Action:", action);
@@ -341,8 +363,13 @@ const loginUser = asyncHandler(async (req, res) => {
       token,
     });
   } else {
-    res.status(401);
-    throw new Error("Invalid email or password");
+    res
+      .status(401)
+      .send(`Authentication Failed for ${email}, Invalid email or password`);
+    // //throw new Error("Invalid email or password");
+    logger.error(
+      new Error(`Authentication Failed for ${email}, Invalid email or password`)
+    );
   }
 });
 
@@ -356,6 +383,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     expires: new Date(0),
   });
   res.status(200).json({ message: "User Logged Out" });
+  logger.info(`${req.user.email} Logged Out`);
 });
 
 // @desc    Get Logged In User
@@ -435,7 +463,7 @@ const updateUser = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(404);
-    throw new Error("User not found");
+    logger.warn("User not found");
   }
   //res.status(200).json({ message: "Update User Profile" });
 });
@@ -448,7 +476,8 @@ const deleteUser = asyncHandler(async (req, res) => {
 
   if (!user) {
     res.status(400);
-    throw new Error("USer not found");
+    // throw new Error("USer not found");
+    logger.warn("User Not Found");
   }
 
   res.status(200).json({ id: req.params.id });

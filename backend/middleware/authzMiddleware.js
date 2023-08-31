@@ -1,4 +1,5 @@
 import asyncHandler from "express-async-handler";
+import logger from "../utils/logger.js";
 
 const authz = asyncHandler(async (req, res, next) => {
   console.time("AuthZ");
@@ -52,9 +53,9 @@ const authz = asyncHandler(async (req, res, next) => {
     ? action.replace(`${requestedAction}/${req.params.id}`, "")
     : action.replace(`${requestedAction}`, "");
 
-  console.log("Requested Action:", action);
-  console.log("Inferred Allowed Action:", inferredAction);
-  console.log("Actions Allowed:", req.user.allowedActions);
+  // console.log("Requested Action:", action);
+  // console.log("Inferred Allowed Action:", inferredAction);
+  // console.log("Actions Allowed:", req.user.allowedActions);
 
   // Check Requesed Action is in list of allowed Actions
   const authorised =
@@ -65,10 +66,12 @@ const authz = asyncHandler(async (req, res, next) => {
       : false;
 
   if (authorised) {
+    logger.debug(`Authorisation Successful for ${req.user.name} at ${action}`);
     console.log(`Authorisation Successful for ${req.user.name} at ${action}`);
     next();
   } else {
-    console.log("Not Authorised");
+    // console.log("Not Authorised");
+    logger.warn(`${req.user.name} Not Authorised for ${action}`);
     // res.status(401);
     res.send(`You are not authorised for action: ${action}`);
     //throw new Error(`You are not authorised for action: ${action}`);
