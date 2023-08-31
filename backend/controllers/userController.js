@@ -43,22 +43,51 @@ events.on("newUserRegistered", async function (name, email, orgId, userType) {
     const info = await transporter.sendMail({
       from: '"Backplane" <lewis@backplane.cloud>', // sender address
       to: email, //"lewis@backplane.cloud", // list of receivers
-      subject: `Welcome ${name} `, // Subject line
+      subject: `Welcome to Backplane ${name}!`, // Subject line
       text: "", // plain text body
       html: `
 <h2>Welcome, ${name}</h2>
         
-Your Backplane account is now ready to use for Organisation: <b>${org.name}</b>
+Your Backplane Cloud Abstraction API has been setup for your organisation, <b>${org.name}</b>
 
 <br/><br/>
 <b>Username</b>: ${email}<br/>
 <b>User Type</b>: ${userType}
 
+<h2>Next Steps</h2>
+
+<h3>Login</h3>
+<ol>
+  <li>Download & Install <a href='https://cli.backplane.dev/cli.zip'>Backplane CLI</a></li>
+  <li>Login: <b>bp auth login -e ${email} -p *****</li>
+</ol>
+
+<h3>Cloud Provisioning Setup</h3>
+  <ul>
+    <li>Register a Cloud Provider (<a href=''>Read AWS, Azure and GCP documentation)</a>)</li>
+    <li>Register Repo Provider (<a href=''>Github documentation</li>
+  </ul>
+
+<h3>Org Administration</h3>
+  <ul>
+    <li>Create Platform</li>
+    <li>Create Product</li>
+    <li>Create Users</li>
+    <li>...</li>
+  </ul>
+
+  <h3>Developer</h3>
+    <ul>
+      <li>Create App</li>
+    </ul>
+    
+    Example: - bp app add --displayname MyApp --cloud Azure
+
         `, // html body
     });
     //console.log(info);
     //console.log("Message sent: %s", info.messageId);
-    winston.info("Message sent: %s", info.messageId);
+    logger.info(`Message sent: ${info.messageId}`);
     //winston.error("here is an error message");
 
     // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
@@ -136,8 +165,6 @@ const getUserInternal = asyncHandler(async (req, res) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   logger.info("User Registration", {
-    caller: req.user.name,
-    org: req.user.orgId,
     url: req.baseUrl,
     method: req.method,
   });
