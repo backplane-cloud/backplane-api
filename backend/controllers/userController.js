@@ -490,7 +490,7 @@ const updateUser = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(404);
-    logger.warn("User not found");
+    logger.warn("UPDATE USER: User not found");
   }
   //res.status(200).json({ message: "Update User Profile" });
 });
@@ -504,7 +504,7 @@ const deleteUser = asyncHandler(async (req, res) => {
   if (!user) {
     res.status(400);
     // throw new Error("USer not found");
-    logger.warn("User Not Found");
+    logger.warn("DELETE USER: User Not Found");
   }
 
   res.status(200).json({ id: req.params.id });
