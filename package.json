@@ -35,6 +35,8 @@
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.3.1",
     "nodemailer": "^6.9.4",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "winston": "^3.10.0",
     "winston-daily-rotate-file": "^4.7.1"
   },

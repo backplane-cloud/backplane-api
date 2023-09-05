@@ -20,6 +20,29 @@ import serviceRoutes from "./routes/serviceRoutes.js";
 
 import cloudRoutes from "./routes/cloudRoutes.js";
 
+// Open API (Swagger)
+import swaggerUI from "swagger-ui-express";
+import swaggerJsDoc from "swagger-jsdoc";
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Backplane API",
+      version: "1.0.0",
+      description:
+        "Backplane API Server (Backplane Core) provides endpoints for Backplane CLI and Backplane Cloud.",
+    },
+    servers: [
+      {
+        url: "http://localhost:8000/api",
+        description: "Development Server",
+      },
+    ],
+  },
+  apis: ["./backend/routes/*.js"],
+};
+const specs = swaggerJsDoc(options);
+
 dotenv.config();
 
 connectDB();
@@ -31,6 +54,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+app.use("/openapi", swaggerUI.serve, swaggerUI.setup(specs));
 
 app.use("/api/users", userRoutes);
 app.use("/api/teams", teamRoutes);
