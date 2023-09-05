@@ -35,6 +35,10 @@ const options = {
     servers: [
       {
         url: "http://localhost:8000/api",
+        description: "Local Development Server",
+      },
+      {
+        url: "https://api.backplane.dev/api",
         description: "Development Server",
       },
     ],
