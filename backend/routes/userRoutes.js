@@ -29,10 +29,22 @@
  *           type: string
  *           format: password
  *           description: User Password
- *         example:
- *           name: Lewis Sheridan
- *           email: lewis@backplane.cloud
- *           password: mypassword
+ *         orgId:
+ *           type: string
+ *           description: Org Id (Note this will be set to the requesters orgId)
+ *         teams:
+ *           type: array
+ *           description: Not yet used, but will be Team IDs for AuthN purposes
+ *         userType:
+ *            type: string
+ *            description: Org Admin, Developer, Root Admin etc.
+ *         allowedActions:
+ *           type: array
+ *           description: Set by Role Assignments e.g. /orgs/<orgID>/write
+ *       example:
+ *         name: Lewis Sheridan
+ *         email: lewis@backplane.cloud
+ *         password: mypassword
  */
 
 /**
