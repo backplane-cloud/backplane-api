@@ -42,15 +42,23 @@
  *           type: array
  *           description: Set by Org Assignments e.g. /orgs/<orgID>/write
  *       example:
- *         email: lewis@backplane.cloud
- *         password: mypassword
+ *         _id: 64f10986a3e5c3488c84601e
+ *         code: org-name
+ *         name: Org Name
+ *         type: org
+ *         status: active
+ *         budget: [{}]
+ *         createdAt: 2023-08-31T21:43:35.050Z
+ *         updatedAt: 2023-08-31T21:43:35.050Z
+ *         ownerId: 64f10986a3e5c3488c846020
+ *         __v: 0
  */
 
 /**
  * @swagger
  * tags:
  *   name: Org
- *   description: Organisation Orgs
+ *   description: Organisation is the Top-level resource in the resource hierarchy e.g. Org contains Platforms which contain Products which contain Apps
  */
 
 /**
@@ -59,18 +67,19 @@
  *  get:
  *    security:
  *      - bearerAuth: []
- *    summary: Returns all orgs in the Org
+ *    summary: Get all Orgs
  *    tags: [Org]
  *    responses:
  *      200:
- *        description: List of all orgs
+ *        description: Returns all Orgs
  *        content:
  *          application/json:
  *            schema:
  *              type: array
  *              items:
  *                $ref: '#/components/schemas/Org'
- *
+ *      401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -79,7 +88,7 @@
  *   get:
  *     security:
  *       - bearerAuth: []
- *     summary: Get the Org by ID
+ *     summary: Get Org by ID
  *     tags: [Org]
  *     parameters:
  *       - in: path
@@ -90,36 +99,56 @@
  *         description: The Org ID
  *     responses:
  *       200:
- *         description: The book description by id
- *         contents:
+ *         description: Returns an Org
+ *         content:
  *           application/json:
  *             schema:
- *              $ref: '#/components/schemas/Org'
+ *                $ref: '#/components/schemas/Org'
  *       404:
  *         description: The Org was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /orgs:
  *   post:
- *     summary: Creates a new Org within an Organisation
+ *     summary: Create Org
  *     tags: [Org]
- *     orgBody:
+ *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Org'
+ *             properties:
+ *               displayname:
+ *                 type: string
+ *                 description: Display Name for Org
+ *               license:
+ *                 type: string
+ *                 description: Default Open Source
+ *               owner:
+ *                 required: true
+ *                 type: string
+ *                 description: OwnerID
+ *               budget:
+ *                 type: number
+ *                 description: budget for Org
+ *               currency:
+ *                 type: string
+ *                 description: Currency of Org
  *     responses:
  *       200:
- *         description: The book was successfully created
+ *         description: The Org was successfully created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schema/Org'
+ *               $ref: '#/components/schemas/Org'
  *       500:
  *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -128,7 +157,7 @@
  *   delete:
  *     security:
  *       - bearerAuth: []
- *     summary: Deletes a Org by ID
+ *     summary: Deletes Org by ID
  *     tags: [Org]
  *     parameters:
  *       - in: path
@@ -139,13 +168,15 @@
  *         description: The Org ID
  *     responses:
  *       200:
- *         description: The org description by id
- *         contents:
+ *         description: Org Successfull Deleted
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Org'
  *       404:
  *         description: The Org was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -154,7 +185,7 @@
  *   put:
  *     security:
  *       - bearerAuth: []
- *     summary: Updates a Org by ID
+ *     summary: Updates Org by ID
  *     tags: [Org]
  *     parameters:
  *       - in: path
@@ -165,19 +196,21 @@
  *         description: The Org ID
  *     responses:
  *       200:
- *         description: The Updated Org
- *         contents:
+ *         description: Org Sucessfully Updated
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Org'
  *       404:
  *         description: The Org was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /orgs/{id}/requests:
- *   put:
+ *   get:
  *     security:
  *       - bearerAuth: []
  *     summary: Get Org Requests
@@ -192,12 +225,14 @@
  *     responses:
  *       200:
  *         description: Org Requests
- *         contents:
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Org'
  *       404:
  *         description: The Org was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 import express from "express";

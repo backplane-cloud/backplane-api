@@ -12,45 +12,48 @@
  *     Assignment:
  *       type: object
  *       required:
- *         - name
- *         - email
- *         - password
+ *         - type
+ *         - scope
+ *         - prinicpal
+ *         - principalRef
+ *         - role
  *       properties:
  *         id:
  *           type: string
  *           description: The auto-generated id of the assignment
- *         name:
+ *         type:
  *           type: string
- *           description: Assignment name
- *         email:
+ *           description: user or group assignment
+ *         scope:
  *           type: string
- *           description: Assignment E-mail address
- *         password:
+ *           description: Scope of Assignment e.g. /orgs/64e004034fdf8d60986ce9d7
+ *         principal:
  *           type: string
- *           format: password
- *           description: Assignment Password
- *         assignmentId:
+ *           description: Principal ID, e.g. User ID or Group ID
+ *         principalRef:
  *           type: string
- *           description: Assignment Id (Note this will be set to the assignmenters assignmentId)
- *         teams:
- *           type: array
- *           description: Not yet used, but will be Team IDs for AuthN purposes
- *         assignmentType:
- *            type: string
- *            description: Assignment Admin, Developer, Root Admin etc.
- *         allowedActions:
- *           type: array
- *           description: Set by Assignment Assignments e.g. /assignments/<assignmentID>/write
+ *           description: Resource Type e.g. User or Group
+ *         role:
+ *           type: string
+ *           description: Role ID
  *       example:
- *         email: lewis@backplane.cloud
- *         password: mypassword
+ *         _id: 64f1076d064fb660bfb2fc45
+ *         type: user
+ *         scope: /orgs/64f1076c064fb660bfb2fc39
+ *         principal: 64f1076c064fb660bfb2fc3b
+ *         principalRef: User
+ *         role: 64f1076d064fb660bfb2fc3e
+ *         orgId: 64f1076c064fb660bfb2fc39
+ *         createdAt: 2023-08-31T21:34:37.212Z
+ *         updatedAt: 2023-08-31T21:34:37.212Z
+ *         __v: 0
  */
 
 /**
  * @swagger
  * tags:
  *   name: Assignment
- *   description: Assignmentanisation Assignments
+ *   description: Assignment resource comprise a `identity`, `role` and `scope`. The identity can be a User or Team object ID.
  */
 
 /**
@@ -59,18 +62,60 @@
  *  get:
  *    security:
  *      - bearerAuth: []
- *    summary: Returns all assignments in the Assignment
+ *    summary: Get all Role Assignments
  *    tags: [Assignment]
  *    responses:
  *      200:
- *        description: List of all assignments
+ *        description: Successfully returns list of all role assignments
  *        content:
  *          application/json:
  *            schema:
  *              type: array
  *              items:
  *                $ref: '#/components/schemas/Assignment'
- *
+ *      401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
+ */
+
+/**
+ * @swagger
+ * /assignments:
+ *   post:
+ *     summary: Create Role Assignment
+ *     tags: [Assignment]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             properties:
+ *               type:
+ *                 type: string
+ *                 description: e.g. User or Group
+ *               principal:
+ *                 type: string
+ *                 description: Resource ID of the User or Group resource
+ *               principalRef:
+ *                 type: string
+ *                 description: Resource ID of the User or Group resource
+ *               scope:
+ *                 required: true
+ *                 type: string
+ *                 description: Org URI
+ *               role:
+ *                 type: string
+ *                 description: Role ID
+ *     responses:
+ *       200:
+ *         description: The assignment was successfully created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Assignment'
+ *       500:
+ *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -97,29 +142,8 @@
  *              $ref: '#/components/schemas/Assignment'
  *       404:
  *         description: The Assignment was not found
- */
-
-/**
- * @swagger
- * /assignments:
- *   post:
- *     summary: Creates a new Assignment within an Assignmentanisation
- *     tags: [Assignment]
- *     assignmentBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Assignment'
- *     responses:
- *       200:
- *         description: The book was successfully created
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schema/Assignment'
- *       500:
- *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -146,6 +170,8 @@
  *              $ref: '#/components/schemas/Assignment'
  *       404:
  *         description: The Assignment was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -163,6 +189,15 @@
  *           type: string
  *         required: true
  *         description: The Assignment ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             properties:
+ *               role:
+ *                 type: string
+ *                 description: Role ID
  *     responses:
  *       200:
  *         description: The Updated Assignment
@@ -172,6 +207,8 @@
  *              $ref: '#/components/schemas/Assignment'
  *       404:
  *         description: The Assignment was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 import express from "express";

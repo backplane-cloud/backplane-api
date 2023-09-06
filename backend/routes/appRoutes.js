@@ -47,6 +47,9 @@
  *         status:
  *           type: string
  *           description: Specifies whether the App is Active, Disabled or Decomissioned
+ *         type:
+ *           type: string
+ *           description: The model of the resource (auto generated)
  *         appTemplate:
  *            type: string
  *            description: The Name of the App Template this App was created from
@@ -54,23 +57,27 @@
  *           type: string
  *           description: Name of Repo
  *       example:
+ *         _id: 64e89ef5803c0f39f16722d9
  *         name: Demo App 3
  *         code: demo-app-3
  *         ownerId: 64e004034fdf8d60986ce9d9
  *         orgId: 64e004034fdf8d60986ce9d7
  *         cloud: azure
- *         environments:
+ *         environments: [{name=prod; accountId=/subscriptions/2a04f460-f517-4085-808d-7877fd30ea72/resourceGroups/_bp-demo-organisation-demo-app-2-prod}, {name=nonprod; accountId=/subscriptions/2a04f460-f517-4085-808d-7877fd30ea72/resourceGroups/_bp-demo-organisation-demo-app-2-nonprod}]
  *         status: active
  *         type: app
  *         appTemplate: default
  *         repo: lewis-backplane/demo-app-3
+ *         createdAt: 2023-08-25T00:53:14.376Z
+ *         updatedAt: 2023-08-25T00:53:14.376Z
+ *         __v: 0
  */
 
 /**
  * @swagger
  * tags:
  *   name: App
- *   description: Apps are created in a single Cloud
+ *   description: App resources have environments created in the specified `cloud` platform. The environments create is determined by the optional `appTemplate` field specified
  */
 
 /**
@@ -79,11 +86,11 @@
  *  get:
  *    security:
  *      - bearerAuth: []
- *    summary: Returns all apps in the App
+ *    summary: Get all Apps
  *    tags: [App]
  *    responses:
  *      200:
- *        description: List of all apps
+ *        description: Returns all Apps in Org
  *        content:
  *          application/json:
  *            schema:
@@ -107,39 +114,56 @@
  *         schema:
  *           type: string
  *         required: true
- *         description: The App ID
+ *         description: Application ID
  *     responses:
  *       200:
- *         description: The book description by id
+ *         description: Returns App Resource
  *         contents:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/App'
  *       404:
  *         description: The App was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /apps:
  *   post:
- *     summary: Creates a new App within an Appanisation
+ *     summary: Create App
  *     tags: [App]
- *     appBody:
+ *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/App'
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name
+ *               cloud:
+ *                 type: string
+ *                 description: Cloud
+ *               appTemplate:
+ *                 required: false
+ *                 type: string
+ *                 enum:
+ *                   - default
+ *                   - sandbox
+ *                 description: Name
  *     responses:
  *       200:
- *         description: The book was successfully created
+ *         description: App created successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schema/App'
+ *               $ref: '#/components/schemas/App'
  *       500:
  *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -166,6 +190,8 @@
  *              $ref: '#/components/schemas/App'
  *       404:
  *         description: The App was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -174,7 +200,7 @@
  *   put:
  *     security:
  *       - bearerAuth: []
- *     summary: Updates a App by ID
+ *     summary: Update an App by ID
  *     tags: [App]
  *     parameters:
  *       - in: path
@@ -192,11 +218,14 @@
  *              $ref: '#/components/schemas/App'
  *       404:
  *         description: The App was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
+
 /**
  * @swagger
  * /apps/{id}/requests:
- *   put:
+ *   get:
  *     security:
  *       - bearerAuth: []
  *     summary: Get App Requests
@@ -217,11 +246,14 @@
  *              $ref: '#/components/schemas/App'
  *       404:
  *         description: The App was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
+
 /**
  * @swagger
  * /apps/{id}/billing:
- *   put:
+ *   get:
  *     security:
  *       - bearerAuth: []
  *     summary: Get App Billing
@@ -242,6 +274,8 @@
  *              $ref: '#/components/schemas/App'
  *       404:
  *         description: The App was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 import express from "express";
