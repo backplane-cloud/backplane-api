@@ -42,7 +42,6 @@
  *           type: array
  *           description: Set by Role Assignments e.g. /orgs/<orgID>/write
  *       example:
- *         name: Lewis Sheridan
  *         email: lewis@backplane.cloud
  *         password: mypassword
  */
@@ -164,6 +163,32 @@
  *     responses:
  *       200:
  *         description: The user description by id
+ *         contents:
+ *           application/json:
+ *             schema:
+ *              $ref: '#/components/schemas/User'
+ *       404:
+ *         description: The User was not found
+ */
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Updates a User by ID
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The User ID
+ *     responses:
+ *       200:
+ *         description: The Updated User
  *         contents:
  *           application/json:
  *             schema:
