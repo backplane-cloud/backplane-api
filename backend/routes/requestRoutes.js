@@ -12,45 +12,63 @@
  *     Request:
  *       type: object
  *       required:
- *         - name
- *         - email
- *         - password
+ *         - requestType
+ *         - requestedForType
+ *         - requestedForId
+ *         - appId
  *       properties:
  *         id:
  *           type: string
  *           description: The auto-generated id of the request
- *         name:
+ *         requestType:
  *           type: string
- *           description: Request name
- *         email:
- *           type: string
- *           description: Request E-mail address
- *         password:
- *           type: string
- *           format: password
- *           description: Request Password
+ *           description: link or budget
  *         orgId:
  *           type: string
- *           description: Org Id (Note this will be set to the requesters orgId)
- *         teams:
- *           type: array
- *           description: Not yet used, but will be Team IDs for AuthN purposes
- *         requestType:
+ *           description: Org ID
+ *         data:
+ *           type: string
+ *           description: ID of resource
+ *         approvalCode:
+ *           type: string
+ *           description: Auto-generated for unauthenticated e-mail approval link
+ *         approver:
+ *           type: string
+ *           description: User ID of Approver (Defaults to Owner)
+ *         requestedBy:
  *            type: string
- *            description: Org Admin, Developer, Root Admin etc.
- *         allowedActions:
- *           type: array
- *           description: Set by Request Assignments e.g. /orgs/<orgID>/write
+ *            description: User ID of Requester
+ *         requestedForType:
+ *            type: string
+ *            description: org, platform, product or app
+ *         requestedForId:
+ *            type: string
+ *            description: ID of resource requested for
+ *         approvalStatus:
+ *           type: string
+ *           description: requested | approved | rejected
+ *
  *       example:
- *         email: lewis@backplane.cloud
- *         password: mypassword
+ *         _id: 64e8001d2a734aaf3046ba19
+ *         requestType: link
+ *         orgId: 64e004034fdf8d60986ce9d7
+ *         data: 64e7fb532a734aaf3046b9d4
+ *         approvalCode: 48540549
+ *         approver: 64e004034fdf8d60986ce9d9
+ *         requestedBy: 64e004034fdf8d60986ce9d9
+ *         requestedForType: product
+ *         requestedForId: 64e00947220957d31b4841ce
+ *         createdAt: 2023-08-31T21:43:35.050Z
+ *         updatedAt: 2023-08-31T21:43:35.050Z
+ *         ownerId: 64f10986a3e5c3488c846020
+ *         __v: 0
  */
 
 /**
  * @swagger
  * tags:
  *   name: Request
- *   description: Organisation Requests
+ *   description: Requests are used in Approval workflows for linking App to Products or Approving budgets
  */
 
 /**
@@ -59,18 +77,19 @@
  *  get:
  *    security:
  *      - bearerAuth: []
- *    summary: Returns all requests in the Org
+ *    summary: Get all Requests
  *    tags: [Request]
  *    responses:
  *      200:
- *        description: List of all requests
+ *        description: Returns all Requests
  *        content:
  *          application/json:
  *            schema:
  *              type: array
  *              items:
  *                $ref: '#/components/schemas/Request'
- *
+ *      401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -79,7 +98,7 @@
  *   get:
  *     security:
  *       - bearerAuth: []
- *     summary: Get the Request by ID
+ *     summary: Get Request by ID
  *     tags: [Request]
  *     parameters:
  *       - in: path
@@ -90,36 +109,56 @@
  *         description: The Request ID
  *     responses:
  *       200:
- *         description: The book description by id
- *         contents:
+ *         description: Returns an Request
+ *         content:
  *           application/json:
  *             schema:
- *              $ref: '#/components/schemas/Request'
+ *                $ref: '#/components/schemas/Request'
  *       404:
  *         description: The Request was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /requests:
  *   post:
- *     summary: Creates a new Request within an Organisation
+ *     summary: Create Request
  *     tags: [Request]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Request'
+ *             properties:
+ *               displayname:
+ *                 type: string
+ *                 description: Display Name for Request
+ *               license:
+ *                 type: string
+ *                 description: Default Open Source
+ *               owner:
+ *                 required: true
+ *                 type: string
+ *                 description: OwnerID
+ *               budget:
+ *                 type: number
+ *                 description: budget for Request
+ *               currency:
+ *                 type: string
+ *                 description: Currency of Request
  *     responses:
  *       200:
- *         description: The book was successfully created
+ *         description: The Request was successfully created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schema/Request'
+ *               $ref: '#/components/schemas/Request'
  *       500:
  *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -128,7 +167,7 @@
  *   delete:
  *     security:
  *       - bearerAuth: []
- *     summary: Deletes a Request by ID
+ *     summary: Deletes Request by ID
  *     tags: [Request]
  *     parameters:
  *       - in: path
@@ -139,13 +178,15 @@
  *         description: The Request ID
  *     responses:
  *       200:
- *         description: The request description by id
- *         contents:
+ *         description: Request Successfull Deleted
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Request'
  *       404:
  *         description: The Request was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -154,7 +195,7 @@
  *   put:
  *     security:
  *       - bearerAuth: []
- *     summary: Updates a Request by ID
+ *     summary: Updates Request by ID
  *     tags: [Request]
  *     parameters:
  *       - in: path
@@ -165,13 +206,15 @@
  *         description: The Request ID
  *     responses:
  *       200:
- *         description: The Updated Request
- *         contents:
+ *         description: Request Sucessfully Updated
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Request'
  *       404:
  *         description: The Request was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 import express from "express";

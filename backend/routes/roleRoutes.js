@@ -13,8 +13,8 @@
  *       type: object
  *       required:
  *         - name
- *         - email
- *         - password
+ *         - type
+ *         - actions
  *       properties:
  *         id:
  *           type: string
@@ -22,35 +22,33 @@
  *         name:
  *           type: string
  *           description: Role name
- *         email:
+ *         type:
  *           type: string
- *           description: Role E-mail address
- *         password:
- *           type: string
- *           format: password
- *           description: Role Password
+ *           description: builtin or custom
+ *         allowActions:
+ *           type: array
+ *           items:
+ *             type: string
+ *             description: Resource Type e.g. role
  *         orgId:
  *           type: string
- *           description: Org Id (Note this will be set to the requesters orgId)
- *         teams:
- *           type: array
- *           description: Not yet used, but will be Team IDs for AuthN purposes
- *         roleType:
- *            type: string
- *            description: Org Admin, Developer, Root Admin etc.
- *         allowedActions:
- *           type: array
- *           description: Set by Role Assignments e.g. /orgs/<orgID>/write
+ *           description: Org ID
  *       example:
- *         email: lewis@backplane.cloud
- *         password: mypassword
+ *         _id: 64f1076d064fb660bfb2fc43
+ *         name: Reader for Google
+ *         type: builtin
+ *         allowActions: ['/read']
+ *         orgId: 64f1076c064fb660bfb2fc39
+ *         createdAt: 2023-08-31T21:43:35.050Z
+ *         updatedAt: 2023-08-31T21:43:35.050Z
+ *         __v: 0
  */
 
 /**
  * @swagger
  * tags:
  *   name: Role
- *   description: Organisation Roles
+ *   description: Roles define allow actions and are used with `Assignments`
  */
 
 /**
@@ -59,18 +57,19 @@
  *  get:
  *    security:
  *      - bearerAuth: []
- *    summary: Returns all roles in the Org
+ *    summary: Get all Roles
  *    tags: [Role]
  *    responses:
  *      200:
- *        description: List of all roles
+ *        description: Returns all Roles
  *        content:
  *          application/json:
  *            schema:
  *              type: array
  *              items:
  *                $ref: '#/components/schemas/Role'
- *
+ *      401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -79,7 +78,7 @@
  *   get:
  *     security:
  *       - bearerAuth: []
- *     summary: Get the Role by ID
+ *     summary: Get Role by ID
  *     tags: [Role]
  *     parameters:
  *       - in: path
@@ -90,36 +89,56 @@
  *         description: The Role ID
  *     responses:
  *       200:
- *         description: The book description by id
- *         contents:
+ *         description: Returns an Role
+ *         content:
  *           application/json:
  *             schema:
- *              $ref: '#/components/schemas/Role'
+ *                $ref: '#/components/schemas/Role'
  *       404:
  *         description: The Role was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /roles:
  *   post:
- *     summary: Creates a new Role within an Organisation
+ *     summary: Create Role
  *     tags: [Role]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Role'
+ *             properties:
+ *               displayname:
+ *                 type: string
+ *                 description: Display Name for Role
+ *               license:
+ *                 type: string
+ *                 description: Default Open Source
+ *               owner:
+ *                 required: true
+ *                 type: string
+ *                 description: OwnerID
+ *               budget:
+ *                 type: number
+ *                 description: budget for Role
+ *               currency:
+ *                 type: string
+ *                 description: Currency of Role
  *     responses:
  *       200:
- *         description: The book was successfully created
+ *         description: The Role was successfully created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schema/Role'
+ *               $ref: '#/components/schemas/Role'
  *       500:
  *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -128,7 +147,7 @@
  *   delete:
  *     security:
  *       - bearerAuth: []
- *     summary: Deletes a Role by ID
+ *     summary: Deletes Role by ID
  *     tags: [Role]
  *     parameters:
  *       - in: path
@@ -139,13 +158,15 @@
  *         description: The Role ID
  *     responses:
  *       200:
- *         description: The role description by id
- *         contents:
+ *         description: Role Successfull Deleted
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Role'
  *       404:
  *         description: The Role was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -154,7 +175,7 @@
  *   put:
  *     security:
  *       - bearerAuth: []
- *     summary: Updates a Role by ID
+ *     summary: Updates Role by ID
  *     tags: [Role]
  *     parameters:
  *       - in: path
@@ -165,13 +186,117 @@
  *         description: The Role ID
  *     responses:
  *       200:
- *         description: The Updated Role
- *         contents:
+ *         description: Role Sucessfully Updated
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Role'
  *       404:
  *         description: The Role was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
+ */
+
+/**
+ * @swagger
+ * /roles/{id}/actions:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Get Role Actions
+ *     tags: [Role]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The Role ID
+ *     responses:
+ *       200:
+ *         description: Role Requests
+ *         content:
+ *           application/json:
+ *             schema:
+ *              $ref: '#/components/schemas/Role'
+ *       404:
+ *         description: The Role was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
+ */
+
+/**
+ * @swagger
+ * /roles/{id}/actions:
+ *   put:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Add Role Actions
+ *     tags: [Role]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             properties:
+ *               allowActions:
+ *                 type: string
+ *                 description: /write
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The Role ID
+ *     responses:
+ *       200:
+ *         description: Role Requests
+ *         content:
+ *           application/json:
+ *             schema:
+ *              $ref: '#/components/schemas/Role'
+ *       404:
+ *         description: The Role was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
+ */
+
+/**
+ * @swagger
+ * /roles/{id}/actions:
+ *   patch:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Remove Role Actions
+ *     tags: [Role]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             properties:
+ *               allowActions:
+ *                 type: string
+ *                 description: /write
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The Role ID
+ *     responses:
+ *       200:
+ *         description: Role Requests
+ *         content:
+ *           application/json:
+ *             schema:
+ *              $ref: '#/components/schemas/Role'
+ *       404:
+ *         description: The Role was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 import express from "express";

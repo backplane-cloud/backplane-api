@@ -13,8 +13,10 @@
  *       type: object
  *       required:
  *         - name
- *         - email
- *         - password
+ *         - license
+ *         - owner
+ *         - budget
+ *         - currency
  *       properties:
  *         id:
  *           type: string
@@ -22,25 +24,42 @@
  *         name:
  *           type: string
  *           description: Org name
- *         email:
+ *         code:
  *           type: string
- *           description: Org E-mail address
- *         password:
+ *           description: auto-generated from name
+ *         license:
  *           type: string
- *           format: password
- *           description: Org Password
- *         orgId:
+ *           decription: Enterprise or Open Source
+ *         csp:
+ *           type: object
+ *           properties:
+ *             provider:
+ *               type: string
+ *               description: Cloud Service Provider e.g. Azure
+ *             tenandId:
+ *               type: string
+ *               description: tenant id
+ *             clientId:
+ *               type: string
+ *             clientSecret:
+ *               type: string
+ *         type:
  *           type: string
- *           description: Org Id (Note this will be set to the orgers orgId)
- *         teams:
- *           type: array
- *           description: Not yet used, but will be Team IDs for AuthN purposes
- *         orgType:
- *            type: string
- *            description: Org Admin, Developer, Root Admin etc.
- *         allowedActions:
- *           type: array
- *           description: Set by Org Assignments e.g. /orgs/<orgID>/write
+ *           description: Resource Type e.g. org
+ *         status:
+ *           type: string
+ *           description: Active or Disabled
+ *         budget:
+ *           type: object
+ *           properties:
+ *             year:
+ *               type: string
+ *             budget:
+ *               type: number
+ *             budgetAllocated:
+ *               type: number
+ *             currency:
+ *               type: string
  *       example:
  *         _id: 64f10986a3e5c3488c84601e
  *         code: org-name
@@ -58,7 +77,7 @@
  * @swagger
  * tags:
  *   name: Org
- *   description: Organisation is the Top-level resource in the resource hierarchy e.g. Org contains Platforms which contain Products which contain Apps
+ *   description: Organisation is the Top-level resource in the resource hierarchy e.g. `Org` contains many `Platforms` which contain many `Products` which contain many `Apps`
  */
 
 /**

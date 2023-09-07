@@ -13,8 +13,6 @@
  *       type: object
  *       required:
  *         - name
- *         - email
- *         - password
  *       properties:
  *         id:
  *           type: string
@@ -22,35 +20,50 @@
  *         name:
  *           type: string
  *           description: Platform name
- *         email:
+ *         code:
  *           type: string
- *           description: Platform E-mail address
- *         password:
+ *           description: Code is derived from name
+ *         type:
  *           type: string
- *           format: password
- *           description: Platform Password
+ *           description: Resource Type e.g. platform
+ *         status:
+ *           type: string
+ *           description: Active or Disabled
  *         orgId:
  *           type: string
- *           description: Org Id (Note this will be set to the platformers orgId)
- *         teams:
- *           type: array
- *           description: Not yet used, but will be Team IDs for AuthN purposes
- *         platformType:
+ *           description: Org ID
+ *         ownerId:
  *            type: string
- *            description: Org Admin, Developer, Root Admin etc.
- *         allowedActions:
- *           type: array
- *           description: Set by Platform Assignments e.g. /orgs/<orgID>/write
+ *            description: User ID of Owner
+ *         budget:
+ *           type: object
+ *           properties:
+ *             year:
+ *               type: string
+ *             budget:
+ *               type: number
+ *             budgetAllocated:
+ *               type: number
+ *             currency:
+ *               type: string
  *       example:
- *         email: lewis@backplane.cloud
- *         password: mypassword
+ *         _id: 64f10986a3e5c3488c84601e
+ *         code: platform-name
+ *         name: Platform Name
+ *         type: platform
+ *         status: active
+ *         budget: [{}]
+ *         createdAt: 2023-08-31T21:43:35.050Z
+ *         updatedAt: 2023-08-31T21:43:35.050Z
+ *         ownerId: 64f10986a3e5c3488c846020
+ *         __v: 0
  */
 
 /**
  * @swagger
  * tags:
  *   name: Platform
- *   description: Organisation Platforms
+ *   description: Platforms are children of `Orgs` and parents of `Products`
  */
 
 /**
@@ -59,18 +72,19 @@
  *  get:
  *    security:
  *      - bearerAuth: []
- *    summary: Returns all platforms in the Org
+ *    summary: Get all Platforms
  *    tags: [Platform]
  *    responses:
  *      200:
- *        description: List of all platforms
+ *        description: Returns all Platforms
  *        content:
  *          application/json:
  *            schema:
  *              type: array
  *              items:
  *                $ref: '#/components/schemas/Platform'
- *
+ *      401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -79,7 +93,7 @@
  *   get:
  *     security:
  *       - bearerAuth: []
- *     summary: Get the Platform by ID
+ *     summary: Get Platform by ID
  *     tags: [Platform]
  *     parameters:
  *       - in: path
@@ -90,36 +104,56 @@
  *         description: The Platform ID
  *     responses:
  *       200:
- *         description: The book description by id
- *         contents:
+ *         description: Returns an Platform
+ *         content:
  *           application/json:
  *             schema:
- *              $ref: '#/components/schemas/Platform'
+ *                $ref: '#/components/schemas/Platform'
  *       404:
  *         description: The Platform was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /platforms:
  *   post:
- *     summary: Creates a new Platform within an Organisation
+ *     summary: Create Platform
  *     tags: [Platform]
- *     platformBody:
+ *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Platform'
+ *             properties:
+ *               displayname:
+ *                 type: string
+ *                 description: Display Name for Platform
+ *               license:
+ *                 type: string
+ *                 description: Default Open Source
+ *               owner:
+ *                 required: true
+ *                 type: string
+ *                 description: OwnerID
+ *               budget:
+ *                 type: number
+ *                 description: budget for Platform
+ *               currency:
+ *                 type: string
+ *                 description: Currency of Platform
  *     responses:
  *       200:
- *         description: The book was successfully created
+ *         description: The Platform was successfully created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schema/Platform'
+ *               $ref: '#/components/schemas/Platform'
  *       500:
  *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -128,7 +162,7 @@
  *   delete:
  *     security:
  *       - bearerAuth: []
- *     summary: Deletes a Platform by ID
+ *     summary: Deletes Platform by ID
  *     tags: [Platform]
  *     parameters:
  *       - in: path
@@ -139,13 +173,15 @@
  *         description: The Platform ID
  *     responses:
  *       200:
- *         description: The platform description by id
- *         contents:
+ *         description: Platform Successfull Deleted
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Platform'
  *       404:
  *         description: The Platform was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -154,7 +190,7 @@
  *   put:
  *     security:
  *       - bearerAuth: []
- *     summary: Updates a Platform by ID
+ *     summary: Updates Platform by ID
  *     tags: [Platform]
  *     parameters:
  *       - in: path
@@ -165,19 +201,21 @@
  *         description: The Platform ID
  *     responses:
  *       200:
- *         description: The Updated Platform
- *         contents:
+ *         description: Platform Sucessfully Updated
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Platform'
  *       404:
  *         description: The Platform was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /platforms/{id}/requests:
- *   put:
+ *   get:
  *     security:
  *       - bearerAuth: []
  *     summary: Get Platform Requests
@@ -192,12 +230,14 @@
  *     responses:
  *       200:
  *         description: Platform Requests
- *         contents:
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Platform'
  *       404:
  *         description: The Platform was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 import express from "express";

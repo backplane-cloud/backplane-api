@@ -13,8 +13,10 @@
  *       type: object
  *       required:
  *         - name
- *         - email
- *         - password
+ *         - code
+ *         - description
+ *         - url
+ *         - apiKey
  *       properties:
  *         id:
  *           type: string
@@ -22,35 +24,37 @@
  *         name:
  *           type: string
  *           description: Service name
- *         email:
+ *         code:
  *           type: string
- *           description: Service E-mail address
- *         password:
+ *           description: Code is derived from name
+ *         description:
  *           type: string
- *           format: password
- *           description: Service Password
- *         orgId:
+ *           description: Description of the Service
+ *         url:
  *           type: string
- *           description: Org Id (Note this will be set to the requesters orgId)
- *         teams:
- *           type: array
- *           description: Not yet used, but will be Team IDs for AuthN purposes
- *         serviceType:
- *            type: string
- *            description: Org Admin, Developer, Root Admin etc.
- *         allowedActions:
- *           type: array
- *           description: Set by Role Assignments e.g. /orgs/<orgID>/write
+ *           description: URL of the Service
+ *         apikey:
+ *           type: string
+ *           description: API Key
  *       example:
- *         email: lewis@backplane.cloud
- *         password: mypassword
+ *         _id: 64c258f655c8b3c24b8e6058
+ *         code: github
+ *         name: Github
+ *         description: source control
+ *         url: https://api.github.com/user/repos
+ *         apikey: ghp_551J9m3XnHeLL0qRn37uYORrdmSBUl0AJTEK
+ *         orgId: 649960a3f696f0c379649ee2
+ *         ownerId: 649960a3f696f0c379649ee2
+ *         createdAt: 2023-08-31T21:43:35.050Z
+ *         updatedAt: 2023-08-31T21:43:35.050Z
+ *         __v: 0
  */
 
 /**
  * @swagger
  * tags:
  *   name: Service
- *   description: Organisation Services
+ *   description: Services are third party integrations
  */
 
 /**
@@ -59,18 +63,19 @@
  *  get:
  *    security:
  *      - bearerAuth: []
- *    summary: Returns all services in the Org
+ *    summary: Get all Services
  *    tags: [Service]
  *    responses:
  *      200:
- *        description: List of all services
+ *        description: Returns all Services
  *        content:
  *          application/json:
  *            schema:
  *              type: array
  *              items:
  *                $ref: '#/components/schemas/Service'
- *
+ *      401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -79,7 +84,7 @@
  *   get:
  *     security:
  *       - bearerAuth: []
- *     summary: Get the Service by ID
+ *     summary: Get Service by ID
  *     tags: [Service]
  *     parameters:
  *       - in: path
@@ -90,36 +95,56 @@
  *         description: The Service ID
  *     responses:
  *       200:
- *         description: The book description by id
- *         contents:
+ *         description: Returns an Service
+ *         content:
  *           application/json:
  *             schema:
- *              $ref: '#/components/schemas/Service'
+ *                $ref: '#/components/schemas/Service'
  *       404:
  *         description: The Service was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /services:
  *   post:
- *     summary: Creates a new Service within an Organisation
+ *     summary: Create Service
  *     tags: [Service]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Service'
+ *             properties:
+ *               displayname:
+ *                 type: string
+ *                 description: Display Name for Service
+ *               license:
+ *                 type: string
+ *                 description: Default Open Source
+ *               owner:
+ *                 required: true
+ *                 type: string
+ *                 description: OwnerID
+ *               budget:
+ *                 type: number
+ *                 description: budget for Service
+ *               currency:
+ *                 type: string
+ *                 description: Currency of Service
  *     responses:
  *       200:
- *         description: The book was successfully created
+ *         description: The Service was successfully created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schema/Service'
+ *               $ref: '#/components/schemas/Service'
  *       500:
  *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -128,7 +153,7 @@
  *   delete:
  *     security:
  *       - bearerAuth: []
- *     summary: Deletes a Service by ID
+ *     summary: Deletes Service by ID
  *     tags: [Service]
  *     parameters:
  *       - in: path
@@ -139,13 +164,15 @@
  *         description: The Service ID
  *     responses:
  *       200:
- *         description: The service description by id
- *         contents:
+ *         description: Service Successfull Deleted
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Service'
  *       404:
  *         description: The Service was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -154,7 +181,7 @@
  *   put:
  *     security:
  *       - bearerAuth: []
- *     summary: Updates a Service by ID
+ *     summary: Updates Service by ID
  *     tags: [Service]
  *     parameters:
  *       - in: path
@@ -165,13 +192,15 @@
  *         description: The Service ID
  *     responses:
  *       200:
- *         description: The Updated Service
- *         contents:
+ *         description: Service Sucessfully Updated
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Service'
  *       404:
  *         description: The Service was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 import express from "express";

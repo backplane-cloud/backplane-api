@@ -9,12 +9,23 @@
  *   security:
  *     - bearerAuth: []
  *   schemas:
+ *     Budget:
+ *       type: array
+ *       items:
+ *         type: object
+ *         properties:
+ *           year:
+ *             type: string
+ *           budget:
+ *             type: number
+ *           budgetAllocated:
+ *             type: number
+ *           currency:
+ *             type: string
  *     Product:
  *       type: object
  *       required:
  *         - name
- *         - email
- *         - password
  *       properties:
  *         id:
  *           type: string
@@ -22,35 +33,48 @@
  *         name:
  *           type: string
  *           description: Product name
- *         email:
+ *         code:
  *           type: string
- *           description: Product E-mail address
- *         password:
+ *           description: Code is derived from name
+ *         type:
  *           type: string
- *           format: password
- *           description: Product Password
+ *           description: Resource Type e.g. product
+ *         status:
+ *           type: string
+ *           description: Active or Disabled
  *         orgId:
  *           type: string
- *           description: Org Id (Note this will be set to the producters orgId)
- *         teams:
- *           type: array
- *           description: Not yet used, but will be Team IDs for AuthN purposes
- *         productType:
+ *           description: Org ID
+ *         ownerId:
  *            type: string
- *            description: Org Admin, Developer, Root Admin etc.
- *         allowedActions:
+ *            description: User ID of Owner
+ *         budget:
  *           type: array
- *           description: Set by Product Assignments e.g. /orgs/<orgID>/write
+ *           items:
+ *             $ref: '#/components/schemas/Budget'
+ *         apps:
+ *           type: array
+ *           items:
+ *             type: string
  *       example:
- *         email: lewis@backplane.cloud
- *         password: mypassword
+ *         _id: 64f10986a3e5c3488c84601e
+ *         code: product-name
+ *         name: Product Name
+ *         type: product
+ *         status: active
+ *         budget: [{}]
+ *         createdAt: 2023-08-31T21:43:35.050Z
+ *         updatedAt: 2023-08-31T21:43:35.050Z
+ *         ownerId: 64f10986a3e5c3488c846020
+ *         apps: 64e7fb532a734aaf3046b9d4
+ *         __v: 0
  */
 
 /**
  * @swagger
  * tags:
  *   name: Product
- *   description: Organisation Products
+ *   description: Products are children of `Platforms` and parents of `Apps`
  */
 
 /**
@@ -59,18 +83,19 @@
  *  get:
  *    security:
  *      - bearerAuth: []
- *    summary: Returns all products in the Org
+ *    summary: Get all Products
  *    tags: [Product]
  *    responses:
  *      200:
- *        description: List of all products
+ *        description: Returns all Products
  *        content:
  *          application/json:
  *            schema:
  *              type: array
  *              items:
  *                $ref: '#/components/schemas/Product'
- *
+ *      401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -79,7 +104,7 @@
  *   get:
  *     security:
  *       - bearerAuth: []
- *     summary: Get the Product by ID
+ *     summary: Get Product by ID
  *     tags: [Product]
  *     parameters:
  *       - in: path
@@ -90,36 +115,56 @@
  *         description: The Product ID
  *     responses:
  *       200:
- *         description: The book description by id
- *         contents:
+ *         description: Returns an Product
+ *         content:
  *           application/json:
  *             schema:
- *              $ref: '#/components/schemas/Product'
+ *                $ref: '#/components/schemas/Product'
  *       404:
  *         description: The Product was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
  * @swagger
  * /products:
  *   post:
- *     summary: Creates a new Product within an Organisation
+ *     summary: Create Product
  *     tags: [Product]
- *     productBody:
+ *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Product'
+ *             properties:
+ *               displayname:
+ *                 type: string
+ *                 description: Display Name for Product
+ *               license:
+ *                 type: string
+ *                 description: Default Open Source
+ *               owner:
+ *                 required: true
+ *                 type: string
+ *                 description: OwnerID
+ *               budget:
+ *                 type: number
+ *                 description: budget for Product
+ *               currency:
+ *                 type: string
+ *                 description: Currency of Product
  *     responses:
  *       200:
- *         description: The book was successfully created
+ *         description: The Product was successfully created
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schema/Product'
+ *               $ref: '#/components/schemas/Product'
  *       500:
  *         description: Server Error
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -128,7 +173,7 @@
  *   delete:
  *     security:
  *       - bearerAuth: []
- *     summary: Deletes a Product by ID
+ *     summary: Deletes Product by ID
  *     tags: [Product]
  *     parameters:
  *       - in: path
@@ -139,13 +184,15 @@
  *         description: The Product ID
  *     responses:
  *       200:
- *         description: The product description by id
- *         contents:
+ *         description: Product Successfull Deleted
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Product'
  *       404:
  *         description: The Product was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -154,7 +201,7 @@
  *   put:
  *     security:
  *       - bearerAuth: []
- *     summary: Updates a Product by ID
+ *     summary: Updates Product by ID
  *     tags: [Product]
  *     parameters:
  *       - in: path
@@ -165,39 +212,15 @@
  *         description: The Product ID
  *     responses:
  *       200:
- *         description: The Updated Product
- *         contents:
+ *         description: Product Sucessfully Updated
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Product'
  *       404:
  *         description: The Product was not found
- */
-
-/**
- * @swagger
- * /products/{id}/costs:
- *   get:
- *     security:
- *       - bearerAuth: []
- *     summary: Get Product Cost
- *     tags: [Product]
- *     parameters:
- *       - in: path
- *         name: id
- *         schema:
- *           type: string
- *         required: true
- *         description: The Product ID
- *     responses:
- *       200:
- *         description: The Updated Product
- *         contents:
- *           application/json:
- *             schema:
- *              $ref: '#/components/schemas/Product'
- *       404:
- *         description: The Product was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 /**
@@ -218,12 +241,14 @@
  *     responses:
  *       200:
  *         description: Product Requests
- *         contents:
+ *         content:
  *           application/json:
  *             schema:
  *              $ref: '#/components/schemas/Product'
  *       404:
  *         description: The Product was not found
+ *       401:
+ *         description: Unauthorized, use `/users/login` to authenticate and retrieve access token
  */
 
 import express from "express";
