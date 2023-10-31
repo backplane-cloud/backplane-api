@@ -120,7 +120,7 @@ const getUsers = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get a User
-// route    GET /api/users
+// route    GET /api/users/:id
 // @access  Private
 
 const getUser = asyncHandler(async (req, res) => {
@@ -136,13 +136,13 @@ const getUser = asyncHandler(async (req, res) => {
   if (user) {
     res.status(200).json(user);
   } else {
-    //throw new Error("No Users found");\
+    // throw new Error("No Users found");
     logger.warn("No users Found");
     res.status(404).send("No Users Found");
   }
 });
 // @desc    Get a User
-// route    GET /api/users
+// route    GET /api/users/:id
 // @access  Private
 
 const getUserInternal = asyncHandler(async (req, res) => {

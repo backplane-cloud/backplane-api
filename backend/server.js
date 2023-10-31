@@ -17,6 +17,7 @@ import productRoutes from "./routes/productRoutes.js";
 import appRoutes from "./routes/appRoutes.js";
 import requestRoutes from "./routes/requestRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
+import backlogRoutes from "./routes/backlogRoutes.js";
 
 import cloudRoutes from "./routes/cloudRoutes.js";
 
@@ -55,6 +56,9 @@ const port = process.env.PORT || 5000;
 
 const app = express();
 
+// app.use(notFound);
+// app.use(errorHandler);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -73,6 +77,7 @@ app.use("/api/apps", appRoutes);
 
 app.use("/api/requests", requestRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api/backlogs", backlogRoutes);
 
 app.use("/api/cloud", cloudRoutes);
 
