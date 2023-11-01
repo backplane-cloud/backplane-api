@@ -26,8 +26,9 @@ const getOrgs = asyncHandler(async (req, res) => {
 const getOrg = asyncHandler(async (req, res) => {
   //let orgId = req.user.orgId.toHexString();
 
+  let org;
   if (req.params.id.length === 24) {
-    const org = await Org.findById(req.params.id);
+    org = await Org.findById(req.params.id);
 
     if (org) {
       res.status(200).json(org);
