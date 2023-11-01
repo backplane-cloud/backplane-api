@@ -4,6 +4,8 @@ import Org from "../models/orgModel.js";
 import Platform from "../models/platformModel.js";
 import Request from "../models/requestModel.js";
 
+import { Backlog } from "../models/backlogModel.js";
+
 import { ClientSecretCredential } from "@azure/identity";
 import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { BillingManagementClient } from "@azure/arm-billing";
@@ -87,8 +89,25 @@ const setProduct = asyncHandler(async (req, res) => {
     platformId: req.body.platformId,
     status: "active",
     type: "product",
-    description,
+    description: req.body.description,
   });
+
+  // Create Backlog
+  console.log("Creating Backlog");
+  const backlog = await Backlog.create({
+    orgId,
+    productId: product._id,
+    ownerId: product.ownerId,
+    sprintDuration: 14,
+    velocity: 0,
+  });
+  if (backlog) {
+    console.log("Backlog Successfully Created", backlog.id);
+  } else {
+    console.log("Error Creating Backlog");
+  }
+  // End Backlog Creation
+
   console.log(req.body);
   res.status(200).json(product);
 });
