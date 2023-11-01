@@ -144,7 +144,7 @@ const setBacklogItem = asyncHandler(async (req, res) => {
     type: req.body.type,
     ownerId: req.body.ownerId,
     assignedTo: req.body.assignedTo,
-    orgId: req.body.orgId,
+    orgId: req.body.orgId ? req.body.orgId : req.user.orgId,
     status: req.body.status,
     points: req.body.points,
     sprint: req.body.sprint,

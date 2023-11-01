@@ -38,7 +38,7 @@ const backlogItemSchema = mongoose.Schema(
     type: String,
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      required: false,
       ref: "User",
     },
     status: String,
