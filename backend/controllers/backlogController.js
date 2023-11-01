@@ -236,6 +236,8 @@ const setBacklogSprint = asyncHandler(async (req, res) => {
 
   const backlogSprint = await BacklogSprint.create({
     ...req.body,
+    orgId: req.body.orgId ? req.body.orgId : req.user.orgId,
+    ownerId: req.body.ownerId ? req.body.ownerId : req.user._id,
     backlogId: req.params.id,
   });
   console.log(req.body);
