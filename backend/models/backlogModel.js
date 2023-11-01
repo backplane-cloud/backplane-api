@@ -43,7 +43,16 @@ const backlogItemSchema = mongoose.Schema(
     },
     status: String,
     points: Number,
-    sprint: Number,
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+      ref: "BacklogItem",
+    },
+    sprint: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+      ref: "BacklogSprint",
+    },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
