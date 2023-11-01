@@ -87,6 +87,7 @@ const setProduct = asyncHandler(async (req, res) => {
     platformId: req.body.platformId,
     status: "active",
     type: "product",
+    description,
   });
   console.log(req.body);
   res.status(200).json(product);
