@@ -21,12 +21,25 @@ const getBacklogs = asyncHandler(async (req, res) => {
 // @route GET /api/backlogs/:id
 // @access Private
 const getBacklog = asyncHandler(async (req, res) => {
-  const backlogs = await Backlog.findById(req.params.id);
-  if (backlogs) {
-    res.status(200).json(backlogs);
+  let backlog;
+  if (req.params.id.length === 24) {
+    backlog = await Backlog.findById(req.params.id);
+
+    if (backlog) {
+      res.status(200).json(backlog);
+    } else {
+      res.send("Backlog not found");
+      // res.status(400);
+      // throw new Error("No Orgs Found");
+    }
   } else {
-    res.status(400);
-    throw new Error("No Backlogs Found");
+    backlog = await Backlog.findOne({ code: req.params.id });
+    if (backlog) {
+      res.status(200).json(backlog);
+    } else {
+      res.status(400);
+      throw new Error("No Backlog Found");
+    }
   }
 });
 
