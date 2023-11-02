@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const backlogSchema = mongoose.Schema(
   {
+    code: String,
     sprintDuration: Number,
     velocity: Number,
     orgId: {

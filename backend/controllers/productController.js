@@ -95,6 +95,7 @@ const setProduct = asyncHandler(async (req, res) => {
   // Create Backlog
   console.log("Creating Backlog");
   const backlog = await Backlog.create({
+    code: product.code,
     orgId,
     productId: product._id,
     ownerId: product.ownerId,
