@@ -17,7 +17,7 @@ const serviceSchema = mongoose.Schema(
 
     platformId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      required: false,
       ref: "Platform",
     },
     ownerId: {
