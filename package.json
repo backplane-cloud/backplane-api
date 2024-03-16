@@ -1,7 +1,7 @@
 {
-  "name": "backplane",
+  "name": "@backplane-software/backplane",
   "version": "1.1.0",
-  "description": "",
+  "description": "Cloud Abstraction API",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "server": "nodemon backend/server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "lewis@backplane.cloud",
   "license": "ISC",
   "dependencies": {
     "@azure/arm-authorization": "^9.0.0",
@@ -42,5 +42,13 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/backplane-cloud/backplane.git"
+  },
+  "bugs": {
+    "url": "https://github.com/backplane-cloud/backplane/issues"
+  },
+  "homepage": "https://github.com/backplane-cloud/backplane#readme"
 }
