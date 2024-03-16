@@ -1,14 +1,17 @@
 {
   "name": "@backplane-software/backplane",
   "version": "1.1.0",
-  "description": "Cloud Abstraction API",
+  "description": "Provides a Cloud Abstraction API for Cost, Access, Resource controls and Environment Provisioning in Azure, AWS and GCP.",
   "type": "module",
-  "main": "index.js",
+  "main": "/backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
     "server": "nodemon backend/server.js"
   },
-  "keywords": [],
+  "keywords": [
+    "Backplane",
+    "Cloud Abstraction API"
+  ],
   "author": "lewis@backplane.cloud",
   "license": "ISC",
   "dependencies": {
