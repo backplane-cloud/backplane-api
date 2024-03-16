@@ -1,1 +1,3 @@
-/backend/logs/
+backend/logs
+.env
+nodue_modules
