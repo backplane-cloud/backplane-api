@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "Provides a Cloud Abstraction API for Cost, Access, Resource controls and Environment Provisioning in Azure, AWS and GCP.",
   "type": "module",
-  "main": "/backend/server.js",
+  "main": "./backend/server.js",
   "scripts": {
     "start": "node backend/server.js",
     "server": "nodemon backend/server.js"
