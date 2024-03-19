@@ -73,7 +73,7 @@ LOG_LEVEL=debug
 
 MONGO_URI=<provide-key>
 
-MAILSENDER_USERNAME=MS_QX12HQ@backplane.cloud
+MAILSENDER_USERNAME=<provide-username>
 MAILSENDER_PASSWORD=<provide-key>
 
 LOGTAIL_KEY=<provide-key>
