@@ -16,24 +16,65 @@ This project is currently MVP-status, and the build represents alpha.
 
 # Installation
 
-`npm install @backplane-software/backplane`
+`npm install @backplane-software/backplane-api`
 
 # Usage
 
-`npm run server`
+Refer to Quickstart guide [Backplane.dev - Quick Start](https://backplane.dev/docs/quick-start)
 
-This will host the REST API on port 8000.
+Or this guide:
 
-If running locally for development, you'll need a `.env` file with environment variables as below.
+Install Node and create a project, for example:
+
+```
+mkdir backplane-server
+cd backplane-server
+npm init -y
+
+npm i express
+npm i dotenv
+npm i @backplane-software/backplane-api
+```
+
+Then create an `index.js` file with the below code.
+
+```
+import express from "express";
+import dotenv from "dotenv";
+import backplane from "@backplane-software/backplane";
+
+// Load Environment Configuration
+dotenv.config();
+
+// Create Express Instance
+const app = express();
+
+// Initialise Backplane Server with Instance
+backplane(app);
+
+// Start REST API Server
+const port = process.env.PORT || 5001;
+app.listen(port, () =>
+  console.log(`Backplane REST API Server started on port ${port}`)
+);
+```
+
+Add `"server": "node index.js"` to the `package.json` under the scripts section.
+
+Then `npm run server`.
+
+The following environment variables will be required:
 
 ```
 NODE_ENV=development
 PORT=8000
-MONGO_URI=<Enter MongoDB URI>
-JWT_SECRET=<Enter a Secret>
-GOOGLE_APPLICATION_CREDENTIALS=<enter path to JSON file with credentials>
-MAILSENDER_USERNAME=<Enter Username>
-MAILSENDER_PASSWORD=<Enter Password>
+JWT_SECRET=<provide-key> // Make up your own secret, this is used as the salt to CryptB for password Hashing. e.g. MyS3cureP&!00word*
 LOG_LEVEL=debug
-LOGTAIL_KEY=<Enter Key>
+
+MONGO_URI=<provide-key>
+
+MAILSENDER_USERNAME=MS_QX12HQ@backplane.cloud
+MAILSENDER_PASSWORD=<provide-key>
+
+LOGTAIL_KEY=<provide-key>
 ```

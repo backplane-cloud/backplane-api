@@ -1,5 +1,5 @@
 import express from "express";
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -46,43 +46,46 @@ const options = {
   },
   apis: ["./backend/routes/*.js"],
 };
-const specs = swaggerJsDoc(options);
 
-dotenv.config();
+export default function init(app) {
+  const specs = swaggerJsDoc(options);
 
-connectDB();
+  // dotenv.config();
 
-const port = process.env.PORT || 5000;
+  connectDB();
 
-const app = express();
+  // const port = process.env.PORT || 5000;
 
-// app.use(notFound);
-// app.use(errorHandler);
+  // const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+  // app.use(notFound);
+  // app.use(errorHandler);
 
-app.use("/openapi", swaggerUI.serve, swaggerUI.setup(specs));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
 
-app.use("/api/users", userRoutes);
-app.use("/api/teams", teamRoutes);
-app.use("/api/roles", roleRoutes);
-app.use("/api/assignments", assignmentRoutes);
+  app.use("/openapi", swaggerUI.serve, swaggerUI.setup(specs));
 
-app.use("/api/orgs", orgRoutes);
-app.use("/api/platforms", platformRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/apps", appRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/teams", teamRoutes);
+  app.use("/api/roles", roleRoutes);
+  app.use("/api/assignments", assignmentRoutes);
 
-app.use("/api/requests", requestRoutes);
-app.use("/api/services", serviceRoutes);
-app.use("/api/backlogs", backlogRoutes);
+  app.use("/api/orgs", orgRoutes);
+  app.use("/api/platforms", platformRoutes);
+  app.use("/api/products", productRoutes);
+  app.use("/api/apps", appRoutes);
 
-app.use("/api/cloud", cloudRoutes);
+  app.use("/api/requests", requestRoutes);
+  app.use("/api/services", serviceRoutes);
+  app.use("/api/backlogs", backlogRoutes);
 
-app.get("/", (req, res) => res.send("Backplane REST API Server is ready"));
+  app.use("/api/cloud", cloudRoutes);
 
-app.listen(port, () =>
-  console.log(`Backplane REST API Server started on port ${port}`)
-);
+  app.get("/", (req, res) => res.send("Backplane REST API Server is ready"));
+  return;
+}
+// app.listen(port, () =>
+//   console.log(`Backplane REST API Server started on port ${port}`)
+// );

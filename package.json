@@ -1,5 +1,5 @@
 {
-  "name": "@backplane-software/backplane",
+  "name": "@backplane-software/backplane-api",
   "version": "1.1.0",
   "description": "Provides a Cloud Abstraction API for Cost, Access, Resource controls and Environment Provisioning in Azure, AWS and GCP.",
   "type": "module",
@@ -13,7 +13,7 @@
     "Cloud Abstraction API"
   ],
   "author": "lewis@backplane.cloud",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "dependencies": {
     "@azure/arm-authorization": "^9.0.0",
     "@azure/arm-billing": "^4.1.0",
