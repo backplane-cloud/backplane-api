@@ -18,7 +18,7 @@ import {
   getGCPAccess,
   getGCPPolicy,
   createGCPEnvironments,
-} from "./clouds/gcpController.js";
+} from "@backplane-software/backplane-gcp";
 
 // GITHUB REPO
 import axios from "axios";
