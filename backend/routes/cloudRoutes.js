@@ -3,6 +3,8 @@ import { protect } from "../middleware/authMiddleware.js";
 import { authz } from "../middleware/authzMiddleware.js";
 
 const router = express.Router();
+
+// Azure Routes
 import {
   getAzureCost,
   getAzureAccess,
@@ -13,16 +15,19 @@ router.route("/azure/cost/:id").get(protect, authz, getAzureCost);
 router.route("/azure/access/:id").get(protect, authz, getAzureAccess);
 router.route("/azure/policy/:id").get(protect, authz, getAzurePolicy);
 
+// GCP Routes
 import {
   getGCPCost,
   getGCPAccess,
   getGCPPolicy,
-} from "../controllers/clouds/gcpController.js";
+  createGCPEnvironments,
+} from "@backplane-software/backplane-gcp";
 
 router.route("/gcp/cost/:id").get(protect, authz, getGCPCost);
 router.route("/gcp/access/:id").get(protect, authz, getGCPAccess);
 router.route("/gcp/policy/:id").get(protect, authz, getGCPPolicy);
 
+// AWS Routes
 import {
   getAWSCost,
   getAWSAccess,

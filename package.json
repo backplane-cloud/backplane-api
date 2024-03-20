@@ -21,6 +21,8 @@
     "@azure/arm-resources": "^5.2.0",
     "@azure/arm-subscriptions": "^5.1.0",
     "@azure/identity": "^3.2.3",
+    "@backplane-software/backplane-aws": "^0.1.1",
+    "@backplane-software/backplane-gcp": "^0.1.1",
     "@google-cloud/bigquery": "^6.2.1",
     "@google-cloud/billing": "^3.4.0",
     "@google-cloud/iam": "^1.0.0",
@@ -43,8 +45,8 @@
     "winston-daily-rotate-file": "^4.7.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "nodemon": "^2.0.22"
   },
   "repository": {
     "type": "git",
