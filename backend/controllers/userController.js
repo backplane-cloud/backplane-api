@@ -52,13 +52,13 @@ Your Backplane Cloud Abstraction API has been setup for your organisation, <b>${
 
 <br/><br/>
 <b>Username</b>: ${email}<br/>
-<b>User Type</b>: ${userType}
+
 
 <h2>Next Steps</h2>
 
 <h3>Login</h3>
 <ol>
-  <li>Download & Install <a href='https://cli.backplane.dev/cli.zip'>Backplane CLI</a></li>
+  <li>Download & Install <a href='https://backplane.dev/docs/cli'>Backplane CLI</a></li>
   <li>Login: <b>bp auth login -e ${email} -p *****</li>
 </ol>
 
