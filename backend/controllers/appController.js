@@ -6,12 +6,14 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 import Service from "../models/serviceModel.js";
 
-import {
-  getAzureCost,
-  getAzureAccess,
-  getAzurePolicy,
-  createAzureEnv,
-} from "./clouds/azureController.js";
+// import {
+//   getAzureCost,
+//   getAzureAccess,
+//   getAzurePolicy,
+//   createAzureEnv,
+// } from "./clouds/azureController.js";
+
+import { createAzureEnv } from "@backplane-software/backplane-azure";
 
 import {
   getGCPCost,
