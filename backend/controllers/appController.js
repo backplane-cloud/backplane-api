@@ -146,8 +146,8 @@ const setApp = asyncHandler(async (req, res) => {
 
   // Create Azure Environments
   if (req.body.cloud === "azure") {
-    // Create Azure Environs - calls azureController.js
-    const subscriptionId = "2a04f460-f517-4085-808d-7877fd30ea72"; // Need to store this at Org level. e.g. org.cloudParent
+    // Get Default Subscription ID. Need to have cloud creds per platform and product.
+    const subscriptionId = cloudCredentials.subscriptionId;
 
     environments = await createAzureEnv({
       cloudCredentials,
