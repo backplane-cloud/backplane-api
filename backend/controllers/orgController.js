@@ -145,7 +145,7 @@ const updateOrg = asyncHandler(async (req, res) => {
   let updateOrg = req.body;
 
   if (req.body.csp) {
-    let csp = JSON.parse(req.body.csp);
+    let csp = req.cookies.jwt ? JSON.parse(req.body.csp) : req.body.csp;
 
     // Hardcoded Test
     // csp = [
