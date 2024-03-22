@@ -108,9 +108,14 @@ const setApp = asyncHandler(async (req, res) => {
 
   // Get App Template to determine the environments to create and services to provision
   const apptemplate = req.body.template ? req.body.template : "default";
-  const appTemplate = org.appTemplate.find(
-    (template) => template.name === apptemplate
-  );
+  const appTemplate = org.appTemplate
+    ? org.appTemplate.find((template) => template.name === apptemplate)
+    : {
+        name: "default",
+        description: "Default App type",
+        environments: ["prod", "nonprod", "test", "dev"],
+        services: [],
+      };
 
   // Create Repo
   let repo;
@@ -177,7 +182,8 @@ const setApp = asyncHandler(async (req, res) => {
     type: "app",
     appTemplate: apptemplate,
     status: "active",
-    repo: req.body.template === "sandbox" ? "No Repo" : repo.data.full_name,
+    repo: repo ? repo.data.full_name : "No Repo",
+    // repo: req.body.template === "sandbox" ? "No Repo" : repo.data.full_name,
   });
   console.log(`App Successfully Provisioned in ${req.body.cloud}`);
   res.status(200).json({ app });
