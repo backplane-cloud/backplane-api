@@ -62,7 +62,8 @@ const setOrg = asyncHandler(async (req, res) => {
   console.log("req body", req.body);
 
   // Check if Org already exists
-  const code = req.body.name.toLowerCase().replace(" ", "-");
+  const code = req.body.name.toLowerCase().replace(/ /g, "-");
+
   const exists = await Org.findOne({ code });
   if (exists) {
     console.log(exists);
