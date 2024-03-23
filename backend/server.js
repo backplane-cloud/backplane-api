@@ -84,7 +84,7 @@ export default function init(app) {
   app.use("/api/cloud", cloudRoutes);
 
   app.get("/", (req, res) => res.send("Backplane REST API Server is ready"));
-  // return;
+  return;
 }
 
 // // Uncomment to run direct
