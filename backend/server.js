@@ -88,9 +88,9 @@ export default function init(app) {
 }
 
 // // Uncomment to run direct
-const app = express();
-init(app);
-const port = 8000;
-app.listen(port, () =>
-  console.log(`Backplane REST API Server started on port ${port}`)
-);
+// const app = express();
+// init(app);
+// const port = 8000;
+// app.listen(port, () =>
+//   console.log(`Backplane REST API Server started on port ${port}`)
+// );
