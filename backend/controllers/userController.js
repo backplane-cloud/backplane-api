@@ -48,41 +48,18 @@ events.on("newUserRegistered", async function (name, email, orgId, userType) {
       html: `
 <h2>Welcome, ${name}</h2>
         
-Your Backplane Cloud Abstraction API has been setup for your organisation, <b>${org.name}</b>
+The organisation <b>${org.name}</b> has been successfully created. 
 
-<br/><br/>
-<b>Username</b>: ${email}<br/>
+<h2>What's next ? </h2>
 
-
-<h2>Next Steps</h2>
+<h3>Download CLI</h3>
+Download & Install <a href='https://backplane.dev/docs/cli'>Backplane CLI</a>
 
 <h3>Login</h3>
-<ol>
-  <li>Download & Install <a href='https://backplane.dev/docs/cli'>Backplane CLI</a></li>
-  <li>Login: <b>bp auth login -e ${email} -p *****</li>
-</ol>
+bp auth login --email ${email} --password <password>
 
-<h3>Cloud Provisioning Setup</h3>
-  <ul>
-    <li>Register a Cloud Provider (<a href=''>Read AWS, Azure and GCP documentation)</a>)</li>
-    <li>Register Repo Provider (<a href=''>Github documentation</li>
-  </ul>
-
-<h3>Org Administration</h3>
-  <ul>
-    <li>Create Platform</li>
-    <li>Create Product</li>
-    <li>Create Users</li>
-    <li>...</li>
-  </ul>
-
-  <h3>Developer</h3>
-    <ul>
-      <li>Create App</li>
-    </ul>
-    
-    Example: - bp app add --displayname MyApp --cloud Azure
-
+<h3>Documentation</h3>
+<a href='https://backplane.dev/docs/category/tutorial'>Backplane Tutorials</a>
         `, // html body
     });
     //console.log(info);
