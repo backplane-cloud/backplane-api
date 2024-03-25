@@ -87,7 +87,7 @@ export default function init(app) {
   return;
 }
 
-// // Uncomment to run direct
+// Comment out below section when publishing as NPM package
 const app = express();
 init(app);
 const port = 8000;

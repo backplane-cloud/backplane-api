@@ -1,6 +1,8 @@
-# @backplane-software/backplane
+# @backplane-software/backplane-api
 
-This is a RESTful API server that provides a Cloud Abstraction API for the governance concerns of: `Cost`, `Access`, `Resource controls` (aka policies) and `Environment provisioning`.
+![Backplane Logo](backplane-logo-blue.svg)
+
+Backplane API is a RESTful API server that provides a Cloud Abstraction API for the governance concerns of: `Cost`, `Access`, `Resource controls` (aka policies) and `Environment provisioning`.
 
 ### Features include:
 
