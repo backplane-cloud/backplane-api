@@ -14,6 +14,7 @@ import Service from "../models/serviceModel.js";
 // } from "./clouds/azureController.js";
 
 import { createAzureEnv } from "@backplane-software/backplane-azure";
+import { createAWSEnv } from "@backplane-software/backplane-aws";
 
 import {
   getGCPCost,
@@ -144,7 +145,7 @@ const setApp = asyncHandler(async (req, res) => {
   let environments;
   const environs = appTemplate.environments;
 
-  // CALL AZURE CREATE ENVIRONMENTS
+  // AZURE ENVIRONMENT CREATION
   if (req.body.cloud === "azure") {
     // Get Default Subscription ID. Need to have cloud creds per platform and product.
     const subscriptionId = cloudCredentials.subscriptionId;
@@ -159,7 +160,35 @@ const setApp = asyncHandler(async (req, res) => {
     });
   }
 
-  // CALL GCP CREATE ENVIRONMENTS
+  // AWS ENVIRONMENT CREATION
+  if (req.body.cloud === "aws") {
+    // Get Default Subscription ID. Need to have cloud creds per platform and product.
+    // const subscriptionId = cloudCredentials.subscriptionId;
+    const accessKeyId = cloudCredentials.clientId;
+    const secretAccessKey = cloudCredentials.clientSecret;
+    // const payload = {
+    //   environs,
+    //   orgCode: org.code,
+    //   appCode: code,
+    //   accessKeyId,
+    //   secretAccessKey,
+    //   emailAddress: req.user.email,
+    // };
+    // console.log("Payload to AWS", payload);
+    // return;
+    // console.log(`${code}@${req.user.email.split("@")[1]}`);
+    // return;
+    environments = await createAWSEnv({
+      environs,
+      orgCode: org.code,
+      appCode: code,
+      accessKeyId,
+      secretAccessKey,
+      emailAddress: `${code}@${req.user.email.split("@")[1]}`,
+    });
+  }
+
+  // GCP ENVIRONMENT CREATION
   if (req.body.cloud === "gcp") {
     // const parent = "organizations/447090138215"; // Need to store this at Org level. e.g. org.cloudParent
     const parent = `organizations/${cloudCredentials.tenantId}`;
@@ -188,6 +217,9 @@ const setApp = asyncHandler(async (req, res) => {
       private_key,
     });
   }
+
+  // console.log("environments before app create", environments);
+  // return;
 
   // Create App
   const app = await App.create({

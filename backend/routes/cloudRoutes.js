@@ -32,12 +32,12 @@ import {
   getAWSCost,
   getAWSAccess,
   getAWSPolicy,
-  createAWSEnvironments,
+  createAWSEnv,
 } from "@backplane-software/backplane-aws";
 
 router.route("/aws/cost/:id").get(protect, authz, getAWSCost);
 router.route("/aws/access/:id").get(protect, authz, getAWSAccess);
 router.route("/aws/policy/:id").get(protect, authz, getAWSPolicy);
-router.route("/aws/environment").post(protect, authz, createAWSEnvironments);
+router.route("/aws/environment").post(protect, authz, createAWSEnv);
 
 export default router;
