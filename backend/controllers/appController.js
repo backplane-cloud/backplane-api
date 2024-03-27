@@ -144,7 +144,7 @@ const setApp = asyncHandler(async (req, res) => {
   let environments;
   const environs = appTemplate.environments;
 
-  // Create Azure Environments
+  // CALL AZURE CREATE ENVIRONMENTS
   if (req.body.cloud === "azure") {
     // Get Default Subscription ID. Need to have cloud creds per platform and product.
     const subscriptionId = cloudCredentials.subscriptionId;
@@ -159,15 +159,33 @@ const setApp = asyncHandler(async (req, res) => {
     });
   }
 
-  // Create GCP Environments
+  // CALL GCP CREATE ENVIRONMENTS
   if (req.body.cloud === "gcp") {
-    const parent = "organizations/447090138215"; // Need to store this at Org level. e.g. org.cloudParent
+    // const parent = "organizations/447090138215"; // Need to store this at Org level. e.g. org.cloudParent
+    const parent = `organizations/${cloudCredentials.tenantId}`;
+    const client_email = cloudCredentials.gcpsecret.client_email;
+    const private_key = cloudCredentials.gcpsecret.private_key;
+    // let result = await listProjects(JSON.stringify(cloudCredentials));
+    // console.log(result);
+    // return;
+    // const creds = cloudCredentials;
+
+    // let result = await createProject(
+    //   creds.gcpsecret.client_email,
+    //   creds.gcpsecret.private_key,
+    //   parent,
+    //   "akira-lewis-henry"
+    // );
+    // console.log(result);
+    // return;
 
     environments = await createGCPEnvironments({
       environs,
       parent,
       orgCode: org.code,
       appCode: code,
+      client_email,
+      private_key,
     });
   }
 

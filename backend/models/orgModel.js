@@ -7,6 +7,7 @@ const cloudSchema = mongoose.Schema({
   clientId: String,
   clientSecret: String,
   subscriptionId: String,
+  gcpsecret: Object,
 });
 
 const budgetSchema = mongoose.Schema({
