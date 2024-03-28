@@ -19,8 +19,6 @@ import requestRoutes from "./routes/requestRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import backlogRoutes from "./routes/backlogRoutes.js";
 
-import cloudRoutes from "./routes/cloudRoutes.js";
-
 // Open API (Swagger)
 import swaggerUI from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
@@ -80,8 +78,6 @@ export default function init(app) {
   app.use("/api/requests", requestRoutes);
   app.use("/api/services", serviceRoutes);
   app.use("/api/backlogs", backlogRoutes);
-
-  app.use("/api/cloud", cloudRoutes);
 
   app.get("/", (req, res) => res.send("Backplane REST API Server is ready"));
   return;
