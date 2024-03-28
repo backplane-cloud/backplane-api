@@ -14,6 +14,7 @@ import Service from "../models/serviceModel.js";
 // } from "./clouds/azureController.js";
 
 import {
+  getAzurePolicies,
   getAzureAccess,
   createAzureEnv,
 } from "@backplane-software/backplane-azure";
@@ -107,6 +108,43 @@ const getAppAccess = asyncHandler(async (req, res) => {
   } else {
     res.status(400);
     throw new Error("No Access Found for App");
+  }
+});
+
+// @desc  Get App Policies
+// @route GET /api/apps/:id/policies
+// @access Private
+const getAppPolicies = asyncHandler(async (req, res) => {
+  const app = await App.findById(req.params.id);
+  let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
+
+  const cloud = app.cloud;
+  const environments = app.environments;
+  let policies;
+
+  if (cloud === "azure") {
+    // Get Org
+    const org = await Org.findById(orgId);
+
+    if (!org.csp) {
+      // Check for Cloud Service Provider Credentials
+      res.send("No Cloud Credentials Specified for Org, aborting App Creation");
+      return;
+    }
+
+    // Get Cloud Credentials from Org for Cloud
+    const cloudCredentials = org.csp.find(
+      (cloud) => cloud.provider === "azure"
+    );
+
+    policies = await getAzurePolicies({ cloudCredentials, environments });
+  }
+
+  if (policies) {
+    res.status(200).json(policies);
+  } else {
+    res.status(400);
+    throw new Error("No Policies Found for App");
   }
 });
 
@@ -539,4 +577,5 @@ export {
   getAppBilling,
   getAppRequests,
   getAppAccess,
+  getAppPolicies,
 };

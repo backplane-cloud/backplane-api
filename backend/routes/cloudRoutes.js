@@ -13,7 +13,6 @@ router.route("/azure/cost/:id").get(protect, authz, getAzureCost);
 router.route("/azure/policy/:id").get(protect, authz, getAzurePolicy);
 
 import { getAzureAccess } from "@backplane-software/backplane-azure";
-
 router.route("/azure/access/:id").get(protect, authz, getAzureAccess);
 
 // GCP Routes
