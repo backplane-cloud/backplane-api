@@ -1,4 +1,5 @@
 import asyncHandler from "express-async-handler";
+import axios from "axios";
 
 import App from "../models/appModel.js";
 import Product from "../models/productModel.js";
@@ -6,20 +7,12 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 import Service from "../models/serviceModel.js";
 
-// import {
-//   getAzureCost,
-//   getAzureAccess,
-//   getAzurePolicy,
-//   createAzureEnv,
-// } from "./clouds/azureController.js";
-
 import {
+  getAzureCost,
   getAzurePolicies,
   getAzureAccess,
   createAzureEnv,
 } from "@backplane-software/backplane-azure";
-
-import { getAWSAccess, createAWSEnv } from "@backplane-software/backplane-aws";
 
 import {
   getGCPCost,
@@ -28,8 +21,7 @@ import {
   createGCPEnvironments,
 } from "@backplane-software/backplane-gcp";
 
-// GITHUB REPO
-import axios from "axios";
+import { getAWSAccess, createAWSEnv } from "@backplane-software/backplane-aws";
 
 // @desc  Get Apps
 // @route GET /api/apps
@@ -145,6 +137,43 @@ const getAppPolicies = asyncHandler(async (req, res) => {
   } else {
     res.status(400);
     throw new Error("No Policies Found for App");
+  }
+});
+
+// @desc  Get App Cost
+// @route GET /api/apps/:id/cost
+// @access Private
+const getAppCost = asyncHandler(async (req, res) => {
+  const app = await App.findById(req.params.id);
+  let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
+
+  const cloud = app.cloud;
+  const environments = app.environments;
+  let cost;
+
+  if (cloud === "azure") {
+    // Get Org
+    const org = await Org.findById(orgId);
+
+    if (!org.csp) {
+      // Check for Cloud Service Provider Credentials
+      res.send("No Cloud Credentials Specified for Org, aborting App Creation");
+      return;
+    }
+
+    // Get Cloud Credentials from Org for Cloud
+    const cloudCredentials = org.csp.find(
+      (cloud) => cloud.provider === "azure"
+    );
+
+    cost = await getAzureCost({ cloudCredentials, environments });
+  }
+
+  if (cost) {
+    res.status(200).json(cost);
+  } else {
+    res.status(400);
+    throw new Error("No Cost Found for App");
   }
 });
 
@@ -578,4 +607,5 @@ export {
   getAppRequests,
   getAppAccess,
   getAppPolicies,
+  getAppCost,
 };

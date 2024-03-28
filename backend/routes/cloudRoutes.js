@@ -10,10 +10,14 @@ import {
   getAzurePolicy,
 } from "../controllers/clouds/azureController.js";
 router.route("/azure/cost/:id").get(protect, authz, getAzureCost);
-router.route("/azure/policy/:id").get(protect, authz, getAzurePolicy);
+// router.route("/azure/policy/:id").get(protect, authz, getAzurePolicy);
 
-import { getAzureAccess } from "@backplane-software/backplane-azure";
+import {
+  getAzurePolicies,
+  getAzureAccess,
+} from "@backplane-software/backplane-azure";
 router.route("/azure/access/:id").get(protect, authz, getAzureAccess);
+router.route("/azure/policies/:id").get(protect, authz, getAzurePolicies);
 
 // GCP Routes
 import {

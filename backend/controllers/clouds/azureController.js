@@ -216,7 +216,7 @@ const getAzurePolicy = asyncHandler(async (req, res) => {
 
 // GET BILLING
 const getAzureCost = asyncHandler(async (req, res) => {
-  console.log;
+  console.log("heheheheh");
   // Get App
   const app = await App.findById(req.params.id);
   if (!app) {
