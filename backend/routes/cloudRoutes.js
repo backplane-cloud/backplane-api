@@ -7,13 +7,14 @@ const router = express.Router();
 // Azure Routes
 import {
   getAzureCost,
-  getAzureAccess,
   getAzurePolicy,
 } from "../controllers/clouds/azureController.js";
-
 router.route("/azure/cost/:id").get(protect, authz, getAzureCost);
-router.route("/azure/access/:id").get(protect, authz, getAzureAccess);
 router.route("/azure/policy/:id").get(protect, authz, getAzurePolicy);
+
+import { getAzureAccess } from "@backplane-software/backplane-azure";
+
+router.route("/azure/access/:id").get(protect, authz, getAzureAccess);
 
 // GCP Routes
 import {

@@ -13,8 +13,12 @@ import Service from "../models/serviceModel.js";
 //   createAzureEnv,
 // } from "./clouds/azureController.js";
 
-import { createAzureEnv } from "@backplane-software/backplane-azure";
-import { createAWSEnv } from "@backplane-software/backplane-aws";
+import {
+  getAzureAccess,
+  createAzureEnv,
+} from "@backplane-software/backplane-azure";
+
+import { getAWSAccess, createAWSEnv } from "@backplane-software/backplane-aws";
 
 import {
   getGCPCost,
@@ -66,6 +70,43 @@ const getAppRequests = asyncHandler(async (req, res) => {
   } else {
     res.status(400);
     throw new Error("No Requests Found for App");
+  }
+});
+
+// @desc  Get App Access
+// @route GET /api/apps/:id/access
+// @access Private
+const getAppAccess = asyncHandler(async (req, res) => {
+  const app = await App.findById(req.params.id);
+  let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
+
+  const cloud = app.cloud;
+  const environments = app.environments;
+  let access;
+
+  if (cloud === "azure") {
+    // Get Org
+    const org = await Org.findById(orgId);
+
+    if (!org.csp) {
+      // Check for Cloud Service Provider Credentials
+      res.send("No Cloud Credentials Specified for Org, aborting App Creation");
+      return;
+    }
+
+    // Get Cloud Credentials from Org for Cloud
+    const cloudCredentials = org.csp.find(
+      (cloud) => cloud.provider === "azure"
+    );
+
+    access = await getAzureAccess({ cloudCredentials, environments });
+  }
+
+  if (access) {
+    res.status(200).json(access);
+  } else {
+    res.status(400);
+    throw new Error("No Access Found for App");
   }
 });
 
@@ -497,4 +538,5 @@ export {
   deleteApp,
   getAppBilling,
   getAppRequests,
+  getAppAccess,
 };

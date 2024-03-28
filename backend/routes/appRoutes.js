@@ -291,6 +291,7 @@ import {
   deleteApp,
   getAppBilling,
   getAppRequests,
+  getAppAccess,
 } from "../controllers/appController.js";
 
 router.route("/").get(protect, authz, getApps).post(protect, authz, setApp);
@@ -302,5 +303,6 @@ router
 
 router.route("/:id/billing").get(protect, getAppBilling);
 router.route("/:id/requests").get(protect, getAppRequests);
+router.route("/:id/access").get(protect, getAppAccess);
 
 export default router;
