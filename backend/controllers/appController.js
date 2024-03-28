@@ -213,6 +213,13 @@ const setApp = asyncHandler(async (req, res) => {
     (cloud) => cloud.provider === req.body.cloud
   );
 
+  if (!cloudCredentials) {
+    console.log(`No Cloud Credentials configured for ${req.body.cloud}`);
+    // res.status(400);
+    // throw new Error(`No Cloud Credentials configured for ${req.body.cloud}`);
+    res.send(`No Cloud Credentials configured for ${req.body.cloud}`);
+  }
+
   console.log(`App ${req.body.name} belongs to Organisation ${org.name}`);
 
   // Get App Template to determine the environments to create and services to provision
