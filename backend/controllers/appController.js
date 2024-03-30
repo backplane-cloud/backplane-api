@@ -102,6 +102,17 @@ const getAppAccess = asyncHandler(async (req, res) => {
     access = await getGCPAccess({ client_email, private_key, environments });
   }
 
+  if (cloud === "aws") {
+    // Get Cloud Credentials from Org for Cloud
+    const cloudCredentials = org.csp.find((cloud) => cloud.provider === "aws");
+    // const parent = `organizations/${cloudCredentials.tenantId}`;
+
+    const accessKeyId = cloudCredentials.clientId;
+    const secretAccessKey = cloudCredentials.clientSecret;
+
+    access = await getAWSAccess({ accessKeyId, secretAccessKey, environments });
+  }
+
   if (access) {
     res.status(200).json(access);
   } else {
