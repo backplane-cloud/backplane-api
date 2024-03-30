@@ -76,23 +76,30 @@ const getAppAccess = asyncHandler(async (req, res) => {
   const cloud = app.cloud;
   const environments = app.environments;
   let access;
-
+  // Get Org
+  const org = await Org.findById(orgId);
+  if (!org.csp) {
+    // Check for Cloud Service Provider Credentials
+    res.send("No Cloud Credentials Specified for Org, aborting App Creation");
+    return;
+  }
   if (cloud === "azure") {
-    // Get Org
-    const org = await Org.findById(orgId);
-
-    if (!org.csp) {
-      // Check for Cloud Service Provider Credentials
-      res.send("No Cloud Credentials Specified for Org, aborting App Creation");
-      return;
-    }
-
     // Get Cloud Credentials from Org for Cloud
     const cloudCredentials = org.csp.find(
       (cloud) => cloud.provider === "azure"
     );
-
     access = await getAzureAccess({ cloudCredentials, environments });
+  }
+
+  if (cloud === "gcp") {
+    // Get Cloud Credentials from Org for Cloud
+    const cloudCredentials = org.csp.find((cloud) => cloud.provider === "gcp");
+    // const parent = `organizations/${cloudCredentials.tenantId}`;
+
+    const client_email = cloudCredentials.gcpsecret.client_email;
+    const private_key = cloudCredentials.gcpsecret.private_key;
+
+    access = await getGCPAccess({ client_email, private_key, environments });
   }
 
   if (access) {
