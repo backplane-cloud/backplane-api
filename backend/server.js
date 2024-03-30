@@ -84,9 +84,9 @@ export default function init(app) {
 }
 
 // // Comment out below section when publishing as NPM package
-// const app = express();
-// init(app);
-// const port = 8000;
-// app.listen(port, () =>
-//   console.log(`Backplane REST API Server started on port ${port}`)
-// );
+const app = express();
+init(app);
+const port = 8000;
+app.listen(port, () =>
+  console.log(`Backplane REST API Server started on port ${port}`)
+);
