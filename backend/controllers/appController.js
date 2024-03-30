@@ -17,7 +17,7 @@ import {
 import {
   getGCPCost,
   getGCPAccess,
-  getGCPPolicy,
+  getGCPPolicies,
   createGCPEnvironments,
 } from "@backplane-software/backplane-gcp";
 
@@ -120,23 +120,33 @@ const getAppPolicies = asyncHandler(async (req, res) => {
   const cloud = app.cloud;
   const environments = app.environments;
   let policies;
+  // Get Org
+  const org = await Org.findById(orgId);
+  if (!org.csp) {
+    // Check for Cloud Service Provider Credentials
+    res.send("No Cloud Credentials Specified for Org, aborting App Creation");
+    return;
+  }
 
   if (cloud === "azure") {
-    // Get Org
-    const org = await Org.findById(orgId);
-
-    if (!org.csp) {
-      // Check for Cloud Service Provider Credentials
-      res.send("No Cloud Credentials Specified for Org, aborting App Creation");
-      return;
-    }
-
     // Get Cloud Credentials from Org for Cloud
     const cloudCredentials = org.csp.find(
       (cloud) => cloud.provider === "azure"
     );
 
     policies = await getAzurePolicies({ cloudCredentials, environments });
+  }
+
+  if (cloud === "gcp") {
+    // Get Cloud Credentials from Org for Cloud
+    const cloudCredentials = org.csp.find((cloud) => cloud.provider === "gcp");
+    const client_email = cloudCredentials.gcpsecret.client_email;
+    const private_key = cloudCredentials.gcpsecret.private_key;
+    policies = await getGCPPolicies({
+      client_email,
+      private_key,
+      environments,
+    });
   }
 
   if (policies) {
