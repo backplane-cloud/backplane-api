@@ -21,7 +21,11 @@ import {
   createGCPEnvironments,
 } from "@backplane-software/backplane-gcp";
 
-import { getAWSAccess, createAWSEnv } from "@backplane-software/backplane-aws";
+import {
+  getAWSPolicies,
+  getAWSAccess,
+  createAWSEnv,
+} from "@backplane-software/backplane-aws";
 
 // @desc  Get Apps
 // @route GET /api/apps
@@ -156,6 +160,21 @@ const getAppPolicies = asyncHandler(async (req, res) => {
     policies = await getGCPPolicies({
       client_email,
       private_key,
+      environments,
+    });
+  }
+
+  if (cloud === "aws") {
+    // Get Cloud Credentials from Org for Cloud
+    const cloudCredentials = org.csp.find((cloud) => cloud.provider === "aws");
+    // const parent = `organizations/${cloudCredentials.tenantId}`;
+
+    const accessKeyId = cloudCredentials.clientId;
+    const secretAccessKey = cloudCredentials.clientSecret;
+
+    policies = await getAWSPolicies({
+      accessKeyId,
+      secretAccessKey,
       environments,
     });
   }
