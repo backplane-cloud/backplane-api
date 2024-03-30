@@ -21,7 +21,7 @@
     "@azure/arm-resources": "^5.2.0",
     "@azure/arm-subscriptions": "^5.1.0",
     "@azure/identity": "^3.2.3",
-    "@backplane-software/backplane-aws": "^0.2.0",
+    "@backplane-software/backplane-aws": "^0.3.0",
     "@backplane-software/backplane-azure": "^0.2.0",
     "@backplane-software/backplane-gcp": "^0.3.0",
     "@google-cloud/bigquery": "^6.2.1",
