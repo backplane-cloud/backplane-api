@@ -10,6 +10,8 @@ import { ClientSecretCredential } from "@azure/identity";
 import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { BillingManagementClient } from "@azure/arm-billing";
 
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+
 // @desc  Get Products
 // @route GET /api/products
 // @access Private
@@ -28,7 +30,27 @@ const getProducts = asyncHandler(async (req, res) => {
 
   const products = await Product.find(query);
   if (products) {
-    res.status(200).json(products);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        products,
+        [
+          "code",
+          "name",
+          "description",
+          "type",
+          "status",
+          "platform",
+          "orgId",
+          "ownerId",
+          "apps",
+        ],
+        "Products",
+        "products"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(products);
+    }
   } else {
     res.status(400);
     throw new Error("No Products Found");
@@ -39,14 +61,34 @@ const getProducts = asyncHandler(async (req, res) => {
 // @route GET /api/products/:id
 // @access Private
 const getProduct = asyncHandler(async (req, res) => {
-  const products = await Product.find(
+  const product = await Product.findById(
     req.user.userType != "root"
       ? { orgId: req.user.orgId, _id: req.params.id }
       : { _id: req.params.id }
   );
 
-  if (products && products.length > 0) {
-    res.status(200).json(products);
+  if (product) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        product,
+        [
+          "code",
+          "name",
+          "description",
+          "type",
+          "status",
+          "platform",
+          "orgId",
+          "ownerId",
+          "apps",
+        ],
+        product.name,
+        "products"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(product);
+    }
   } else {
     // res.status(400);
     // throw new Error("No Products Found");

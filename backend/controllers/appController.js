@@ -7,6 +7,8 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 import Service from "../models/serviceModel.js";
 
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+
 import {
   getAzureCost,
   getAzurePolicies,
@@ -36,7 +38,29 @@ const getApps = asyncHandler(async (req, res) => {
   );
 
   if (apps) {
-    res.status(200).json(apps);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        apps,
+        [
+          "code",
+          "cloud",
+          "name",
+          "description",
+
+          "type",
+          "status",
+          "platform",
+          "orgId",
+          "ownerId",
+          "apps",
+        ],
+        "Apps",
+        "apps"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(apps);
+    }
   } else {
     res.status(400);
     throw new Error("No Apps Found");
@@ -47,10 +71,32 @@ const getApps = asyncHandler(async (req, res) => {
 // @route GET /api/apps/:id
 // @access Private
 const getApp = asyncHandler(async (req, res) => {
-  const apps = await App.findById(req.params.id);
+  const app = await App.findById(req.params.id);
 
-  if (apps) {
-    res.status(200).json(apps);
+  if (app) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        app,
+        [
+          "code",
+          "name",
+          "description",
+          "cloud",
+          "type",
+          "status",
+          "platform",
+          "orgId",
+
+          "ownerId",
+          "apps",
+        ],
+        app.name,
+        "apps"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(app);
+    }
   } else {
     res.status(400);
     throw new Error("No Apps Found");

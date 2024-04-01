@@ -2,6 +2,9 @@ import asyncHandler from "express-async-handler";
 
 import Service from "../models/serviceModel.js";
 
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import HTMX from "htmx";
+
 // @desc  Get Services
 // @route GET /api/services
 // @access Private
@@ -10,7 +13,17 @@ const getServices = asyncHandler(async (req, res) => {
     req.user.userType != "root" ? { orgId: req.user.orgId } : null
   );
   if (services) {
-    res.status(200).json(services);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        services,
+        ["code", "name", "description", "url", "apikey", "orgId", "ownerId"],
+        "Services",
+        "services"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(services);
+    }
   } else {
     res.status(400);
     throw new Error("No Services Found");
@@ -21,9 +34,19 @@ const getServices = asyncHandler(async (req, res) => {
 // @route GET /api/services/:id
 // @access Private
 const getService = asyncHandler(async (req, res) => {
-  const services = await Service.findById(req.params.id);
-  if (services) {
-    res.status(200).json(services);
+  const service = await Service.findById(req.params.id);
+  if (service) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        service,
+        ["code", "name", "description", "url", "apikey", "orgId", "ownerId"],
+        service.name,
+        "services"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(service);
+    }
   } else {
     res.status(400);
     throw new Error("No Services Found");

@@ -3,6 +3,8 @@ import asyncHandler from "express-async-handler";
 import Assignment from "../models/assignmentModel.js";
 import Team from "../models/teamModel.js";
 
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+
 // @desc  Get Assignments
 // @route GET /api/assignments
 // @access Private
@@ -11,7 +13,17 @@ const getAssignments = asyncHandler(async (req, res) => {
     req.user.userType != "root" ? { orgId: req.user.orgId } : null
   );
   if (assignments) {
-    res.status(200).json(assignments);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        assignments,
+        ["id", "type", "principal", "principalRef", "role", "orgId"],
+        "Assignments",
+        "assignments"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(assignments);
+    }
   } else {
     res.status(400);
     throw new Error("No Assignments Found");
@@ -26,14 +38,24 @@ const getAssignment = asyncHandler(async (req, res) => {
   console.log(orgId);
   console.log(req.user.userType);
   console.log({ id: req.params.id, orgId });
-  const assignments = await Assignment.find(
+  const assignment = await Assignment.findById(
     req.user.userType != "root"
       ? { _id: req.params.id, orgId } // Only return the assignment within the same Org as the User
       : { _id: req.params.id }
   );
 
-  if (assignments && assignments.length > 0) {
-    res.status(200).json(assignments);
+  if (assignment) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        assignment,
+        ["id", "type", "principal", "principalRef", "role", "orgId"],
+        "Assignments",
+        "assignments"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(assignment);
+    }
   } else {
     //res.status(400);
     res.send("Assignment Does not exist in this Org");

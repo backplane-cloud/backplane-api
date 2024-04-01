@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Platform from "../models/platformModel.js";
 import Request from "../models/requestModel.js";
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
 // @desc  Get Platforms
 // @route GET /api/platforms
@@ -11,7 +12,17 @@ const getPlatforms = asyncHandler(async (req, res) => {
   );
   //console.log(platforms);
   if (platforms) {
-    res.status(200).json(platforms);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        platforms,
+        ["code", "name", "type", "status", "orgId", "ownerId"],
+        "Platforms",
+        "platforms"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(platforms);
+    }
   } else {
     res.status(400);
     throw new Error("No Platforms Found");
@@ -22,13 +33,24 @@ const getPlatforms = asyncHandler(async (req, res) => {
 // @route GET /api/platforms/:id
 // @access Private
 const getPlatform = asyncHandler(async (req, res) => {
-  const platforms = await Platform.find(
+  const platform = await Platform.findById(
     req.user.userType != "root"
       ? { orgId: req.user.orgId, _id: req.params.id }
       : { _id: req.params.id }
   );
-  if (platforms && platforms.length > 0) {
-    res.status(200).json(platforms);
+  if (platform) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        platform,
+        ["code", "name", "type", "status", "orgId", "ownerId"],
+        platform.name,
+        "platforms"
+      );
+
+      res.send(HTML);
+    } else {
+      res.status(200).json(platform);
+    }
   } else {
     //res.status(400);
     // throw new Error("No Platforms Found");

@@ -235,10 +235,12 @@ import {
   updateMe,
   deleteUser,
   createUser,
+  checkAuth,
 } from "../controllers/userController.js";
 
 const router = express.Router();
 router.route("/me").get(protect, authz, getMe).put(protect, authz, updateMe);
+router.route("/check-auth").get(protect, authz, checkAuth);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.route("/register").post(registerUser);

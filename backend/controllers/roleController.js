@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 
 import Role from "../models/roleModel.js";
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
 // @desc  Get Roles
 // @route GET /api/roles
@@ -10,7 +11,17 @@ const getRoles = asyncHandler(async (req, res) => {
     req.user.userType != "root" ? { orgId: req.user.orgId } : null
   );
   if (roles) {
-    res.status(200).json(roles);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        roles,
+        ["name", "type", "allowActions", "orgId"],
+        "Roles",
+        "roles"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(roles);
+    }
   } else {
     res.status(400);
     throw new Error("No Roles Found");
@@ -32,9 +43,19 @@ const getInternalRoles = asyncHandler(async (req, res) => {
 // @route GET /api/roles/:id
 // @access Private
 const getRole = asyncHandler(async (req, res) => {
-  const roles = await Role.findById(req.params.id);
-  if (roles) {
-    res.status(200).json(roles);
+  const role = await Role.findById(req.params.id);
+  if (role) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        role,
+        ["name", "type", "allowActions", "orgId"],
+        role.name,
+        "roles"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(role);
+    }
   } else {
     res.status(400);
     throw new Error("No Roles Found");

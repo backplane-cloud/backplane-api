@@ -1,6 +1,12 @@
 import express from "express";
 // import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
+
+import { fileURLToPath } from "url";
+import path from "path";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -53,12 +59,11 @@ export default function init(app) {
   connectDB();
 
   // const port = process.env.PORT || 5000;
-
   // const app = express();
 
   // app.use(notFound);
   // app.use(errorHandler);
-
+  app.use(cors({ credentials: true })); // Enable CORS for all origins
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
@@ -78,15 +83,19 @@ export default function init(app) {
   app.use("/api/requests", requestRoutes);
   app.use("/api/services", serviceRoutes);
   app.use("/api/backlogs", backlogRoutes);
-
-  app.get("/", (req, res) => res.send("Backplane REST API Server is ready"));
+  app.use(express.static(path.join(__dirname, "../", "public")));
+  // app.get("/", (req, res) => res.send("Backplane REST API Server is ready"));
+  // Handle root URL ("/") to serve index.html
+  app.get("/admin", (req, res) => {
+    res.sendFile(path.join(__dirname, "../public", "index.html"));
+  });
   return;
 }
 
 // // Comment out below section when publishing as NPM package
-// const app = express();
-// init(app);
-// const port = 8000;
-// app.listen(port, () =>
-//   console.log(`Backplane REST API Server started on port ${port}`)
-// );
+const app = express();
+init(app);
+const port = 8000;
+app.listen(port, () =>
+  console.log(`Backplane REST API Server started on port ${port}`)
+);

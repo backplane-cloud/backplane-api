@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Backplane Console</title>
+    <script
+      src="https://unpkg.com/htmx.org@1.9.11"
+      integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body class="">
+    <!-- HEADER -->
+    <div class="w-full flex justify-between">
+      <div class="flex">
+        <img src="img/backplane-logo.png" class="h-15 ml-10 m-5" />
+      </div>
+      <div class="flex items-center">
+        <h1 class="font-bold text-3xl m-5">Backplane Administration Console</h1>
+      </div>
+      <div
+        id="userProfile"
+        hx-get="/api/users/check-auth"
+        hx-trigger="load"
+      ></div>
+    </div>
+
+    <!-- NAVIGATION MENU -->
+    <div
+      class="font-medium text-center text-gray-500 border-gray-200 dark:text-gray-400 dark:border-gray-700"
+    >
+      <ul class="flex flex-wrap -mb-px justify-center">
+        <li class="me-2">
+          <a
+            href="#"
+            class="inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500"
+            >Dashboard</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/orgs"
+            hx-target="#datapane"
+            hx-indicator="#loading"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Organisations</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/users"
+            hx-target="#datapane"
+            hx-indicator="#loading"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Users</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/roles"
+            hx-target="#datapane"
+            hx-indicator="#loading"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Roles</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/assignments"
+            hx-target="#datapane"
+            hx-indicator="#loading"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Assignments</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/teams"
+            hx-target="#datapane"
+            hx-indicator="#loading"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Teams</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/platforms"
+            hx-target="#datapane"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Platforms</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/products"
+            hx-target="#datapane"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Products</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/apps"
+            hx-target="#datapane"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Apps</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/requests"
+            hx-target="#datapane"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Requests</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/services"
+            hx-target="#datapane"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Services</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Settings</a
+          >
+        </li>
+        <li class="me-2">
+          <a
+            hx-get="/api/users/me"
+            hx-target="#datapane"
+            hx-headers='{"ui": true}'
+            href="#"
+            class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            >Profile</a
+          >
+        </li>
+      </ul>
+    </div>
+    <!-- 
+    <span class="htmx-indicator" id="loading">
+      <img src="img/loader.gif" class="m-auto h-10" alt="Loading..." />
+    </span> -->
+
+    <!-- LOGIN FORM -->
+    <div id="loginSection" hx-target="#userProfile" class="mt-0">
+      <form
+        class="max-w-sm mx-auto"
+        id="loginForm"
+        hx-swap="outerHTML"
+        hx-target="#loginSection"
+        hx-post="/api/users/login"
+        hx-headers='{"ui": true}'
+      >
+        <div class="mb-5">
+          <label
+            for="email"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Your email</label
+          >
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="user@backplane.cloud"
+            required
+          />
+        </div>
+        <div class="mb-5">
+          <label
+            for="password"
+            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >Your password</label
+          >
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            required
+          />
+        </div>
+        <div class="flex items-start mb-5">
+          <div class="flex items-center h-5">
+            <input
+              id="remember"
+              type="checkbox"
+              value=""
+              class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
+              required
+            />
+          </div>
+          <label
+            for="remember"
+            class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+            >Remember me</label
+          >
+        </div>
+        <button
+          hx-post="/api/users/login"
+          type="submit"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        >
+          Submit
+        </button>
+      </form>
+    </div>
+
+    <!-- DATA PANE  -->
+    <div id="datapane" class="m-10">
+      <!-- HTMX will replace this section with the response from the server -->
+    </div>
+  </body>
+</html>

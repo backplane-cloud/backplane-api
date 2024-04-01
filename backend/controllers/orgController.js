@@ -6,6 +6,9 @@ import Request from "../models/requestModel.js";
 // @desc  Get Orgs
 // @route GET /api/orgs
 // @access Private
+
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+
 const getOrgs = asyncHandler(async (req, res) => {
   const orgs = !req.user.allowedActions.includes("/*")
     ? await Org.findById(req.user.orgId)
@@ -13,7 +16,17 @@ const getOrgs = asyncHandler(async (req, res) => {
 
   // const orgs = await Org.find({ _id: req.user.orgId });
   if (orgs) {
-    res.status(200).json(orgs);
+    if (req.headers.ui) {
+      const htmlTable = HTMXify(
+        orgs,
+        ["code", "name", "type", "budget", "ownerId"],
+        "Organsations",
+        "orgs"
+      );
+      res.send(htmlTable);
+    } else {
+      res.status(200).json(orgs);
+    }
   } else {
     res.status(400);
     throw new Error("No Orgs Found");
@@ -27,24 +40,36 @@ const getOrg = asyncHandler(async (req, res) => {
   //let orgId = req.user.orgId.toHexString();
 
   let org;
+
   if (req.params.id.length === 24) {
     org = await Org.findById(req.params.id);
 
-    if (org) {
-      res.status(200).json(org);
-    } else {
-      res.send("Org not found");
-      // res.status(400);
-      // throw new Error("No Orgs Found");
-    }
+    // if (org) {
+    //   res.status(200).json(org);
+    // } else {
+    //   res.send("Org not found");
+    //   res.status(400);
+    //   throw new Error("No Orgs Found");
+    // }
   } else {
     org = await Org.findOne({ code: req.params.id });
-    if (org) {
-      res.status(200).json(org);
+  }
+
+  if (org) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        org,
+        ["id", "code", "name", "type", "budget", "ownerId"],
+        "Organsations",
+        "orgs"
+      );
+      res.send(HTML);
     } else {
-      res.status(400);
-      throw new Error("No Orgs Found");
+      res.status(200).json(org);
     }
+  } else {
+    res.status(400);
+    throw new Error("No Orgs Found");
   }
 });
 

@@ -10,6 +10,8 @@ import Product from "../models/productModel.js";
 import Platform from "../models/platformModel.js";
 import Org from "../models/orgModel.js";
 
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+
 // EVENT CODE
 
 //create an object of EventEmitter class by using above reference
@@ -211,7 +213,26 @@ const getRequests = asyncHandler(async (req, res) => {
     req.user.userType != "root" ? { orgId: req.user.orgId } : null
   );
   if (requests) {
-    res.status(200).json(requests);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        requests,
+        [
+          "id",
+          "type",
+          "orgId",
+          "data",
+          "approvalCode",
+          "approver",
+          "requestedBy",
+          "RequestedForType",
+        ],
+        "Requests",
+        "requests"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(requests);
+    }
   } else {
     res.status(400);
     throw new Error("No Requests Found");
@@ -222,9 +243,28 @@ const getRequests = asyncHandler(async (req, res) => {
 // @route GET /api/requests/:id
 // @access Private
 const getRequest = asyncHandler(async (req, res) => {
-  const requests = await Request.findById(req.params.id);
-  if (requests) {
-    res.status(200).json(requests);
+  const request = await Request.findById(req.params.id);
+  if (request) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        request,
+        [
+          "id",
+          "type",
+          "orgId",
+          "data",
+          "approvalCode",
+          "approver",
+          "requestedBy",
+          "RequestedForType",
+        ],
+        "Request",
+        "requests"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(request);
+    }
   } else {
     res.status(400);
     throw new Error("No Requests Found");

@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 
 import Team from "../models/teamModel.js";
 import User from "../models/userModel.js";
-
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 // @desc  Get Teams
 // @route GET /api/teams
 // @access Private
@@ -12,7 +12,17 @@ const getTeams = asyncHandler(async (req, res) => {
   );
 
   if (teams) {
-    res.status(200).json(teams);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        teams,
+        ["name", "code", "members", "scope", "ownerId", "orgId"],
+        "Teams",
+        "teams"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(teams);
+    }
   } else {
     res.status(400);
     throw new Error("No Teams Found");
@@ -23,9 +33,19 @@ const getTeams = asyncHandler(async (req, res) => {
 // @route GET /api/teams/:id
 // @access Private
 const getTeam = asyncHandler(async (req, res) => {
-  const teams = await Team.findById(req.params.id);
-  if (teams) {
-    res.status(200).json(teams);
+  const team = await Team.findById(req.params.id);
+  if (team) {
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(
+        team,
+        ["name", "code", "members", "scope", "ownerId", "orgId"],
+        team.name,
+        "teams"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(team);
+    }
   } else {
     res.status(400);
     throw new Error("No Teams Found");

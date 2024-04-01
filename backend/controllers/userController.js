@@ -2,6 +2,8 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import Org from "../models/orgModel.js";
 
+import { loginHTMX, viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+
 import generateToken from "../utils/generateToken.js";
 
 import nodemailer from "nodemailer";
@@ -83,7 +85,17 @@ const getUsers = asyncHandler(async (req, res) => {
   );
 
   if (users) {
-    res.status(200).json(users);
+    if (req.headers.ui) {
+      let HTML = HTMXify(
+        users,
+        ["name", "email", "orgId", "teams", "userType", "allowedActions"],
+        "Users",
+        "users"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(users);
+    }
     //console.log(req);
     logger.info("Retrieving Users", {
       caller: req.user.name,
@@ -111,7 +123,18 @@ const getUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
-    res.status(200).json(user);
+    if (req.headers.ui) {
+      console.log(user);
+      let HTML = viewHTMXify(
+        user,
+        ["name", "email", "orgId", "teams", "userType", "allowedActions"],
+        user.name,
+        "users"
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(user);
+    }
   } else {
     // throw new Error("No Users found");
     logger.warn("No users Found");
@@ -288,8 +311,8 @@ const createUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ email });
 
+  const user = await User.findOne({ email });
   if (user && (await user.matchPasswords(password))) {
     const token = generateToken(res, user._id);
     // console.log(
@@ -357,15 +380,25 @@ const loginUser = asyncHandler(async (req, res) => {
     user.allowedActions = allowedActions;
     user.save();
 
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      orgId: user.orgId,
-      userType: user.userType,
-      allowedActions,
-      token,
-    });
+    if (req.headers.ui) {
+      let HTML = `
+      <div >
+ ${user.name} <button class="btn btn-primary" hx-headers='{"ui": true}' hx-post="/api/users/logout">Logout</button>,
+</div>
+      `;
+      res.send(HTML);
+    } else {
+      res.status(201).json({
+        success: true,
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        orgId: user.orgId,
+        userType: user.userType,
+        allowedActions,
+        token,
+      });
+    }
   } else {
     res
       .status(401)
@@ -386,8 +419,13 @@ const logoutUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     expires: new Date(0),
   });
-  res.status(200).json({ message: "User Logged Out" });
-  logger.info(`${req.user.email} Logged Out`);
+  if (req.headers.ui) {
+    let HTML = loginHTMX();
+    res.send(HTML);
+  } else {
+    res.status(200).json({ message: "User Logged Out" });
+  }
+  // logger.info(`${req.user.email} Logged Out`);
 });
 
 // @desc    Get Logged In User
@@ -405,6 +443,30 @@ const getMe = asyncHandler(async (req, res) => {
   };
 
   res.status(200).json(user);
+});
+
+// @desc    Check User is Authenticated
+// route    GET /api/users/check-auth
+// @access  Private
+
+const checkAuth = asyncHandler(async (req, res) => {
+  // const user = {
+  //   _id: req.user._id,
+  //   name: req.user.name,
+  //   email: req.user.email,
+  //   orgId: req.user.orgId,
+  //   userType: req.user.userType,
+  //   allowedActions: req.user.allowedActions,
+  // };
+
+  // res.status(200).json(user);
+
+  let HTML = `
+  <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+  Welcome back ${req.user.name} <button type="submit" hx-headers='{"ui": true}' hx-post="/api/users/logout" hx-target="#loginSection">Logout</button>,
+</div>
+  `;
+  res.send(HTML);
 });
 
 // @desc    Update Logged in User
@@ -499,4 +561,5 @@ export {
   deleteUser,
   getUserInternal,
   createUser,
+  checkAuth,
 };
