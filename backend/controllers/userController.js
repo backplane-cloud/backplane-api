@@ -75,6 +75,15 @@ bp auth login --email ${email} --password <password>
   main().catch(console.error);
 });
 
+const fields = [
+  "name",
+  "email",
+  "orgId",
+  "teams",
+  "userType",
+  "allowedActions",
+];
+
 // @desc    Get Users
 // route    GET /api/users
 // @access  Private
@@ -86,12 +95,7 @@ const getUsers = asyncHandler(async (req, res) => {
 
   if (users) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        users,
-        ["name", "email", "orgId", "teams", "userType", "allowedActions"],
-        "Users",
-        "users"
-      );
+      let HTML = HTMXify(users, fields, "Users", "users");
       res.send(HTML);
     } else {
       res.status(200).json(users);
@@ -119,29 +123,43 @@ const getUser = asyncHandler(async (req, res) => {
     url: req.baseUrl,
     method: req.method,
   });
+  // Handles return of HTMX for Create New Platform
+  console.log(req.headers.action);
 
-  const user = await User.findById(req.params.id);
-
-  if (user) {
-    if (req.headers.ui) {
-      console.log(user);
-      let HTML = viewHTMXify(
-        user,
-        ["name", "email", "orgId", "teams", "userType", "allowedActions"],
-        user.name,
-        "users",
-        req.headers.edit
-      );
-      res.send(HTML);
-    } else {
-      res.status(200).json(user);
-    }
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "email", "password", "userType"],
+      "Create User",
+      "users",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    // throw new Error("No Users found");
-    logger.warn("No users Found");
-    res.status(404).send("No Users Found");
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+      if (req.headers.ui) {
+        console.log(user);
+        let HTML = viewHTMXify(
+          user,
+          fields,
+          user.name,
+          "users",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(user);
+      }
+    } else {
+      // throw new Error("No Users found");
+      logger.warn("No users Found");
+      res.status(404).send("No Users Found");
+    }
   }
 });
+
 // @desc    Get a User
 // route    GET /api/users/:id
 // @access  Private
@@ -293,13 +311,19 @@ const createUser = asyncHandler(async (req, res) => {
 
   if (user) {
     generateToken(res, user._id);
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      orgId: user.orgId,
-      userType: user.userType,
-    });
+
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(user, fields, user.name, "users");
+      res.send(HTML);
+    } else {
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        orgId: user.orgId,
+        userType: user.userType,
+      });
+    }
   } else {
     res.status(400);
     throw new Error("Invalid user data");
@@ -316,6 +340,15 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
   if (user && (await user.matchPasswords(password))) {
     const token = generateToken(res, user._id);
+
+    // Set Cookie upon Login only and not User Creation.
+    res.cookie("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== "development",
+      sameSite: "strict",
+      maxAge: 2592000000, // 30 days in ms
+    });
+
     // console.log(
     //   `User ${email} has successfully signed in. JWT Token: \n${token}`
     // );
@@ -382,12 +415,7 @@ const loginUser = asyncHandler(async (req, res) => {
     user.save();
 
     if (req.headers.ui) {
-      let HTML = `
-      <div >
- ${user.name} <button class="btn btn-primary" hx-headers='{"ui": true}' hx-post="/api/users/logout">Logout</button>,
-</div>
-      `;
-      res.send(HTML);
+      res.status(200).send({ isAuthenticated: true });
     } else {
       res.status(201).json({
         success: true,
@@ -401,9 +429,14 @@ const loginUser = asyncHandler(async (req, res) => {
       });
     }
   } else {
-    res
-      .status(401)
-      .send(`Authentication Failed for ${email}, Invalid email or password`);
+    if (req.headers.ui) {
+      res.send("<h1>Authentication Failed");
+    } else {
+      res
+        .status(401)
+        .send(`Authentication Failed for ${email}, Invalid email or password`);
+    }
+
     // //throw new Error("Invalid email or password");
     logger.error(
       new Error(`Authentication Failed for ${email}, Invalid email or password`)
@@ -449,7 +482,7 @@ const getMe = asyncHandler(async (req, res) => {
 // @desc    Check User is Authenticated
 // route    GET /api/users/check-auth
 // @access  Private
-
+import jwt from "jsonwebtoken";
 const checkAuth = asyncHandler(async (req, res) => {
   // const user = {
   //   _id: req.user._id,
@@ -462,12 +495,43 @@ const checkAuth = asyncHandler(async (req, res) => {
 
   // res.status(200).json(user);
 
-  let HTML = `
-  <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-  Welcome back ${req.user.name} <button type="submit" hx-headers='{"ui": true}' hx-post="/api/users/logout" hx-target="#loginSection">Logout</button>,
-</div>
-  `;
-  res.send(HTML);
+  //   let HTML = `
+  //   <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+  //   Welcome back ${req.user.name} <button type="submit" hx-headers='{"ui": true}' hx-post="/api/users/logout" hx-target="#loginSection">Logout</button>,
+  // </div>
+  //   `;
+  //   res.send(HTML);
+  let token;
+  try {
+    token = req.cookies.jwt
+      ? req.cookies.jwt
+      : req.headers.authorization.split(" ")[1]; // CLI - retrieve token from Authorization Header, replaces req.query.token;
+  } catch (err) {
+    // res.status(401);
+    // throw new Error("Not authenticated, no token");
+    if (req.headers.ui) {
+      res.send({ isAuthenticated: false });
+    }
+    // logger.warn(`Not authenticated, No Token`);
+  }
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = await User.findById(decoded.userId).select("-password");
+
+      res.send({ isAuthenticated: true });
+    } catch (error) {
+      // res.status(401).send(`Not authenticated, Invalid Token`);
+      // throw new Error("Not authenticated, invalid token");
+      logger.warn(new Error("Not authenticated, invalid token"));
+    }
+  } else {
+    res.send({ isAuthenticated: false });
+
+    // throw new Error("Not authenticated, no token");
+    // logger.warn(`Not authenticated, No Token`);
+  }
 });
 
 // @desc    Update Logged in User
@@ -514,6 +578,7 @@ const updateUser = asyncHandler(async (req, res) => {
     user.email = req.body.email || user.email;
     user.orgId = req.body.orgId || user.orgId;
     user.userType = req.body.userType || user.userType;
+    user.teams = req.body.teams || user.teams;
 
     if (req.body.password) {
       user.password = req.body.password;
@@ -521,29 +586,23 @@ const updateUser = asyncHandler(async (req, res) => {
 
     const updatedUser = await user.save();
 
-    res.status(200).json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      orgId: updatedUser.orgId,
-      userType: updatedUser.userType,
-    });
+    if (req.headers.ui) {
+      let HTML = viewHTMXify(updatedUser, fields, "User", "users");
+      res.send(HTML);
+    } else {
+      res.status(200).json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        orgId: updatedUser.orgId,
+        userType: updatedUser.userType,
+      });
+    }
   } else {
     res.status(404);
     logger.warn("UPDATE USER: User not found");
   }
 
-  if (req.headers.ui) {
-    let HTML = viewHTMXify(
-      updatedUser,
-      ["name", "email", "orgId", "teams", "userType", "allowedActions"],
-      "Organsations",
-      "orgs"
-    );
-    res.send(HTML);
-  } else {
-    res.status(200).json(updatedUser);
-  }
   //res.status(200).json({ message: "Update User Profile" });
 });
 

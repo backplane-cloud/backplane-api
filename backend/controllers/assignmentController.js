@@ -40,33 +40,47 @@ const getAssignments = asyncHandler(async (req, res) => {
 // @route GET /api/assignments/:id
 // @access Private
 const getAssignment = asyncHandler(async (req, res) => {
-  let orgId = req.user.orgId.toHexString();
-  console.log(orgId);
-  console.log(req.user.userType);
-  console.log({ id: req.params.id, orgId });
-  const assignment = await Assignment.findById(
-    req.user.userType != "root"
-      ? { _id: req.params.id, orgId } // Only return the assignment within the same Org as the User
-      : { _id: req.params.id }
-  );
+  // Handles return of HTMX for Create New Role Assignment
+  console.log(req.headers.action);
 
-  if (assignment) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        assignment,
-        fields,
-        "Assignment",
-        "assignments",
-        req.headers.edit
-      );
-      res.send(HTML);
-    } else {
-      res.status(200).json(assignment);
-    }
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["type", "principal", "principalRef", "scope", "role", "expires"],
+      "Create Role Assignment",
+      "assignments",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    //res.status(400);
-    res.send("Assignment Does not exist in this Org");
-    //throw new Error("No Assignments Found");
+    let orgId = req.user.orgId.toHexString();
+    console.log(orgId);
+    console.log(req.user.userType);
+    console.log({ id: req.params.id, orgId });
+    const assignment = await Assignment.findById(
+      req.user.userType != "root"
+        ? { _id: req.params.id, orgId } // Only return the assignment within the same Org as the User
+        : { _id: req.params.id }
+    );
+
+    if (assignment) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          assignment,
+          fields,
+          "Assignment",
+          "assignments",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(assignment);
+      }
+    } else {
+      //res.status(400);
+      res.send("Assignment Does not exist in this Org");
+      //throw new Error("No Assignments Found");
+    }
   }
 });
 
@@ -170,12 +184,19 @@ const setAssignment = asyncHandler(async (req, res) => {
       createdBy: req.user.id,
     });
     console.log(req.body);
-    res.status(200).json(assignment);
+    // res.status(200).json(assignment);
   } else {
     assignment = await Assignment.create({
       ...req.body,
     });
-    return;
+    // return;
+  }
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(assignment, fields, "Assignment", "assignments");
+    res.send(HTML);
+  } else {
+    res.status(200).json(assignment);
   }
 });
 

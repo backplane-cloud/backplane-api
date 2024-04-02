@@ -4,7 +4,7 @@ import Role from "../models/roleModel.js";
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
-const fields = ["name", "type", "allowActions", "orgId"];
+const fields = ["name", "type", "allowActions", "orgId", "ownerId"];
 
 // @desc  Get Roles
 // @route GET /api/roles
@@ -41,23 +41,37 @@ const getInternalRoles = asyncHandler(async (req, res) => {
 // @route GET /api/roles/:id
 // @access Private
 const getRole = asyncHandler(async (req, res) => {
-  const role = await Role.findById(req.params.id);
-  if (role) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        role,
-        fields,
-        role.name,
-        "roles",
-        req.headers.edit
-      );
-      res.send(HTML);
-    } else {
-      res.status(200).json(role);
-    }
+  // Handles return of HTMX for Create New Role
+  console.log(req.headers.action);
+
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "type", "allowActions"],
+      "Create Role",
+      "roles",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    res.status(400);
-    throw new Error("No Roles Found");
+    const role = await Role.findById(req.params.id);
+    if (role) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          role,
+          fields,
+          role.name,
+          "roles",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(role);
+      }
+    } else {
+      res.status(400);
+      throw new Error("No Roles Found");
+    }
   }
 });
 
@@ -104,12 +118,21 @@ const setRole = asyncHandler(async (req, res) => {
   //     throw new Error("Please add a text field");
   //   }
   let orgId = req.user.userType != "root" && req.user.orgId;
+
   const role = await Role.create({
     ...req.body,
+    ownerId: req.body.ownerId || req.user.id,
     orgId,
   });
   console.log(role);
-  res.status(200).json(role);
+  // res.status(200).json(role);
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(role, fields, role.name, "roles");
+    res.send(HTML);
+  } else {
+    res.status(200).json(role);
+  }
 });
 
 // @desc  Create Role

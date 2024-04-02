@@ -5,12 +5,13 @@ const generateToken = (res, userId) => {
     expiresIn: "30d",
   });
 
-  res.cookie("jwt", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV !== "development",
-    sameSite: "strict",
-    maxAge: 2592000000, // 30 days in ms
-  });
+  // Moved to User Login so that Logged in User is not logged out when creating a new user.
+  // res.cookie("jwt", token, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV !== "development",
+  //   sameSite: "strict",
+  //   maxAge: 2592000000, // 30 days in ms
+  // });
 
   return token;
 };

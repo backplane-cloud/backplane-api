@@ -4,11 +4,15 @@ const teamSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Please add a text value"],
+      required: [true, "A name is required"],
+    },
+    name: {
+      type: String,
+      required: [false, "Description is Optional"],
     },
     code: {
       type: String,
-      required: [true, "Please add a text value"],
+      required: [true, "A code is required"],
     },
     orgId: {
       type: mongoose.Schema.Types.ObjectId,

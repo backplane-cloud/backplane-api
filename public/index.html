@@ -11,24 +11,26 @@
       crossorigin="anonymous"
     ></script>
   </head>
-  <body class="">
+  <body>
     <!-- HEADER -->
-    <div class="w-full flex justify-between">
+    <div
+      class="w-full flex justify-between"
+      id="header-section"
+      style="display: none"
+    >
       <div class="flex">
         <img src="img/backplane-logo.png" class="h-15 ml-10 m-5" />
       </div>
       <div class="flex items-center">
         <h1 class="font-bold text-3xl m-5">Backplane Administration Console</h1>
       </div>
-      <div
-        id="userProfile"
-        hx-get="/api/users/check-auth"
-        hx-trigger="load"
-      ></div>
+      <div id="userProfile"></div>
     </div>
 
     <!-- NAVIGATION MENU -->
     <div
+      id="navigation-section"
+      style="display: block"
       class="font-medium text-center text-gray-500 border-gray-200 dark:text-gray-400 dark:border-gray-700"
     >
       <ul class="flex flex-wrap -mb-px justify-center">
@@ -161,28 +163,31 @@
             >Profile</a
           >
         </li>
+        <li><div hx-post="/api/users/logout">Logout</div></li>
       </ul>
     </div>
-    <!-- 
-    <span class="htmx-indicator" id="loading">
-      <img src="img/loader.gif" class="m-auto h-10" alt="Loading..." />
-    </span> -->
 
     <!-- LOGIN FORM -->
-    <div id="loginSection" hx-target="#userProfile" class="mt-0">
+
+    <div id="login-section" class="mt-0" style="display: none">
+      <img src="/img/backplane-logo.png" class="mx-auto mt-20" />
+      <div class="mx-auto w-96 mt-10 mb-10">
+        <h1 class="text-3xl">Login</h1>
+      </div>
       <form
         class="max-w-sm mx-auto"
-        id="loginForm"
+        id="login-form"
         hx-swap="outerHTML"
-        hx-target="#loginSection"
+        hx-target="#login-section"
         hx-post="/api/users/login"
         hx-headers='{"ui": true}'
+        hx-trigger="myEvent from:body"
       >
         <div class="mb-5">
           <label
             for="email"
             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Your email</label
+            >Username</label
           >
           <input
             type="email"
@@ -197,7 +202,7 @@
           <label
             for="password"
             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >Your password</label
+            >Password</label
           >
           <input
             type="password"
@@ -208,7 +213,7 @@
           />
         </div>
         <div class="flex items-start mb-5">
-          <div class="flex items-center h-5">
+          <!-- <div class="flex items-center h-5">
             <input
               id="remember"
               type="checkbox"
@@ -221,21 +226,30 @@
             for="remember"
             class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
             >Remember me</label
-          >
+          > -->
         </div>
         <button
           hx-post="/api/users/login"
           type="submit"
           class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
-          Submit
+          Login
         </button>
       </form>
+    </div>
+
+    <div id="success-message" style="display: none">
+      <p>Login successful! Welcome!</p>
     </div>
 
     <!-- DATA PANE  -->
     <div id="datapane" class="m-10">
       <!-- HTMX will replace this section with the response from the server -->
+      <!-- <span class="htmx-indicator" id="loading">
+        <img src="img/loader.gif" class="m-auto h-10" alt="Loading..." />
+      </span> -->
     </div>
+
+    <script src="./library.js"></script>
   </body>
 </html>

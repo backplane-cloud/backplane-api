@@ -32,23 +32,37 @@ const getTeams = asyncHandler(async (req, res) => {
 // @route GET /api/teams/:id
 // @access Private
 const getTeam = asyncHandler(async (req, res) => {
-  const team = await Team.findById(req.params.id);
-  if (team) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        team,
-        fields,
-        team.name,
-        "teams",
-        req.headers.edit
-      );
-      res.send(HTML);
-    } else {
-      res.status(200).json(team);
-    }
+  // Handles return of HTMX for Create New Team
+  console.log(req.headers.ui);
+
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "description", "scope"],
+      "Create Team",
+      "teams",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    res.status(400);
-    throw new Error("No Teams Found");
+    const team = await Team.findById(req.params.id);
+    if (team) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          team,
+          fields,
+          team.name,
+          "teams",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(team);
+      }
+    } else {
+      res.status(400);
+      throw new Error("No Teams Found");
+    }
   }
 });
 
@@ -60,17 +74,24 @@ const setTeam = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Please add a text field");
   }
-
+  let code = req.body.name.toLowerCase().replace(" ", "-");
   const team = await Team.create({
     name: req.body.name,
-    code: req.body.code,
+    code,
     //members: req.body.members,
     owners: req.body.owner,
     scope: `/orgs/${req.user.orgId}${req.body.scope}`,
     orgId: req.body.orgid || req.user.orgId,
   });
   console.log(team);
-  res.status(200).json(team);
+  // res.status(200).json(team);
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(team, fields, team.name, "teams");
+    res.send(HTML);
+  } else {
+    res.status(200).json(team);
+  }
 });
 
 // @desc  Update Team
@@ -86,6 +107,7 @@ const updateTeam = asyncHandler(async (req, res) => {
 
   const teamBody = {
     ...req.body,
+    members: [...req.body.members],
     // name: req.body.name,
     // code: req.body.code,
     // scope: req.body.scope,

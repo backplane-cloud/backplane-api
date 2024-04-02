@@ -19,6 +19,11 @@ const roleSchema = mongoose.Schema(
       required: true,
       ref: "Org",
     },
+    ownerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
   },
   {
     timestamps: true,

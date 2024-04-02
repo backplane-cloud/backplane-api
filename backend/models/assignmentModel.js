@@ -18,7 +18,7 @@ const assignmentSchema = mongoose.Schema(
     principalRef: {
       type: String,
       required: true,
-      enum: ["User", "Team"],
+      enum: ["user", "team"],
     },
     role: {
       type: mongoose.Schema.Types.ObjectId,

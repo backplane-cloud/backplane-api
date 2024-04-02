@@ -68,18 +68,36 @@ const getApps = asyncHandler(async (req, res) => {
 // @route GET /api/apps/:id
 // @access Private
 const getApp = asyncHandler(async (req, res) => {
-  const app = await App.findById(req.params.id);
-
-  if (app) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(app, fields, app.name, "apps", req.headers.edit);
-      res.send(HTML);
-    } else {
-      res.status(200).json(app);
-    }
+  // Handles return of HTMX for Create New App
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "cloud", "template"],
+      "Create App",
+      "apps",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    res.status(400);
-    throw new Error("No Apps Found");
+    const app = await App.findById(req.params.id);
+
+    if (app) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          app,
+          fields,
+          app.name,
+          "apps",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(app);
+      }
+    } else {
+      res.status(400);
+      throw new Error("No Apps Found");
+    }
   }
 });
 
@@ -424,7 +442,14 @@ const setApp = asyncHandler(async (req, res) => {
     // repo: req.body.template === "sandbox" ? "No Repo" : repo.data.full_name,
   });
   console.log(`App Successfully Provisioned in ${req.body.cloud}`);
-  res.status(200).json({ app });
+  // res.status(200).json({ app });
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(app, fields, "Apps", "apps");
+    res.send(HTML);
+  } else {
+    res.status(200).json(app);
+  }
 });
 
 // @desc  Update App

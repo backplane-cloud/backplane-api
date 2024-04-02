@@ -5,15 +5,7 @@ import Service from "../models/serviceModel.js";
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 // These fields determine what to display on HTMX responses from Backplane UI
 
-const fields = [
-  "code",
-  "name",
-  "description",
-  "url",
-  "apikey",
-  "orgId",
-  "ownerId",
-];
+const fields = ["name", "description", "url", "apikey", "ownerId"];
 
 // @desc  Get Services
 // @route GET /api/services
@@ -39,23 +31,37 @@ const getServices = asyncHandler(async (req, res) => {
 // @route GET /api/services/:id
 // @access Private
 const getService = asyncHandler(async (req, res) => {
-  const service = await Service.findById(req.params.id);
-  if (service) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        service,
-        fields,
-        service.name,
-        "services",
-        req.headers.edit
-      );
-      res.send(HTML);
-    } else {
-      res.status(200).json(service);
-    }
+  // Handles return of HTMX for Create New Service
+  console.log("req action", req.headers.action);
+
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      fields,
+      "Create Service",
+      "services",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    res.status(400);
-    throw new Error("No Services Found");
+    const service = await Service.findById(req.params.id);
+    if (service) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          service,
+          fields,
+          service.name,
+          "services",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(service);
+      }
+    } else {
+      res.status(400);
+      throw new Error("No Services Found");
+    }
   }
 });
 
@@ -67,20 +73,26 @@ const setService = asyncHandler(async (req, res) => {
   //   res.status(400);
   //   throw new Error("Please add a text field");
   // }
+  let code = req.body.name.toLowerCase().replace(" ", "-");
 
   const service = await Service.create({
     name: req.body.name,
-    code: req.body.code,
+    code,
     description: req.body.description,
     url: req.body.url,
     apikey: req.body.apikey,
-    orgId: req.body.orgId,
-    ownerId: req.body.ownerId,
+    orgId: req.body.orgId ? req.body.orgId : req.user.orgId,
+    ownerId: req.body.ownerId ? req.body.ownerId : req.user.id,
     tags: req.body.tags,
     status: req.body.status,
   });
   console.log(req.body);
-  res.status(200).json(service);
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(service, fields, service.name, "services");
+    res.send(HTML);
+  } else {
+    res.status(200).json(service);
+  }
 });
 
 // @desc  Update Service
@@ -103,7 +115,7 @@ const updateService = asyncHandler(async (req, res) => {
   );
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedService, fields, "Role", "roles");
+    let HTML = viewHTMXify(updatedService, fields, "Service", "services");
     res.send(HTML);
   } else {
     res.status(200).json(updatedService);

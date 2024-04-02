@@ -15,13 +15,13 @@ import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
   "id",
-  "type",
+  "requestType",
   "orgId",
   "data",
   "approvalCode",
   "approver",
   "requestedBy",
-  "RequestedForType",
+  "requestedForType",
   "approvalStatus",
 ];
 
@@ -242,23 +242,37 @@ const getRequests = asyncHandler(async (req, res) => {
 // @route GET /api/requests/:id
 // @access Private
 const getRequest = asyncHandler(async (req, res) => {
-  const request = await Request.findById(req.params.id);
-  if (request) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        request,
-        fields,
-        "Request",
-        "requests",
-        req.headers.edit
-      );
-      res.send(HTML);
-    } else {
-      res.status(200).json(request);
-    }
+  // Handles return of HTMX for Create New Request
+  console.log(req.headers.action);
+
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["requestType", "requestedForType", "requestedForId", "appId"],
+      "Create Request",
+      "requests",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    res.status(400);
-    throw new Error("No Requests Found");
+    const request = await Request.findById(req.params.id);
+    if (request) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          request,
+          fields,
+          "Request",
+          "requests",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(request);
+      }
+    } else {
+      res.status(400);
+      throw new Error("No Requests Found");
+    }
   }
 });
 
@@ -327,7 +341,14 @@ const setRequest = asyncHandler(async (req, res) => {
   );
 
   console.log(request);
-  res.status(200).json(request);
+  // res.status(200).json(request);
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(request, fields, "Request", "requests");
+    res.send(HTML);
+  } else {
+    res.status(200).json(request);
+  }
 });
 
 // @desc  Update Request
@@ -346,7 +367,14 @@ const updateRequest = asyncHandler(async (req, res) => {
     throw new Error("Request not found");
   }
   console.log(updatedRequest);
-  res.status(200).json(updatedRequest);
+  // res.status(200).json(updatedRequest);
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedRequest, fields, "Request", "requests");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedRequest);
+  }
 });
 
 // @desc  Approve Request

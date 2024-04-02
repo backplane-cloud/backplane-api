@@ -4,7 +4,15 @@ import Request from "../models/requestModel.js";
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
-const fields = ["code", "name", "type", "status", "orgId", "ownerId"];
+const fields = [
+  "code",
+  "name",
+  "description",
+  "type",
+  "status",
+  "orgId",
+  "ownerId",
+];
 
 // @desc  Get Platforms
 // @route GET /api/platforms
@@ -31,29 +39,43 @@ const getPlatforms = asyncHandler(async (req, res) => {
 // @route GET /api/platforms/:id
 // @access Private
 const getPlatform = asyncHandler(async (req, res) => {
-  const platform = await Platform.findById(
-    req.user.userType != "root"
-      ? { orgId: req.user.orgId, _id: req.params.id }
-      : { _id: req.params.id }
-  );
-  if (platform) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        platform,
-        fields,
-        platform.name,
-        "platforms",
-        req.headers.edit
-      );
+  // Handles return of HTMX for Create New Platform
+  console.log(req.headers.action);
 
-      res.send(HTML);
-    } else {
-      res.status(200).json(platform);
-    }
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "description"],
+      "Create Platform",
+      "platforms",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    //res.status(400);
-    // throw new Error("No Platforms Found");
-    res.send("No Platforms Found for Org");
+    const platform = await Platform.findById(
+      req.user.userType != "root"
+        ? { orgId: req.user.orgId, _id: req.params.id }
+        : { _id: req.params.id }
+    );
+    if (platform) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          platform,
+          fields,
+          platform.name,
+          "platforms",
+          req.headers.action
+        );
+
+        res.send(HTML);
+      } else {
+        res.status(200).json(platform);
+      }
+    } else {
+      //res.status(400);
+      // throw new Error("No Platforms Found");
+      res.send("No Platforms Found for Org");
+    }
   }
 });
 
@@ -78,13 +100,22 @@ const setPlatform = asyncHandler(async (req, res) => {
   const platform = await Platform.create({
     code,
     name: req.body.name,
+    description: req.body.description,
     orgId: req.user.orgId,
     ownerId: req.user.id,
+
     status: "active",
     type: "platform",
   });
   console.log(req.body);
-  res.status(200).json(platform);
+  // res.status(200).json(platform);
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(platform, fields, platform.name, "platforms");
+    res.send(HTML);
+  } else {
+    res.status(200).json(platform);
+  }
 });
 
 // @desc  Update Platform

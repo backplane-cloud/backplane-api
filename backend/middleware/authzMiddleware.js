@@ -53,9 +53,9 @@ const authz = asyncHandler(async (req, res, next) => {
     ? action.replace(`${requestedAction}/${req.params.id}`, "")
     : action.replace(`${requestedAction}`, "");
 
-  // console.log("Requested Action:", action);
-  // console.log("Inferred Allowed Action:", inferredAction);
-  // console.log("Actions Allowed:", req.user.allowedActions);
+  console.log("Requested Action:", action);
+  console.log("Inferred Allowed Action:", inferredAction);
+  console.log("Actions Allowed:", req.user.allowedActions);
 
   // Check Requesed Action is in list of allowed Actions
   const authorised =

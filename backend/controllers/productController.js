@@ -19,7 +19,7 @@ const fields = [
   "description",
   "type",
   "status",
-  "platform",
+  "platformId",
   "orgId",
   "ownerId",
   "apps",
@@ -59,29 +59,42 @@ const getProducts = asyncHandler(async (req, res) => {
 // @route GET /api/products/:id
 // @access Private
 const getProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findById(
-    req.user.userType != "root"
-      ? { orgId: req.user.orgId, _id: req.params.id }
-      : { _id: req.params.id }
-  );
+  // Handles return of HTMX for Create New Product
 
-  if (product) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        product,
-        fields,
-        product.name,
-        "products",
-        req.headers.edit
-      );
-      res.send(HTML);
-    } else {
-      res.status(200).json(product);
-    }
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "description", "platformId"],
+      "Create Product",
+      "products",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    // res.status(400);
-    // throw new Error("No Products Found");
-    res.send("No Products found matching ID for this Org");
+    const product = await Product.findById(
+      req.user.userType != "root"
+        ? { orgId: req.user.orgId, _id: req.params.id }
+        : { _id: req.params.id }
+    );
+
+    if (product) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          product,
+          fields,
+          product.name,
+          "products",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(product);
+      }
+    } else {
+      // res.status(400);
+      // throw new Error("No Products Found");
+      res.send("No Products found matching ID for this Org");
+    }
   }
 });
 
@@ -141,7 +154,14 @@ const setProduct = asyncHandler(async (req, res) => {
   // End Backlog Creation
 
   console.log(req.body);
-  res.status(200).json(product);
+  // res.status(200).json(product);
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(product, fields, product.name, "products");
+    res.send(HTML);
+  } else {
+    res.status(200).json(app);
+  }
 });
 
 // @desc  Update Product
