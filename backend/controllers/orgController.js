@@ -1,7 +1,9 @@
 import asyncHandler from "express-async-handler";
-
 import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
+
+// These fields determine what to display on HTMX responses from Backplane UI
+const fields = ["code", "name", "description", "type", "ownerId"];
 
 // @desc  Get Orgs
 // @route GET /api/orgs
@@ -17,12 +19,7 @@ const getOrgs = asyncHandler(async (req, res) => {
   // const orgs = await Org.find({ _id: req.user.orgId });
   if (orgs) {
     if (req.headers.ui) {
-      const htmlTable = HTMXify(
-        orgs,
-        ["code", "name", "type", "budget", "ownerId"],
-        "Organsations",
-        "orgs"
-      );
+      const htmlTable = HTMXify(orgs, fields, "Organsations", "orgs");
       res.send(htmlTable);
     } else {
       res.status(200).json(orgs);
@@ -59,9 +56,10 @@ const getOrg = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = viewHTMXify(
         org,
-        ["id", "code", "name", "type", "budget", "ownerId"],
+        fields,
         "Organsations",
-        "orgs"
+        "orgs",
+        req.headers.edit
       );
       res.send(HTML);
     } else {
@@ -222,7 +220,12 @@ const updateOrg = asyncHandler(async (req, res) => {
     new: true,
   });
 
-  res.status(200).json(updatedOrg);
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedOrg, fields, "Organsations", "orgs");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedOrg);
+  }
 });
 
 // @desc  Delete Org

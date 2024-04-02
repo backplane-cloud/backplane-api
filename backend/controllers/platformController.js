@@ -3,6 +3,9 @@ import Platform from "../models/platformModel.js";
 import Request from "../models/requestModel.js";
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
+// These fields determine what to display on HTMX responses from Backplane UI
+const fields = ["code", "name", "type", "status", "orgId", "ownerId"];
+
 // @desc  Get Platforms
 // @route GET /api/platforms
 // @access Private
@@ -13,12 +16,7 @@ const getPlatforms = asyncHandler(async (req, res) => {
   //console.log(platforms);
   if (platforms) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        platforms,
-        ["code", "name", "type", "status", "orgId", "ownerId"],
-        "Platforms",
-        "platforms"
-      );
+      let HTML = HTMXify(platforms, fields, "Platforms", "platforms");
       res.send(HTML);
     } else {
       res.status(200).json(platforms);
@@ -42,9 +40,10 @@ const getPlatform = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = viewHTMXify(
         platform,
-        ["code", "name", "type", "status", "orgId", "ownerId"],
+        fields,
         platform.name,
-        "platforms"
+        "platforms",
+        req.headers.edit
       );
 
       res.send(HTML);
@@ -120,8 +119,12 @@ const updatePlatform = asyncHandler(async (req, res) => {
     }
   );
 
-  console.log(updatedPlatform);
-  res.status(200).json(updatedPlatform);
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedPlatform, fields, "Platform", "platforms");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedPlatform);
+  }
 });
 
 // @desc  Delete Platform
@@ -144,7 +147,12 @@ const deletePlatform = asyncHandler(async (req, res) => {
     throw new Error("Platform not found");
   }
 
-  res.status(200).send("Platform Successfully Deleted");
+  if (req.headers.ui) {
+    let HTML = "Platform Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 // @desc  Get Platform Requests

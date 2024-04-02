@@ -3,6 +3,9 @@ import asyncHandler from "express-async-handler";
 import Role from "../models/roleModel.js";
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
+// These fields determine what to display on HTMX responses from Backplane UI
+const fields = ["name", "type", "allowActions", "orgId"];
+
 // @desc  Get Roles
 // @route GET /api/roles
 // @access Private
@@ -12,12 +15,7 @@ const getRoles = asyncHandler(async (req, res) => {
   );
   if (roles) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        roles,
-        ["name", "type", "allowActions", "orgId"],
-        "Roles",
-        "roles"
-      );
+      let HTML = HTMXify(roles, fields, "Roles", "roles");
       res.send(HTML);
     } else {
       res.status(200).json(roles);
@@ -48,9 +46,10 @@ const getRole = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = viewHTMXify(
         role,
-        ["name", "type", "allowActions", "orgId"],
+        fields,
         role.name,
-        "roles"
+        "roles",
+        req.headers.edit
       );
       res.send(HTML);
     } else {
@@ -161,8 +160,12 @@ const updateRole = asyncHandler(async (req, res) => {
     });
   }
 
-  console.log(updatedRole);
-  res.status(200).json(updatedRole);
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedOrg, fields, "Role", "roles");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedRole);
+  }
 });
 
 // @desc  Update Role Actions
@@ -214,7 +217,6 @@ const deleteRoleActions = asyncHandler(async (req, res) => {
     });
   }
 
-  console.log(updatedRole);
   res.status(200).json(updatedRole);
 });
 
@@ -229,7 +231,12 @@ const deleteRole = asyncHandler(async (req, res) => {
     throw new Error("Role not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "Role Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 export {

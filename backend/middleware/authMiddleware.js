@@ -12,7 +12,8 @@ const protect = asyncHandler(async (req, res, next) => {
   } catch (err) {
     res.status(401);
     // throw new Error("Not authenticated, no token");
-    logger.warn(`${req.user.name} Not authenticated, No Token`);
+
+    logger.warn(`Not authenticated, No Token`);
   }
   if (token) {
     try {
@@ -26,9 +27,12 @@ const protect = asyncHandler(async (req, res, next) => {
       logger.warn(new Error("Not authenticated, invalid token"));
     }
   } else {
+    if (req.headers.ui) {
+      res.send("<h1>Please Re-authenticate</h1>");
+    }
     res.status(401);
     // throw new Error("Not authenticated, no token");
-    logger.warn(`${req.user.name} Not authenticated, No Token`);
+    logger.warn(`Not authenticated, No Token`);
   }
 });
 

@@ -3,7 +3,17 @@ import asyncHandler from "express-async-handler";
 import Service from "../models/serviceModel.js";
 
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
-import HTMX from "htmx";
+// These fields determine what to display on HTMX responses from Backplane UI
+
+const fields = [
+  "code",
+  "name",
+  "description",
+  "url",
+  "apikey",
+  "orgId",
+  "ownerId",
+];
 
 // @desc  Get Services
 // @route GET /api/services
@@ -14,12 +24,7 @@ const getServices = asyncHandler(async (req, res) => {
   );
   if (services) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        services,
-        ["code", "name", "description", "url", "apikey", "orgId", "ownerId"],
-        "Services",
-        "services"
-      );
+      let HTML = HTMXify(services, fields, "Services", "services");
       res.send(HTML);
     } else {
       res.status(200).json(services);
@@ -39,9 +44,10 @@ const getService = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = viewHTMXify(
         service,
-        ["code", "name", "description", "url", "apikey", "orgId", "ownerId"],
+        fields,
         service.name,
-        "services"
+        "services",
+        req.headers.edit
       );
       res.send(HTML);
     } else {
@@ -96,8 +102,12 @@ const updateService = asyncHandler(async (req, res) => {
     }
   );
 
-  console.log(updatedService);
-  res.status(200).json(updatedService);
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedService, fields, "Role", "roles");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedService);
+  }
 });
 
 // @desc  Delete Service
@@ -111,7 +121,12 @@ const deleteService = asyncHandler(async (req, res) => {
     throw new Error("Service not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "Service Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 export { getService, getServices, setService, updateService, deleteService };

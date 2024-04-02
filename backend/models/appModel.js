@@ -13,6 +13,10 @@ const appSchema = mongoose.Schema(
       type: String,
       required: [false, "Please add a Name value e.g. 'My App'"],
     },
+    description: {
+      type: String,
+      required: [false, "Please add a Description"],
+    },
     code: {
       type: String,
       required: [true, "Please add a Code value e.g. my-app"],

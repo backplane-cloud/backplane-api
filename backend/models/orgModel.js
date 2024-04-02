@@ -37,6 +37,10 @@ const orgSchema = mongoose.Schema(
       type: String,
       required: [true, "Please add a Name value"],
     },
+    description: {
+      type: String,
+      required: [true, "Please add a Description value"],
+    },
     type: {
       type: String,
     },

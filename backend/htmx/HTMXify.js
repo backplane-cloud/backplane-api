@@ -9,7 +9,9 @@ function HTMXify(jsonObject, fields, title, type) {
   });
 
   html += "</tr></thead>"; // Close the table header row
-
+  if (jsonObject.length === undefined) {
+    jsonObject = [jsonObject];
+  }
   if (jsonObject.length !== 0) {
     // Create table rows for values
 
@@ -26,45 +28,64 @@ function HTMXify(jsonObject, fields, title, type) {
         if (clouds.includes(value)) {
           value = `<img src='img/${value}.png'/>`;
         }
-        html += `<td ${meta}>${value}</td>`; // Value cell
+
+        if (field === "orgId") {
+          html += `<td class='text-blue-500'><a href='#' hx-get="/api/orgs/${value}" hx-target="#datapane" hx-headers='{"ui": true}'>${value}</a></td>`;
+        } else {
+          html += `<td ${meta}>${value}</td>`; // Value cell
+        }
       });
       html += "</tr>"; // Close the value row
     });
   } else {
-    html += `<tr><td colspan='${fields.length}'><h2 class='mt-10 ' >No ${title} Found</h2></td></tr>`;
+    html += `<tr><td colspan='${fields.length}'><h2 class='mt-10'>No ${title} Found</h2></td></tr>`;
   }
 
   html += "</table></div>"; // Close the table
   return html;
 }
 
-function viewHTMXify(jsonObject, fields, title, type) {
+function viewHTMXify(jsonObject, fields, title, type, edit) {
+  console.log("edit", edit);
   let html = `
       <div class="mx-auto max-w-lg p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
         <form class="space-y-6" action="#">
-          <h5 class="text-3xl font-medium text-gray-900 dark:text-white">${jsonObject.name}</h5>
+          <h5 class="text-3xl font-medium text-gray-900 dark:text-white">${
+            jsonObject.name || title
+          }</h5>
           <div>`;
 
   fields.map((field) => {
-    if (Array.isArray(jsonObject[field])) {
-      html += `<div class="m-5 ">
+    // if (Array.isArray(jsonObject[field])) {
+    //   html += `<div class="m-5 ">
+    //                             <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">${field}</label>
+    //                             <textarea name="${field}" id="${field}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com">
+    //                             ${jsonObject[field]}
+    //                             </textarea>
+    //                           </div>`;
+    // } else {
+    html += `<div class="m-5 ">
                                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">${field}</label>
-                                <textarea name="${field}" id="${field}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com">
-                                ${jsonObject[field]} 
-                                </textarea>
+                                <input value='${
+                                  jsonObject[field]
+                                }' name="${field}" id="${field}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required ${
+      !edit && "disabled"
+    } ${field === "id" && "readonly"}/>
                               </div>`;
-    } else {
-      html += `<div class="m-5 ">
-                                <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">${field}</label>
-                                <input value=${jsonObject[field]} name="${field}" id="${field}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com" required />
-                              </div>`;
-    }
+    // }
   });
 
-  html += `</div>
-          <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Update</button>
-      </form>
-  </div>`;
+  html += `</div>`;
+
+  if (edit) {
+    html += `<button type="submit" class="m-3 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" hx-put="/api/${type}/${jsonObject.id}" hx-target="#datapane" hx-headers='{"ui": true}'>Save</button>`;
+    html += `<button type="submit" class="m-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" hx-confirm="Are you sure?" hx-delete="/api/${type}/${jsonObject.id}" hx-target="#datapane" hx-headers='{"ui": true}'>Delete</button>`;
+    html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#datapane" hx-headers='{"ui": true}'>Cancel</button>`;
+  } else {
+    html += `<button type="submit" class="m-3 text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#datapane" hx-headers='{"ui": true, "edit": true}'>Edit</button>`;
+  }
+
+  html += `</form></div>`;
 
   return html;
 }

@@ -29,6 +29,20 @@ import {
   createAWSEnv,
 } from "@backplane-software/backplane-aws";
 
+// These fields determine what to display on HTMX responses from Backplane UI
+const fields = [
+  "code",
+  "cloud",
+  "name",
+  "description",
+  "type",
+  "status",
+  "platform",
+  "orgId",
+  "ownerId",
+  "apps",
+];
+
 // @desc  Get Apps
 // @route GET /api/apps
 // @access Private
@@ -39,24 +53,7 @@ const getApps = asyncHandler(async (req, res) => {
 
   if (apps) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        apps,
-        [
-          "code",
-          "cloud",
-          "name",
-          "description",
-
-          "type",
-          "status",
-          "platform",
-          "orgId",
-          "ownerId",
-          "apps",
-        ],
-        "Apps",
-        "apps"
-      );
+      let HTML = HTMXify(apps, fields, "Apps", "apps");
       res.send(HTML);
     } else {
       res.status(200).json(apps);
@@ -75,24 +72,7 @@ const getApp = asyncHandler(async (req, res) => {
 
   if (app) {
     if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        app,
-        [
-          "code",
-          "name",
-          "description",
-          "cloud",
-          "type",
-          "status",
-          "platform",
-          "orgId",
-
-          "ownerId",
-          "apps",
-        ],
-        app.name,
-        "apps"
-      );
+      let HTML = viewHTMXify(app, fields, app.name, "apps", req.headers.edit);
       res.send(HTML);
     } else {
       res.status(200).json(app);
@@ -521,7 +501,13 @@ const updateApp = asyncHandler(async (req, res) => {
   //}
 
   //console.log(JSON.stringify(updatedApp.cloudAccounts));
-  res.status(200).json(updatedApp);
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedApp, fields, "Apps", "apps");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedApp);
+  }
 });
 
 // @desc  Delete App
@@ -535,7 +521,12 @@ const deleteApp = asyncHandler(async (req, res) => {
     throw new Error("App not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "App Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 // @desc  Get App Billing

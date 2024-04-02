@@ -129,7 +129,8 @@ const getUser = asyncHandler(async (req, res) => {
         user,
         ["name", "email", "orgId", "teams", "userType", "allowedActions"],
         user.name,
-        "users"
+        "users",
+        req.headers.edit
       );
       res.send(HTML);
     } else {
@@ -531,6 +532,18 @@ const updateUser = asyncHandler(async (req, res) => {
     res.status(404);
     logger.warn("UPDATE USER: User not found");
   }
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(
+      updatedUser,
+      ["name", "email", "orgId", "teams", "userType", "allowedActions"],
+      "Organsations",
+      "orgs"
+    );
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedUser);
+  }
   //res.status(200).json({ message: "Update User Profile" });
 });
 
@@ -546,7 +559,12 @@ const deleteUser = asyncHandler(async (req, res) => {
     logger.warn("DELETE USER: User Not Found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "User Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 export {

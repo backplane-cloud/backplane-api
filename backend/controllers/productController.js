@@ -12,6 +12,19 @@ import { BillingManagementClient } from "@azure/arm-billing";
 
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
+// These fields determine what to display on HTMX responses from Backplane UI
+const fields = [
+  "code",
+  "name",
+  "description",
+  "type",
+  "status",
+  "platform",
+  "orgId",
+  "ownerId",
+  "apps",
+];
+
 // @desc  Get Products
 // @route GET /api/products
 // @access Private
@@ -31,22 +44,7 @@ const getProducts = asyncHandler(async (req, res) => {
   const products = await Product.find(query);
   if (products) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        products,
-        [
-          "code",
-          "name",
-          "description",
-          "type",
-          "status",
-          "platform",
-          "orgId",
-          "ownerId",
-          "apps",
-        ],
-        "Products",
-        "products"
-      );
+      let HTML = HTMXify(products, fields, "Products", "products");
       res.send(HTML);
     } else {
       res.status(200).json(products);
@@ -71,19 +69,10 @@ const getProduct = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = viewHTMXify(
         product,
-        [
-          "code",
-          "name",
-          "description",
-          "type",
-          "status",
-          "platform",
-          "orgId",
-          "ownerId",
-          "apps",
-        ],
+        fields,
         product.name,
-        "products"
+        "products",
+        req.headers.edit
       );
       res.send(HTML);
     } else {
@@ -194,8 +183,14 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
   );
 
-  console.log(JSON.stringify(updatedProduct.cloudAccounts));
-  res.status(200).json(updatedProduct);
+  // console.log(JSON.stringify(updatedProduct.cloudAccounts));
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedProduct, fields, "Product", "products");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedProduct);
+  }
 });
 
 // @desc  Delete Product
@@ -216,7 +211,12 @@ const deleteProduct = asyncHandler(async (req, res) => {
     throw new Error("Product not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "Product Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 // @desc  Get Product Cost

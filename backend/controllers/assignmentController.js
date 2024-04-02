@@ -5,6 +5,17 @@ import Team from "../models/teamModel.js";
 
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
+// These fields determine what to display on HTMX responses from Backplane UI
+const fields = [
+  "id",
+  "type",
+  "scope",
+  "principal",
+  "principalRef",
+  "role",
+  "orgId",
+];
+
 // @desc  Get Assignments
 // @route GET /api/assignments
 // @access Private
@@ -14,12 +25,7 @@ const getAssignments = asyncHandler(async (req, res) => {
   );
   if (assignments) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        assignments,
-        ["id", "type", "principal", "principalRef", "role", "orgId"],
-        "Assignments",
-        "assignments"
-      );
+      let HTML = HTMXify(assignments, fields, "Assignments", "assignments");
       res.send(HTML);
     } else {
       res.status(200).json(assignments);
@@ -48,9 +54,10 @@ const getAssignment = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = viewHTMXify(
         assignment,
-        ["id", "type", "principal", "principalRef", "role", "orgId"],
-        "Assignments",
-        "assignments"
+        fields,
+        "Assignment",
+        "assignments",
+        req.headers.edit
       );
       res.send(HTML);
     } else {
@@ -211,8 +218,12 @@ const updateAssignment = asyncHandler(async (req, res) => {
     }
   );
 
-  console.log(updatedAssignment);
-  res.status(200).json(updatedAssignment);
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedAssignment, fields, "Organsations", "orgs");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedAssignment);
+  }
 });
 
 // @desc  Delete Assignment
@@ -226,7 +237,12 @@ const deleteAssignment = asyncHandler(async (req, res) => {
     throw new Error("Assignment not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "Assignment Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 export {

@@ -3,6 +3,10 @@ import asyncHandler from "express-async-handler";
 import Team from "../models/teamModel.js";
 import User from "../models/userModel.js";
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+
+// These fields determine what to display on HTMX responses from Backplane UI
+const fields = ["name", "code", "members", "scope", "ownerId", "orgId"];
+
 // @desc  Get Teams
 // @route GET /api/teams
 // @access Private
@@ -13,12 +17,7 @@ const getTeams = asyncHandler(async (req, res) => {
 
   if (teams) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        teams,
-        ["name", "code", "members", "scope", "ownerId", "orgId"],
-        "Teams",
-        "teams"
-      );
+      let HTML = HTMXify(teams, fields, "Teams", "teams");
       res.send(HTML);
     } else {
       res.status(200).json(teams);
@@ -38,9 +37,10 @@ const getTeam = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = viewHTMXify(
         team,
-        ["name", "code", "members", "scope", "ownerId", "orgId"],
+        fields,
         team.name,
-        "teams"
+        "teams",
+        req.headers.edit
       );
       res.send(HTML);
     } else {
@@ -94,8 +94,12 @@ const updateTeam = asyncHandler(async (req, res) => {
     new: true,
   });
 
-  console.log(updatedTeam);
-  res.status(200).json(updatedTeam);
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(updatedTeam, fields, "Team", "teams");
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedTeam);
+  }
 });
 
 // @desc  Delete Team
@@ -109,7 +113,12 @@ const deleteTeam = asyncHandler(async (req, res) => {
     throw new Error("Team not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "Team Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 // @desc  Get Team Members

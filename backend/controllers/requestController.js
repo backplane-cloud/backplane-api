@@ -12,6 +12,19 @@ import Org from "../models/orgModel.js";
 
 import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
+// These fields determine what to display on HTMX responses from Backplane UI
+const fields = [
+  "id",
+  "type",
+  "orgId",
+  "data",
+  "approvalCode",
+  "approver",
+  "requestedBy",
+  "RequestedForType",
+  "approvalStatus",
+];
+
 // EVENT CODE
 
 //create an object of EventEmitter class by using above reference
@@ -214,21 +227,7 @@ const getRequests = asyncHandler(async (req, res) => {
   );
   if (requests) {
     if (req.headers.ui) {
-      let HTML = HTMXify(
-        requests,
-        [
-          "id",
-          "type",
-          "orgId",
-          "data",
-          "approvalCode",
-          "approver",
-          "requestedBy",
-          "RequestedForType",
-        ],
-        "Requests",
-        "requests"
-      );
+      let HTML = HTMXify(requests, fields, "Requests", "requests");
       res.send(HTML);
     } else {
       res.status(200).json(requests);
@@ -248,18 +247,10 @@ const getRequest = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = viewHTMXify(
         request,
-        [
-          "id",
-          "type",
-          "orgId",
-          "data",
-          "approvalCode",
-          "approver",
-          "requestedBy",
-          "RequestedForType",
-        ],
+        fields,
         "Request",
-        "requests"
+        "requests",
+        req.headers.edit
       );
       res.send(HTML);
     } else {
@@ -442,7 +433,12 @@ const deleteRequest = asyncHandler(async (req, res) => {
     throw new Error("Request not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "Request Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 export {
