@@ -7,7 +7,13 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 import Service from "../models/serviceModel.js";
 
-import { appView, viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import {
+  appView,
+  appOverview,
+  appEnvironments,
+  appAccess,
+} from "../htmx/app.js";
 
 import {
   getAzureCost,
@@ -34,8 +40,9 @@ const fields = [
   "code",
   "name",
   "description",
+  "repo",
   "cloud",
-  "type",
+  "appTemplate",
   "status",
   "platform",
   "orgId",
@@ -81,8 +88,9 @@ const getApp = asyncHandler(async (req, res) => {
     const app = await App.findById(req.params.id);
 
     if (app) {
+      console.log("headers", req.headers);
       if (req.headers.ui) {
-        let HTML = appView(app, fields, app.name, "apps", req.headers.action);
+        let HTML = appView(app, fields, app.name, "apps");
         res.send(HTML);
       } else {
         res.status(200).json(app);
@@ -91,6 +99,42 @@ const getApp = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error("No Apps Found");
     }
+  }
+});
+
+// @desc  Get App Environments
+// @route GET /api/apps/:id/environments
+// @access Private
+const getAppEnvironments = asyncHandler(async (req, res) => {
+  const app = await App.findById(req.params.id);
+  if (app) {
+    if (req.headers.ui) {
+      let HTML = appEnvironments(app.environments);
+      res.send(HTML);
+    } else {
+      res.status(200).json(app.environments);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Apps Found");
+  }
+});
+
+// @desc  Get App Overview
+// @route GET /api/apps/:id/overview
+// @access Private
+const getAppOverview = asyncHandler(async (req, res) => {
+  const app = await App.findById(req.params.id);
+  if (app) {
+    if (req.headers.ui) {
+      let HTML = appOverview(app, fields);
+      res.send(HTML);
+    } else {
+      res.status(200).json(app);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Apps Found");
   }
 });
 
@@ -141,6 +185,18 @@ const getAppAccess = asyncHandler(async (req, res) => {
     const private_key = cloudCredentials.gcpsecret.private_key;
 
     access = await getGCPAccess({ client_email, private_key, environments });
+
+    // GCP Transform code so the access looks like [{ environments, assignments}]
+    let assignments = [];
+    access.map((entry) => {
+      entry.bindings.map((binding) => {
+        binding.members.map((member) => {
+          let ace = { role: binding.role, member };
+          assignments.push(ace);
+        });
+      });
+    });
+    access = [{ environments: "prod", assignments }];
   }
 
   if (cloud === "aws") {
@@ -155,7 +211,12 @@ const getAppAccess = asyncHandler(async (req, res) => {
   }
 
   if (access) {
-    res.status(200).json(access);
+    if (req.headers.ui) {
+      let HTML = appAccess(access, cloud);
+      res.send(HTML);
+    } else {
+      res.status(200).json(access);
+    }
   } else {
     res.status(400);
     throw new Error("No Access Found for App");
@@ -717,4 +778,6 @@ export {
   getAppAccess,
   getAppPolicies,
   getAppCost,
+  getAppEnvironments,
+  getAppOverview,
 };

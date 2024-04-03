@@ -294,6 +294,8 @@ import {
   getAppAccess,
   getAppPolicies,
   getAppCost,
+  getAppEnvironments,
+  getAppOverview,
 } from "../controllers/appController.js";
 
 router.route("/").get(protect, authz, getApps).post(protect, authz, setApp);
@@ -303,9 +305,13 @@ router
   .put(protect, authz, updateApp)
   .delete(protect, authz, deleteApp);
 
+// Routes HTMXified for App Tabs in UI
+router.route("/:id/environments").get(protect, authz, getAppEnvironments);
+router.route("/:id/overview").get(protect, authz, getAppOverview);
+router.route("/:id/access").get(protect, getAppAccess);
+
 router.route("/:id/billing").get(protect, getAppBilling);
 router.route("/:id/requests").get(protect, getAppRequests);
-router.route("/:id/access").get(protect, getAppAccess);
 router.route("/:id/policy").get(protect, getAppPolicies);
 router.route("/:id/cost").get(protect, getAppCost);
 
