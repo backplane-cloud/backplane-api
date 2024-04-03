@@ -3,6 +3,7 @@ import User from "../models/userModel.js";
 import Org from "../models/orgModel.js";
 
 import { loginHTMX, viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import { appshell } from "../htmx/appshell.js";
 
 import generateToken from "../utils/generateToken.js";
 
@@ -415,7 +416,7 @@ const loginUser = asyncHandler(async (req, res) => {
     user.save();
 
     if (req.headers.ui) {
-      res.status(200).send({ isAuthenticated: true });
+      res.status(200).send(appshell());
     } else {
       res.status(201).json({
         success: true,
@@ -430,7 +431,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
   } else {
     if (req.headers.ui) {
-      res.send("<h1>Authentication Failed");
+      res.send(loginHTMX());
     } else {
       res
         .status(401)
@@ -454,7 +455,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     expires: new Date(0),
   });
   if (req.headers.ui) {
-    let HTML = loginHTMX();
+    let HTML = loginHTMX({ message: "User Logged Out" });
     res.send(HTML);
   } else {
     res.status(200).json({ message: "User Logged Out" });
@@ -510,7 +511,7 @@ const checkAuth = asyncHandler(async (req, res) => {
     // res.status(401);
     // throw new Error("Not authenticated, no token");
     if (req.headers.ui) {
-      res.send({ isAuthenticated: false });
+      res.send(loginHTMX({ message: "Invalid Username/Password" }));
     }
     // logger.warn(`Not authenticated, No Token`);
   }
@@ -520,14 +521,14 @@ const checkAuth = asyncHandler(async (req, res) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.userId).select("-password");
 
-      res.send({ isAuthenticated: true });
+      res.send(appshell());
     } catch (error) {
       // res.status(401).send(`Not authenticated, Invalid Token`);
       // throw new Error("Not authenticated, invalid token");
       logger.warn(new Error("Not authenticated, invalid token"));
     }
   } else {
-    res.send({ isAuthenticated: false });
+    res.send(loginHTMX({ message: "Invalid Username/Password" }));
 
     // throw new Error("Not authenticated, no token");
     // logger.warn(`Not authenticated, No Token`);

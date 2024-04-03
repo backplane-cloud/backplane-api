@@ -7,7 +7,7 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 import Service from "../models/serviceModel.js";
 
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import { appView, viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 
 import {
   getAzureCost,
@@ -32,15 +32,14 @@ import {
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
   "code",
-  "cloud",
   "name",
   "description",
+  "cloud",
   "type",
   "status",
   "platform",
   "orgId",
   "ownerId",
-  "apps",
 ];
 
 // @desc  Get Apps
@@ -83,13 +82,7 @@ const getApp = asyncHandler(async (req, res) => {
 
     if (app) {
       if (req.headers.ui) {
-        let HTML = viewHTMXify(
-          app,
-          fields,
-          app.name,
-          "apps",
-          req.headers.action
-        );
+        let HTML = appView(app, fields, app.name, "apps", req.headers.action);
         res.send(HTML);
       } else {
         res.status(200).json(app);

@@ -1,7 +1,7 @@
 function HTMXify(jsonObject, fields, title, type) {
-  let html = `<div id="dataplane">
+  let html = `<div>
       <h1 class='text-2xl mb-10'>${title}</h1>
-     <button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-get="/api/${type}/create" hx-target="#datapane" hx-headers='{"ui": true, "action": "create"}'>Create ${title.substring(
+     <button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-get="/api/${type}/create" hx-target="#display-content" hx-headers='{"ui": true, "action": "create"}'>Create ${title.substring(
     0,
     title.length - 1
   )}</button>
@@ -27,7 +27,7 @@ function HTMXify(jsonObject, fields, title, type) {
 
         let meta =
           i === 0
-            ? ` class="cursor-pointer px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" hx-get="/api/${type}/${entity.id}" hx-target="#datapane" hx-headers='{"ui": true, "action": "view"}'`
+            ? ` class="cursor-pointer px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" hx-get="/api/${type}/${entity.id}" hx-target="#display-content" hx-headers='{"ui": true, "action": "view"}'`
             : `class="px-6 py-4"`;
         let clouds = ["azure", "gcp", "aws"];
         if (clouds.includes(value)) {
@@ -36,10 +36,10 @@ function HTMXify(jsonObject, fields, title, type) {
 
         switch (field) {
           case "orgId":
-            html += `<td class='text-blue-500'><a href='#' hx-get="/api/orgs/${value}" hx-target="#datapane" hx-headers='{"ui": true}'>${value}</a></td>`;
+            html += `<td class='text-blue-500'><a href='#' hx-get="/api/orgs/${value}" hx-target="#display-content" hx-headers='{"ui": true}'>${value}</a></td>`;
             break;
           case "ownerId":
-            html += `<td class='text-blue-500'><a href='#' hx-get="/api/users/${value}" hx-target="#datapane" hx-headers='{"ui": true}'>${value}</a></td>`;
+            html += `<td class='text-blue-500'><a href='#' hx-get="/api/users/${value}" hx-target="#display-content" hx-headers='{"ui": true}'>${value}</a></td>`;
             break;
           default:
             html += `<td ${meta}>${value}</td>`; // Value cell
@@ -90,13 +90,13 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
   html += `</div>`;
 
   if (action === "edit") {
-    html += `<button type="submit" class="m-3 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" hx-put="/api/${type}/${jsonObject.id}" hx-target="#datapane" hx-headers='{"ui": true}'>Save</button>`;
-    html += `<button type="submit" class="m-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" hx-confirm="Are you sure?" hx-delete="/api/${type}/${jsonObject.id}" hx-target="#datapane" hx-headers='{"ui": true}'>Delete</button>`;
-    html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#datapane" hx-headers='{"ui": true}'>Cancel</button>`;
+    html += `<button type="submit" class="m-3 text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800" hx-put="/api/${type}/${jsonObject.id}" hx-target="#display-content" hx-headers='{"ui": true}'>Save</button>`;
+    html += `<button type="submit" class="m-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800" hx-confirm="Are you sure?" hx-delete="/api/${type}/${jsonObject.id}" hx-target="#display-content" hx-headers='{"ui": true}'>Delete</button>`;
+    html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#display-content" hx-headers='{"ui": true}'>Cancel</button>`;
   } else if (action === "create") {
-    html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-post="/api/${type}" hx-target="#datapane" hx-headers='{"ui": true}'>Create</button>`;
+    html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-post="/api/${type}" hx-target="#display-content" hx-headers='{"ui": true}'>Create</button>`;
   } else {
-    html += `<button type="submit" class="m-3 text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#datapane" hx-headers='{"ui": true, "action": "edit"}'>Edit</button>`;
+    html += `<button type="submit" class="m-3 text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#display-content" hx-headers='{"ui": true, "action": "edit"}'>Edit</button>`;
   }
 
   html += `</form></div>`;
@@ -104,23 +104,21 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
   return html;
 }
 
-function loginHTMX() {
+function loginHTMX(message) {
   let HTML = `
+
 <div
 id="loginSection"
 hx-get="/api/users/check-auth"
-hx-trigger="load"
 hx-target="#loginSection"
 class="mt-0"
 >
+
 <form
   class="max-w-sm mx-auto"
   id="loginForm"
-  hx-swap="outerHTML"
-  hx-target="#loginSection"
-  hx-post="/api/users/login"
-  hx-headers='{"ui": true}'
->
+  
+><img src='img/backplane-logo.png' class='mx-auto'/>
   <div class="mb-5">
     <label
       for="email"
@@ -166,17 +164,92 @@ class="mt-0"
       >Remember me</label
     >
   </div>
+
   <button
     hx-post="/api/users/login"
+    hx-swap="outerHTML"
+  hx-target="#loginSection"
+  hx-post="/api/users/login"
+  hx-headers='{"ui": true}'
     type="submit"
     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
   >
     Submit
   </button>
+  <div class="text-red">${message.message}</div>
 </form>
 </div>`;
 
   return HTML;
 }
 
-export { loginHTMX, viewHTMXify, HTMXify };
+function appView(jsonObject, fields, title, type, action) {
+  let HTML = ` <div>
+  <div class="px-4 sm:px-0 flex w-full justify-between">
+    <div>
+    <h3 class="text-base font-semibold leading-7 text-gray-900 text-4xl"> ${title}</h3>
+    <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500"></p>
+    </div>
+    <div><img src='img/${jsonObject.cloud}.png' /></div>
+  </div>
+  <div class="mt-6 border-t border-gray-100">
+    <dl class="divide-y divide-gray-100">`;
+
+  fields.map((field) => {
+    let value;
+    if (field === "cloud") {
+      value = `<img src='img/${jsonObject[field]}.png' />`;
+    } else {
+      value = jsonObject[field];
+    }
+
+    HTML += `
+          <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+            <dt class="text-sm font-medium leading-6 text-gray-900">${field}</dt>
+            <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">${value}</dd>
+        </div>`;
+  });
+
+  HTML += `<div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+        <dt class="text-sm font-medium leading-6 text-gray-900">Environments</dt>
+        
+        
+        <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+          <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">
+
+          `;
+
+  jsonObject.environments.map((env) => {
+    HTML += `<li class="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
+            <div class="flex w-0 flex-1 items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+          </svg>
+          
+          
+              <div class="ml-4 flex min-w-0 flex-1 gap-2">
+                <span class="truncate font-medium">${env.name}</span>
+                <span class="flex-shrink-0 text-gray-400">$1,000</span>
+              </div>
+            </div>
+            <div class="ml-4 flex-shrink-0">
+              <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Deployments</a>
+            </div>
+          </li>`;
+  });
+
+  HTML += `
+          </ul>
+        </dd>
+
+
+
+
+      </div>
+    </dl>
+  </div>
+</div>
+`;
+  return HTML;
+}
+export { appView, loginHTMX, viewHTMXify, HTMXify };
