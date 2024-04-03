@@ -35,39 +35,49 @@ const getOrgs = asyncHandler(async (req, res) => {
 // @access Private
 const getOrg = asyncHandler(async (req, res) => {
   //let orgId = req.user.orgId.toHexString();
-
-  let org;
-
-  if (req.params.id.length === 24) {
-    org = await Org.findById(req.params.id);
-
-    // if (org) {
-    //   res.status(200).json(org);
-    // } else {
-    //   res.send("Org not found");
-    //   res.status(400);
-    //   throw new Error("No Orgs Found");
-    // }
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "description"],
+      "Create Organisation",
+      "orgs",
+      req.headers.action
+    );
+    res.send(HTML);
   } else {
-    org = await Org.findOne({ code: req.params.id });
-  }
+    let org;
 
-  if (org) {
-    if (req.headers.ui) {
-      let HTML = viewHTMXify(
-        org,
-        fields,
-        "Organsations",
-        "orgs",
-        req.headers.edit
-      );
-      res.send(HTML);
+    if (req.params.id.length === 24) {
+      org = await Org.findById(req.params.id);
+
+      // if (org) {
+      //   res.status(200).json(org);
+      // } else {
+      //   res.send("Org not found");
+      //   res.status(400);
+      //   throw new Error("No Orgs Found");
+      // }
     } else {
-      res.status(200).json(org);
+      org = await Org.findOne({ code: req.params.id });
     }
-  } else {
-    res.status(400);
-    throw new Error("No Orgs Found");
+
+    if (org) {
+      if (req.headers.ui) {
+        let HTML = viewHTMXify(
+          org,
+          fields,
+          "Organsations",
+          "orgs",
+          req.headers.action
+        );
+        res.send(HTML);
+      } else {
+        res.status(200).json(org);
+      }
+    } else {
+      res.status(400);
+      throw new Error("No Orgs Found");
+    }
   }
 });
 
@@ -117,15 +127,16 @@ const setOrg = asyncHandler(async (req, res) => {
   console.log(appType);
 
   // If request from CLI then JSON.parse not required.
-  let csp = "";
-  if (req.cookies) {
-    csp = req.cookies.jwt ? JSON.parse(req.body.csp) : req.body.csp;
-  } else {
-    csp = req.body.csp;
-  }
+  // let csp = "";
+  // if (req.cookies) {
+  //   csp = req.cookies.jwt ? JSON.parse(req.body.csp) : req.body.csp;
+  // } else {
+  //   csp = req.body.csp;
+  // }
 
   const org = await Org.create({
     code,
+    description: req.body.description,
     name: req.body.name,
     license: req.body.license,
     type: req.body.type,
@@ -133,7 +144,7 @@ const setOrg = asyncHandler(async (req, res) => {
     //ownerId: req.body.owner || req.user.id,
     status: "active",
     type: "org",
-    csp,
+    // csp,
     appType,
     budget,
   });
@@ -147,11 +158,18 @@ const setOrg = asyncHandler(async (req, res) => {
   // });
   // return;
 
-  if (post) {
-    res.status(200); // Only valid when request is from HTTP Post
-    res.json(org);
+  // if (post) {
+  //   res.status(200); // Only valid when request is from HTTP Post
+  //   res.json(org);
+  // } else {
+  //   return org;
+  // }
+
+  if (req.headers.ui) {
+    let HTML = viewHTMXify(org, fields, org.name, "orgs");
+    res.send(HTML);
   } else {
-    return org;
+    res.status(200).json(org);
   }
 });
 
@@ -238,7 +256,12 @@ const deleteOrg = asyncHandler(async (req, res) => {
     throw new Error("Org not found");
   }
 
-  res.status(200).json({ id: req.params.id });
+  if (req.headers.ui) {
+    let HTML = "Org Successfully Deleted";
+    res.send(HTML);
+  } else {
+    res.status(200).json({ id: req.params.id });
+  }
 });
 
 // @desc  Get Org Requests
