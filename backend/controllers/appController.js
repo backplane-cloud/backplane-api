@@ -13,6 +13,7 @@ import {
   appOverview,
   appEnvironments,
   appAccess,
+  appPolicy,
 } from "../htmx/app.js";
 
 import {
@@ -277,11 +278,23 @@ const getAppPolicies = asyncHandler(async (req, res) => {
     });
   }
 
+  // if (policies) {
+  //   res.status(200).json(policies);
+  // } else {
+  //   res.status(400);
+  //   throw new Error("No Policies Found for App");
+  // }
+
   if (policies) {
-    res.status(200).json(policies);
+    if (req.headers.ui) {
+      let HTML = appPolicy(policies, cloud);
+      res.send(HTML);
+    } else {
+      res.status(200).json(policies);
+    }
   } else {
     res.status(400);
-    throw new Error("No Policies Found for App");
+    throw new Error("No Access Found for App");
   }
 });
 

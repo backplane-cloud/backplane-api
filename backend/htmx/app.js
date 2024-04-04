@@ -1,10 +1,42 @@
 function appView(jsonObject, fields, title, type, tab) {
   let HTML = ` 
   <div>
-  <h3 class="text-base font-semibold leading-7 text-gray-900 text-4xl mb-10">
-    ${title}
-  </h3>
 
+
+
+
+<nav class="flex mb-10" aria-label="Breadcrumb">
+<ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+  <li class="inline-flex items-center">
+    <a href="#" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+      <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+        <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+      </svg>
+      Home
+    </a>
+  </li>
+  <li>
+    <div class="flex items-center">
+      <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+      </svg>
+      <a href="#" hx-get='/api/apps' hx-target='#display-content' hx-headers='{"ui": true}' class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">Apps</a>
+    </div>
+  </li>
+  <li aria-current="page">
+    <div class="flex items-center">
+      <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+      </svg>
+      <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">${title}</span>
+    </div>
+  </li>
+</ol>
+</nav>
+
+<h3 class="text-base font-semibold leading-7 text-gray-900 text-4xl mb-10">
+${title}
+</h3>
 
 
 
@@ -57,7 +89,7 @@ function appView(jsonObject, fields, title, type, tab) {
               d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"
             />
           </svg>
-          Users
+          Team
         </a>
       </li>
       <li class="me-2">
@@ -123,6 +155,9 @@ function appView(jsonObject, fields, title, type, tab) {
       <li class="me-2">
         <a
           href="#"
+          hx-target='#app-content' hx-get='/api/apps/${
+            jsonObject.id
+          }/policy' hx-headers='{"ui": true}'
           class="inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group"
         >
           <svg
@@ -160,6 +195,15 @@ function appView(jsonObject, fields, title, type, tab) {
           </svg>Cost
         </a>
       </li>
+      <li class="me-2">
+        <a href="#" class="inline-flex p-4 text-gray-400 rounded-t-lg cursor-not-allowed dark:text-gray-500">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m0 0a2.246 2.246 0 0 0-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0 1 21 12v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6c0-.98.626-1.813 1.5-2.122" />
+      </svg>
+      
+      Requests
+        </a>
+      </li>
       
     </ul>
   </div>
@@ -186,6 +230,7 @@ function appEnvironments(environments) {
   let HTML;
 
   HTML = `
+  <button class="m-3 opacity-50 cursor-not-allowed text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Create Environment</button>
   <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
 
     <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
@@ -224,6 +269,7 @@ function appOverview(app, fields) {
   let HTML;
 
   HTML = `
+  <button class="m-3 opacity-50 cursor-not-allowed text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Link to Product</button>
   <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
 
     <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
@@ -256,13 +302,12 @@ function appAccess(access, cloud) {
   let HTML;
 
   HTML = `
+  <button class="m-3 opacity-50 cursor-not-allowed text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add RBAC</button>
   <div class="px-4 py-6 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-0">
 
     <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
     
     <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">`;
-
-  HTML += "<div id='app-content' class=''></div>";
 
   HTML += `
     
@@ -361,5 +406,113 @@ function appAccess(access, cloud) {
 
   return HTML;
 }
+function appPolicy(access, cloud) {
+  let HTML;
 
-export { appView, appOverview, appEnvironments, appAccess };
+  HTML = `
+  <button class="m-3 opacity-50 cursor-not-allowed text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add Policy</button>
+  <div class="px-4 py-6 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-0">
+
+    <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+    
+    <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">`;
+
+  HTML += `
+    
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <tr>
+          <th scope="col" class="px-6 py-3">
+            Principal ID
+        </th>
+        <th scope="col" class="px-6 py-3">
+                Type
+            </th>
+            <th scope="col" class="px-6 py-3">
+            Environment
+        </th>
+            <th scope="col" class="px-6 py-3">
+                Scope
+            </th>
+            
+            <th scope="col" class="px-6 py-3">
+                Role
+            </th>
+        
+            <th scope="col" class="px-6 py-3">
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>`;
+
+  // Map through the Environments and then Assignments
+  access.map((entry) => {
+    entry.assignments.map((assignment) => {
+      // Abstraction Mapping for Display
+      let type, identity, scope, role, environment;
+      switch (cloud) {
+        case "azure": {
+          type = assignment.principalType;
+          identity = assignment.principalId;
+          scope = entry.environment.accountId;
+          role = assignment.principalId;
+          environment = entry.environment.name;
+          break;
+        }
+        case "aws": {
+          type = assignment.Arn;
+          identity = assignment.UserName;
+          scope = entry.environment;
+          role = assignment.Arn;
+          environment = entry.environment;
+          break;
+        }
+        case "gcp": {
+          type = "";
+          identity = assignment.member;
+          scope = "";
+          role = assignment.role;
+          environment = entry.environments;
+          break;
+        }
+      }
+      HTML += `
+        <tr class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
+        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+        ${identity}
+    </td>
+          <th scope="row">
+              ${type}
+          </th>
+          <td class="px-6 py-4">
+          ${environment}
+      </td>
+          <td class="px-6 py-4">
+              ${scope}
+          </td>
+          <td class="px-6 py-4">
+              ${role}
+          </td>
+      
+          <td class="px-6 py-4">
+              <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Request Exemption</a>
+          </td>
+        </tr>`;
+    });
+  });
+
+  HTML += `
+        
+    </tbody>
+</table>
+</div>
+
+    `;
+
+  return HTML;
+}
+
+export { appView, appOverview, appEnvironments, appAccess, appPolicy };

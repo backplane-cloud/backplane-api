@@ -1,7 +1,7 @@
 function appshell() {
   let html = `
 
-<div class="min-h-full">
+<div class="min-h-full" id="main-window">
 <img class="h-10 m-3" src="img/backplane-logo-text.png" alt="Backplane Software">
   <nav class="bg-gray-200">            
 
@@ -15,7 +15,7 @@ function appshell() {
             <div class="ml-10 flex items-baseline space-x-4">
 
           
-              <a class="text-gray-900 hover:bg-gray-200 hover:text-white rounded-md px-3 py-2 text-sm font-medium" hx-get='/api/orgs' hx-target="#display-content" hx-headers='{"ui": true}'>Orgs</a>
+              <a href="#" class="text-gray-900 hover:bg-gray-200 hover:text-white rounded-md px-3 py-2 text-sm font-medium" hx-get='/api/orgs' hx-target="#display-content" hx-headers='{"ui": true}'>Orgs</a>
               <a href="#" class="text-gray-900 hover:bg-gray-200 hover:text-white rounded-md px-3 py-2 text-sm font-medium" hx-get='/api/platforms' hx-target="#display-content" hx-headers='{"ui": true}'>Platforms</a>
               <a href="#" class="text-gray-900 hover:bg-gray-200 hover:text-white rounded-md px-3 py-2 text-sm font-medium" hx-get='/api/products' hx-target="#display-content" hx-headers='{"ui": true}'>Products</a>
               <a href="#" class="text-gray-900 hover:bg-gray-200 hover:text-white rounded-md px-3 py-2 text-sm font-medium" hx-get='/api/apps' hx-target="#display-content" hx-headers='{"ui": true}'>Apps</a>
