@@ -252,6 +252,7 @@ import {
   updatePlatform,
   deletePlatform,
   getPlatformRequests,
+  getPlatformOverviewTab,
 } from "../controllers/platformController.js";
 
 router
@@ -264,6 +265,7 @@ router
   .put(protect, authz, updatePlatform)
   .delete(protect, authz, deletePlatform);
 
+router.route("/:id/overview").get(protect, authz, getPlatformOverviewTab);
 router.route("/:id/requests").get(protect, authz, getPlatformRequests);
 
 export default router;

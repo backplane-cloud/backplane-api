@@ -7,14 +7,14 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 import Service from "../models/serviceModel.js";
 
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
 import {
-  appView,
-  appOverview,
-  appEnvironments,
-  appAccess,
-  appPolicy,
-} from "../htmx/app.js";
+  viewHTMXify,
+  HTMXify,
+  resourceViewer,
+  resourceOverviewTab,
+} from "../htmx/HTMXify.js";
+
+import { appEnvironments, appAccess, appPolicy } from "../htmx/app.js";
 
 import {
   getAzureCost,
@@ -48,6 +48,18 @@ const fields = [
   "platform",
   "orgId",
   "ownerId",
+];
+
+// Custom Tabs for HTMX view of resource
+const tabs = [
+  "Overview",
+  "Team",
+  "Access",
+  "Policy",
+  "Cost",
+  "Requests",
+  "Environments",
+  "Repo",
 ];
 
 // @desc  Get Apps
@@ -91,7 +103,7 @@ const getApp = asyncHandler(async (req, res) => {
     if (app) {
       console.log("headers", req.headers);
       if (req.headers.ui) {
-        let HTML = appView(app, fields, app.name, "apps");
+        let HTML = resourceViewer(app, tabs);
         res.send(HTML);
       } else {
         res.status(200).json(app);
@@ -128,7 +140,7 @@ const getAppOverview = asyncHandler(async (req, res) => {
   const app = await App.findById(req.params.id);
   if (app) {
     if (req.headers.ui) {
-      let HTML = appOverview(app, fields);
+      let HTML = resourceOverviewTab(app, fields, req.headers.action);
       res.send(HTML);
     } else {
       res.status(200).json(app);
@@ -523,6 +535,8 @@ const setApp = asyncHandler(async (req, res) => {
 // @route PUT /api/apps/:id
 // @access Private
 const updateApp = asyncHandler(async (req, res) => {
+  console.log("hello");
+  console.log(req.body);
   const app = await App.findById(req.params.id);
 
   if (!app) {
@@ -595,7 +609,7 @@ const updateApp = asyncHandler(async (req, res) => {
   //console.log(JSON.stringify(updatedApp.cloudAccounts));
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedApp, fields, "Apps", "apps");
+    let HTML = resourceOverviewTab(updatedApp, fields);
     res.send(HTML);
   } else {
     res.status(200).json(updatedApp);

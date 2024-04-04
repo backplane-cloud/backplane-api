@@ -1,7 +1,12 @@
 import asyncHandler from "express-async-handler";
 import Platform from "../models/platformModel.js";
 import Request from "../models/requestModel.js";
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import {
+  viewHTMXify,
+  HTMXify,
+  resourceViewer,
+  resourceOverviewTab,
+} from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -12,6 +17,18 @@ const fields = [
   "status",
   "orgId",
   "ownerId",
+];
+
+const tabs = [
+  "Overview",
+  "Team",
+  "Access",
+  "Policy",
+  "Cost",
+  "Requests",
+
+  "Products",
+  "Apps",
 ];
 
 // @desc  Get Platforms
@@ -59,13 +76,45 @@ const getPlatform = asyncHandler(async (req, res) => {
     );
     if (platform) {
       if (req.headers.ui) {
-        let HTML = viewHTMXify(
-          platform,
-          fields,
-          platform.name,
-          "platforms",
-          req.headers.action
-        );
+        let HTML = resourceViewer(platform, tabs);
+
+        res.send(HTML);
+      } else {
+        res.status(200).json(platform);
+      }
+    } else {
+      //res.status(400);
+      // throw new Error("No Platforms Found");
+      res.send("No Platforms Found for Org");
+    }
+  }
+});
+
+// @desc  Get Platform Overview
+// @route GET /api/platforms/:id/overview
+// @access Private
+const getPlatformOverviewTab = asyncHandler(async (req, res) => {
+  // Handles return of HTMX for Create New Platform
+  console.log(req.headers.action);
+
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "description"],
+      "Create Platform",
+      "platforms",
+      req.headers.action
+    );
+    res.send(HTML);
+  } else {
+    const platform = await Platform.findById(
+      req.user.userType != "root"
+        ? { orgId: req.user.orgId, _id: req.params.id }
+        : { _id: req.params.id }
+    );
+    if (platform) {
+      if (req.headers.ui) {
+        let HTML = resourceOverviewTab(platform, fields, req.headers.action);
 
         res.send(HTML);
       } else {
@@ -151,7 +200,7 @@ const updatePlatform = asyncHandler(async (req, res) => {
   );
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedPlatform, fields, "Platform", "platforms");
+    let HTML = resourceOverviewTab(updatedPlatform, fields);
     res.send(HTML);
   } else {
     res.status(200).json(updatedPlatform);
@@ -206,4 +255,5 @@ export {
   updatePlatform,
   deletePlatform,
   getPlatformRequests,
+  getPlatformOverviewTab,
 };

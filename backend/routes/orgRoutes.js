@@ -266,6 +266,7 @@ import {
   updateOrg,
   deleteOrg,
   getOrgRequests,
+  getOrgOverviewTab,
 } from "../controllers/orgController.js";
 
 router.route("/").get(protect, authz, getOrgs).post(protect, authz, setOrg);
@@ -275,6 +276,7 @@ router
   .put(protect, authz, updateOrg)
   .delete(protect, authz, deleteOrg);
 
+router.route("/:id/overview").get(protect, authz, getOrgOverviewTab);
 router.route("/:id/requests").get(protect, authz, getOrgRequests);
 
 export default router;

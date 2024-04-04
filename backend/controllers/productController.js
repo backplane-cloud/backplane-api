@@ -10,7 +10,12 @@ import { ClientSecretCredential } from "@azure/identity";
 import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { BillingManagementClient } from "@azure/arm-billing";
 
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import {
+  viewHTMXify,
+  HTMXify,
+  resourceViewer,
+  resourceOverviewTab,
+} from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -23,6 +28,16 @@ const fields = [
   "orgId",
   "ownerId",
   "apps",
+];
+
+const tabs = [
+  "Overview",
+  "Team",
+  "Access",
+  "Policy",
+  "Cost",
+  "Requests",
+  "Apps",
 ];
 
 // @desc  Get Products
@@ -79,13 +94,44 @@ const getProduct = asyncHandler(async (req, res) => {
 
     if (product) {
       if (req.headers.ui) {
-        let HTML = viewHTMXify(
-          product,
-          fields,
-          product.name,
-          "products",
-          req.headers.action
-        );
+        let HTML = resourceViewer(product, tabs);
+        res.send(HTML);
+      } else {
+        res.status(200).json(product);
+      }
+    } else {
+      // res.status(400);
+      // throw new Error("No Products Found");
+      res.send("No Products found matching ID for this Org");
+    }
+  }
+});
+
+// @desc  Get Product Overview
+// @route GET /api/products/:id/overview
+// @access Private
+const getProductOverviewTab = asyncHandler(async (req, res) => {
+  // Handles return of HTMX for Create New Product
+
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "description", "platformId"],
+      "Create Product",
+      "products",
+      req.headers.action
+    );
+    res.send(HTML);
+  } else {
+    const product = await Product.findById(
+      req.user.userType != "root"
+        ? { orgId: req.user.orgId, _id: req.params.id }
+        : { _id: req.params.id }
+    );
+
+    if (product) {
+      if (req.headers.ui) {
+        let HTML = resourceOverviewTab(product, fields, req.headers.action);
         res.send(HTML);
       } else {
         res.status(200).json(product);
@@ -206,7 +252,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   // console.log(JSON.stringify(updatedProduct.cloudAccounts));
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedProduct, fields, "Product", "products");
+    let HTML = resourceOverviewTab(updatedProduct, fields);
     res.send(HTML);
   } else {
     res.status(200).json(updatedProduct);
@@ -360,4 +406,5 @@ export {
   deleteProduct,
   getProductCost,
   getProductRequests,
+  getProductOverviewTab,
 };

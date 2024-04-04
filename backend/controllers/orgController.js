@@ -4,12 +4,31 @@ import Request from "../models/requestModel.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = ["code", "name", "description", "type", "ownerId"];
+const tabs = [
+  "Overview",
+  "Users",
+  "Teams",
+  "Assignments",
+  "Roles",
+  "Access",
+  "Policy",
+  "Cost",
+  "Requests",
+  "Platforms",
+  "Products",
+  "Apps",
+];
 
 // @desc  Get Orgs
 // @route GET /api/orgs
 // @access Private
 
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import {
+  viewHTMXify,
+  HTMXify,
+  resourceViewer,
+  resourceOverviewTab,
+} from "../htmx/HTMXify.js";
 
 const getOrgs = asyncHandler(async (req, res) => {
   const orgs = !req.user.allowedActions.includes("/*")
@@ -63,13 +82,52 @@ const getOrg = asyncHandler(async (req, res) => {
 
     if (org) {
       if (req.headers.ui) {
-        let HTML = viewHTMXify(
-          org,
-          fields,
-          "Organsations",
-          "orgs",
-          req.headers.action
-        );
+        let HTML = resourceViewer(org, tabs);
+        res.send(HTML);
+      } else {
+        res.status(200).json(org);
+      }
+    } else {
+      res.status(400);
+      throw new Error("No Orgs Found");
+    }
+  }
+});
+
+// @desc  Get an Org
+// @route GET /api/orgs/:id/overview
+// @access Private
+const getOrgOverviewTab = asyncHandler(async (req, res) => {
+  //let orgId = req.user.orgId.toHexString();
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "description"],
+      "Create Organisation",
+      "orgs",
+      req.headers.action
+    );
+    res.send(HTML);
+  } else {
+    let org;
+
+    if (req.params.id.length === 24) {
+      org = await Org.findById(req.params.id);
+
+      // if (org) {
+      //   res.status(200).json(org);
+      // } else {
+      //   res.send("Org not found");
+      //   res.status(400);
+      //   throw new Error("No Orgs Found");
+      // }
+    } else {
+      org = await Org.findOne({ code: req.params.id });
+    }
+
+    if (org) {
+      if (req.headers.ui) {
+        let HTML = resourceOverviewTab(org, fields, req.headers.action);
         res.send(HTML);
       } else {
         res.status(200).json(org);
@@ -239,7 +297,7 @@ const updateOrg = asyncHandler(async (req, res) => {
   });
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedOrg, fields, "Organsations", "orgs");
+    let HTML = resourceOverviewTab(updatedOrg, fields);
     res.send(HTML);
   } else {
     res.status(200).json(updatedOrg);
@@ -277,4 +335,12 @@ const getOrgRequests = asyncHandler(async (req, res) => {
   }
 });
 
-export { getOrg, getOrgs, setOrg, updateOrg, deleteOrg, getOrgRequests };
+export {
+  getOrg,
+  getOrgs,
+  setOrg,
+  updateOrg,
+  deleteOrg,
+  getOrgRequests,
+  getOrgOverviewTab,
+};

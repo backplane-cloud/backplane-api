@@ -1,35 +1,30 @@
 function HTMXify(jsonObject, fields, title, type) {
-  let html = `<div>
+  let html = `
 
-
+<div>
 
   <nav class="flex mb-10" aria-label="Breadcrumb">
-<ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-  <li class="inline-flex items-center">
-    <a href="#" hx-get='/api/users/check-auth' hx-target="#main-window" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-      <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-        <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-      </svg>
-      Home
-    </a>
-  </li>
+    <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+      <li class="inline-flex items-center">
+        <a href="#" hx-get='/api/users/check-auth' hx-target="#main-window" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+          <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+          </svg>
+          Home
+        </a>
+      </li>
+      <li aria-current="page">
+        <div class="flex items-center">
+          <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+          </svg>
+          <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">${title}</span>
+        </div>
+      </li>
+    </ol>
+  </nav>
 
-  <li aria-current="page">
-    <div class="flex items-center">
-      <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-      </svg>
-      <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">${title}</span>
-    </div>
-  </li>
-</ol>
-</nav>
-
-
-
-
-      
-     <button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-get="/api/${type}/create" hx-target="#display-content" hx-headers='{"ui": true, "action": "create"}'>Create ${title.substring(
+  <button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-get="/api/${type}/create" hx-target="#display-content" hx-headers='{"ui": true, "action": "create"}'>Create ${title.substring(
     0,
     title.length - 1
   )}</button>
@@ -215,4 +210,129 @@ class="mt-0"
   return HTML;
 }
 
-export { loginHTMX, viewHTMXify, HTMXify };
+function resourceViewer(resource, tabs) {
+  let resourceType = resource.type + "s";
+  let resourceDisplay =
+    resourceType.charAt(0).toUpperCase() + resource.type.slice(1);
+
+  let HTML = ` 
+    <div>
+        <nav class="flex mb-10" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+            <li class="inline-flex items-center">
+            <a href="#" hx-get='/api/users/check-auth' hx-target='#main-window' hx-headers='{"ui": true}' class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                </svg>
+                Home
+            </a>
+            </li>
+            <li>
+            <div class="flex items-center">
+                <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <a href="#" hx-get='/api/${resourceType}' hx-target='#display-content' hx-headers='{"ui": true}' class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">${resourceDisplay}s</a>
+            </div>
+            </li>
+            <li aria-current="page">
+            <div class="flex items-center">
+                <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">${resource.name}</span>
+            </div>
+            </li>
+        </ol>
+        </nav>
+  
+  <h3 class="text-base font-semibold leading-7 text-gray-900 text-3xl mb-10">
+  ${resource.name}
+  </h3>
+  
+  
+  
+    <div class="border-b border-gray-200 dark:border-gray-700">
+      <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">`;
+
+  tabs.map((tab) => {
+    HTML += `<li class="me-2">
+              <a
+                href="#"
+                hx-target='#resource-content' hx-get='/api/${resourceType}/${resource.id}/${tab}' hx-headers='{"ui": true}'
+                class="inline-flex items-center text-blue-500 justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group"
+              >${tab}</a>
+            </li>`;
+  });
+
+  HTML += `</ul>
+    </div>
+  
+  
+  </div>
+  `;
+
+  HTML += "<div id='resource-content' class=''></div>";
+
+  HTML += `
+    
+        </dl>
+      </div>
+    </div>
+    `;
+  return HTML;
+}
+
+function resourceOverviewTab(resource, fields, action) {
+  let edit = action === "edit" && true;
+  console.log("edit", edit);
+
+  let HTML;
+
+  HTML = `
+  <form class="space-y-6" action="#"> 
+  <button class="m-3 opacity-50 cursor-not-allowed text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Link to Product</button>
+  `;
+
+  edit
+    ? (HTML += `<button hx-put='/api/${resource.type}s/${resource.id}' hx-target='#resource-content' hx-headers='{"ui": true}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
+    <button hx-get='/api/${resource.type}s/${resource.id}/overview' hx-target='#resource-content' hx-headers='{"ui": true, "action": "cancel"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cancel</button>
+    `)
+    : (HTML += `<button hx-get='/api/${resource.type}s/${resource.id}/overview' hx-target='#resource-content' hx-headers='{"ui": true, "action": "edit"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Edit</button>
+    
+    `);
+
+  HTML += `
+  <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+
+    <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+    
+    <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">`;
+
+  HTML += "<div id='resource-content' class=''></div>";
+
+  fields.map((field) => {
+    let value;
+    if (field === "cloud") {
+      value = `<img src='img/${resource[field]}.png' />`;
+    } else {
+      value = edit
+        ? `<input class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name='${field}' id='${field}' value='${
+            resource[field] === undefined ? "" : resource[field]
+          }' />`
+        : resource[field];
+    }
+
+    HTML += `</form>
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm font-medium leading-6 text-gray-900">${field}</dt>
+              <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">${value}</dd>
+          </div>`;
+  });
+
+  HTML += "</div>";
+
+  return HTML;
+}
+
+export { loginHTMX, viewHTMXify, HTMXify, resourceViewer, resourceOverviewTab };

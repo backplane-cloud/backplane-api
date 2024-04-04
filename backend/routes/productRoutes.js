@@ -264,6 +264,7 @@ import {
   deleteProduct,
   getProductCost,
   getProductRequests,
+  getProductOverviewTab,
 } from "../controllers/productController.js";
 
 router
@@ -275,6 +276,8 @@ router
   .get(protect, authz, getProduct)
   .put(protect, authz, updateProduct)
   .delete(protect, authz, deleteProduct);
+
+router.route("/:id/overview").get(protect, authz, getProductOverviewTab);
 
 router.route("/:id/cost").get(protect, getProductCost);
 router.route("/:id/requests").get(protect, getProductRequests);
