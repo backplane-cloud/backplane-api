@@ -1,6 +1,6 @@
 {
   "name": "@backplane-software/backplane-api",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Provides a Cloud Abstraction API for Cost, Access, Resource controls and Environment Provisioning in Azure, AWS and GCP.",
   "type": "module",
   "main": "./backend/server.js",
