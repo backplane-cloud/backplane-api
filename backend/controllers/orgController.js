@@ -139,6 +139,33 @@ const getOrgOverviewTab = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Find Org
+// @route GET /api/orgs/search
+// @access Private
+const findOrg = asyncHandler(async (req, res) => {
+  let query;
+
+  query = {
+    status: "active",
+    name: { $regex: req.query.q, $options: "i" },
+  };
+
+  console.log(query);
+  const orgs = await Org.find(query);
+
+  if (orgs) {
+    if (req.headers.ui) {
+      let HTML = HTMXify(orgs, fields, "Orgs", "orgs");
+      res.send(HTML);
+    } else {
+      res.status(200).json(orgs);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Apps Found");
+  }
+});
+
 // @desc  Set Org
 // @route POST /api/orgs
 // @access Private
@@ -343,4 +370,5 @@ export {
   deleteOrg,
   getOrgRequests,
   getOrgOverviewTab,
+  findOrg,
 };

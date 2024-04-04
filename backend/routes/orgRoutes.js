@@ -267,9 +267,11 @@ import {
   deleteOrg,
   getOrgRequests,
   getOrgOverviewTab,
+  findOrg,
 } from "../controllers/orgController.js";
 
 router.route("/").get(protect, authz, getOrgs).post(protect, authz, setOrg);
+router.route("/search").get(protect, authz, findOrg);
 router
   .route("/:id")
   .get(protect, authz, getOrg)

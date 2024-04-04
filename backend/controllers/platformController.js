@@ -90,6 +90,42 @@ const getPlatform = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Find Platform
+// @route GET /api/platforms/search
+// @access Private
+const findPlatform = asyncHandler(async (req, res) => {
+  let query;
+  if (req.query) {
+    query = req.user.userType != "root" && {
+      orgId: req.user.orgId,
+      name: { $regex: req.query.q, $options: "i" },
+    };
+  } else {
+    query =
+      req.user.userType != "root"
+        ? {
+            orgId: req.user.orgId,
+            status: "active",
+            name: { $regex: req.query.q, $options: "i" },
+          }
+        : null;
+  }
+  console.log(query);
+  const platforms = await Platform.find(query);
+
+  if (platforms) {
+    if (req.headers.ui) {
+      let HTML = HTMXify(platforms, fields, "Platforms", "platforms");
+      res.send(HTML);
+    } else {
+      res.status(200).json(platforms);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Apps Found");
+  }
+});
+
 // @desc  Get Platform Overview
 // @route GET /api/platforms/:id/overview
 // @access Private
@@ -256,4 +292,5 @@ export {
   deletePlatform,
   getPlatformRequests,
   getPlatformOverviewTab,
+  findPlatform,
 };

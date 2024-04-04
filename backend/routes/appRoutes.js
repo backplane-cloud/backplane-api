@@ -296,9 +296,11 @@ import {
   getAppCost,
   getAppEnvironments,
   getAppOverview,
+  findApp,
 } from "../controllers/appController.js";
 
 router.route("/").get(protect, authz, getApps).post(protect, authz, setApp);
+router.route("/search").get(protect, authz, findApp);
 router
   .route("/:id")
   .get(protect, authz, getApp)

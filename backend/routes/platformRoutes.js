@@ -253,12 +253,15 @@ import {
   deletePlatform,
   getPlatformRequests,
   getPlatformOverviewTab,
+  findPlatform,
 } from "../controllers/platformController.js";
 
 router
   .route("/")
   .get(protect, authz, getPlatforms)
   .post(protect, authz, setPlatform);
+router.route("/search").get(protect, authz, findPlatform);
+
 router
   .route("/:id")
   .get(protect, authz, getPlatform)

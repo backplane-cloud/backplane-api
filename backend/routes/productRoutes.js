@@ -265,12 +265,14 @@ import {
   getProductCost,
   getProductRequests,
   getProductOverviewTab,
+  findProduct,
 } from "../controllers/productController.js";
 
 router
   .route("/")
   .get(protect, authz, getProducts)
   .post(protect, authz, setProduct);
+router.route("/search").get(protect, authz, findProduct);
 router
   .route("/:id")
   .get(protect, authz, getProduct)

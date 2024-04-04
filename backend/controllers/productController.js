@@ -107,6 +107,42 @@ const getProduct = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Find Products
+// @route GET /api/products/search
+// @access Private
+const findProduct = asyncHandler(async (req, res) => {
+  let query;
+  if (req.query) {
+    query = req.user.userType != "root" && {
+      orgId: req.user.orgId,
+      name: { $regex: req.query.q, $options: "i" },
+    };
+  } else {
+    query =
+      req.user.userType != "root"
+        ? {
+            orgId: req.user.orgId,
+            status: "active",
+            name: { $regex: req.query.q, $options: "i" },
+          }
+        : null;
+  }
+  console.log(query);
+
+  const products = await Product.find(query);
+  if (products) {
+    if (req.headers.ui) {
+      let HTML = HTMXify(products, fields, "Products", "products");
+      res.send(HTML);
+    } else {
+      res.status(200).json(products);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Products Found");
+  }
+});
+
 // @desc  Get Product Overview
 // @route GET /api/products/:id/overview
 // @access Private
@@ -407,4 +443,5 @@ export {
   getProductCost,
   getProductRequests,
   getProductOverviewTab,
+  findProduct,
 };

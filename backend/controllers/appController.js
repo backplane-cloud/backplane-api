@@ -115,6 +115,42 @@ const getApp = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Find Apps
+// @route GET /api/apps/search
+// @access Private
+const findApp = asyncHandler(async (req, res) => {
+  let query;
+  if (req.query) {
+    query = req.user.userType != "root" && {
+      orgId: req.user.orgId,
+      name: { $regex: req.query.q, $options: "i" },
+    };
+  } else {
+    query =
+      req.user.userType != "root"
+        ? {
+            orgId: req.user.orgId,
+            status: "active",
+            name: { $regex: req.query.q, $options: "i" },
+          }
+        : null;
+  }
+  console.log(query);
+  const apps = await App.find(query);
+
+  if (apps) {
+    if (req.headers.ui) {
+      let HTML = HTMXify(apps, fields, "Apps", "apps");
+      res.send(HTML);
+    } else {
+      res.status(200).json(apps);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Apps Found");
+  }
+});
+
 // @desc  Get App Environments
 // @route GET /api/apps/:id/environments
 // @access Private
@@ -807,4 +843,5 @@ export {
   getAppCost,
   getAppEnvironments,
   getAppOverview,
+  findApp,
 };
