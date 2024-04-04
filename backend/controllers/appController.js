@@ -524,7 +524,7 @@ const setApp = asyncHandler(async (req, res) => {
   // res.status(200).json({ app });
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(app, fields, "Apps", "apps");
+    let HTML = resourceViewer(app, tabs);
     res.send(HTML);
   } else {
     res.status(200).json(app);

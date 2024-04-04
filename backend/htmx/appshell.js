@@ -2,14 +2,19 @@ function appshell() {
   let html = `
 
 <div class="min-h-full" id="main-window">
-  <img class="h-16 m-2" src="img/backplane-logo-text.png" alt="Backplane Software">
+
+  <div class='flex'>
+
+  <img class="h-10 m-2" src="img/backplane-logo.png" alt="Backplane Software">
   
+  <img class="h-10 m-2" src="img/backplane-logo-text.png" alt="Backplane Software">
+  </div>
   <nav class="bg-gray-200">            
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <img class="h-10 w-10" src="img/backplane-logo-black.png" alt="Backplane Software">
+            
           </div>
           <div class="hidden md:block">
             <div class="ml-10 flex items-baseline space-x-4">

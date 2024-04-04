@@ -203,7 +203,7 @@ const setProduct = asyncHandler(async (req, res) => {
   // res.status(200).json(product);
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(product, fields, product.name, "products");
+    let HTML = resourceViewer(product, tabs);
     res.send(HTML);
   } else {
     res.status(200).json(app);

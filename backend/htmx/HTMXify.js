@@ -145,7 +145,9 @@ class="mt-0"
   class="max-w-sm mx-auto"
   id="loginForm"
   
-><img src='img/backplane-logo.png' class='mx-auto'/>
+><img src='img/backplane-logo-text.png' class='mx-auto'/>
+
+<h1 class='text-3xl mb-10'>Login</h1>
   <div class="mb-5">
     <label
       for="email"
@@ -246,7 +248,7 @@ function resourceViewer(resource, tabs) {
         </ol>
         </nav>
   
-  <h3 class="text-base font-semibold leading-7 text-gray-900 text-3xl mb-10">
+  <h3 class="leading-7 text-gray-900 text-3xl mb-10">
   ${resource.name}
   </h3>
   
@@ -297,7 +299,7 @@ function resourceOverviewTab(resource, fields, action) {
   edit
     ? (HTML += `<button hx-put='/api/${resource.type}s/${resource.id}' hx-target='#resource-content' hx-headers='{"ui": true}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
     <button hx-get='/api/${resource.type}s/${resource.id}/overview' hx-target='#resource-content' hx-headers='{"ui": true, "action": "cancel"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cancel</button>
-    `)
+    <button hx-confirm="Are you sure?" hx-delete="/api/${resource.type}s/${resource.id}" hx-target="#display-content" hx-headers='{"ui": true, "action": "delete"}'class="m-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>    `)
     : (HTML += `<button hx-get='/api/${resource.type}s/${resource.id}/overview' hx-target='#resource-content' hx-headers='{"ui": true, "action": "edit"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Edit</button>
     
     `);

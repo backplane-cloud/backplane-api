@@ -224,7 +224,7 @@ const setOrg = asyncHandler(async (req, res) => {
   // }
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(org, fields, org.name, "orgs");
+    let HTML = resourceViewer(org, tabs);
     res.send(HTML);
   } else {
     res.status(200).json(org);

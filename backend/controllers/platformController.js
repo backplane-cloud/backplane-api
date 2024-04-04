@@ -160,7 +160,7 @@ const setPlatform = asyncHandler(async (req, res) => {
   // res.status(200).json(platform);
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(platform, fields, platform.name, "platforms");
+    let HTML = resourceViewer(platform, tabs);
     res.send(HTML);
   } else {
     res.status(200).json(platform);
