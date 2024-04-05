@@ -236,6 +236,7 @@ import {
   deleteUser,
   createUser,
   checkAuth,
+  registerUserUI,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -243,7 +244,7 @@ router.route("/me").get(protect, authz, getMe).put(protect, authz, updateMe);
 router.route("/check-auth").get(checkAuth);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
-router.route("/register").post(registerUser);
+router.route("/register").get(registerUserUI).post(registerUser);
 router
   .route("/")
   .post(protect, authz, createUser)

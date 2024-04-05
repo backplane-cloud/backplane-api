@@ -2,7 +2,12 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import Org from "../models/orgModel.js";
 
-import { loginHTMX, viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import {
+  loginHTMX,
+  registerHTMX,
+  viewHTMXify,
+  HTMXify,
+} from "../htmx/HTMXify.js";
 import { appshell } from "../htmx/appshell.js";
 
 import generateToken from "../utils/generateToken.js";
@@ -179,6 +184,17 @@ const getUserInternal = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Register a new user HTMX Form
+// route    GET /api/users/register
+// @access  Public
+
+const registerUserUI = asyncHandler(async (req, res) => {
+  console.log("here i am");
+  // res.send(registerHTMX);
+  let HTML = registerHTMX();
+  res.send(HTML);
+});
+
 // @desc    Register a new user
 // route    POST /api/users
 // @access  Public
@@ -230,6 +246,7 @@ const registerUser = asyncHandler(async (req, res) => {
     type: "builtin",
     allowActions: [`/write`, `/delete`, `/read`],
     orgId: org.id,
+    ownerId: user.id,
   });
   console.log(role);
 
@@ -237,7 +254,7 @@ const registerUser = asyncHandler(async (req, res) => {
   setAssignment({
     type: "user",
     principal: user.id,
-    principalRef: "User",
+    principalRef: "user",
     scope: `/orgs/${org.id}`,
     role: role.id,
     orgId: org.id,
@@ -249,6 +266,7 @@ const registerUser = asyncHandler(async (req, res) => {
     type: "builtin",
     allowActions: [`/write`, `/delete`],
     orgId: org.id,
+    ownerId: user.id,
   });
 
   await setInternalRole({
@@ -256,6 +274,7 @@ const registerUser = asyncHandler(async (req, res) => {
     type: "builtin",
     allowActions: [`/read`],
     orgId: org.id,
+    ownerId: user.id,
   });
 
   // Raise Event to Send Welcome E-mail
@@ -269,13 +288,18 @@ const registerUser = asyncHandler(async (req, res) => {
 
   if (user) {
     generateToken(res, user._id);
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      orgId: user.orgId,
-      userType: user.userType,
-    });
+
+    if (req.headers.ui) {
+      res.status(200).send(loginHTMX());
+    } else {
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        orgId: user.orgId,
+        userType: user.userType,
+      });
+    }
   } else {
     res.status(400);
     throw new Error("Invalid user data");
@@ -528,8 +552,7 @@ const checkAuth = asyncHandler(async (req, res) => {
       logger.warn(new Error("Not authenticated, invalid token"));
     }
   } else {
-    res.send(loginHTMX({ message: "Invalid Username/Password" }));
-
+    // res.send(loginHTMX({ message: "Invalid Username/Password" }));
     // throw new Error("Not authenticated, no token");
     // logger.warn(`Not authenticated, No Token`);
   }
@@ -640,4 +663,5 @@ export {
   getUserInternal,
   createUser,
   checkAuth,
+  registerUserUI,
 };

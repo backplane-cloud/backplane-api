@@ -22,7 +22,7 @@ function appshell() {
       hx-get="/api/products/search"
       hx-trigger="keyup changed delay:500ms"
       hx-target="#display-content" id="default-search" 
-      class="block w-96 p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Product Search" required />
+      class="block w-96 p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Backplane" required />
 </div>
 </form>
 
@@ -92,7 +92,7 @@ function appshell() {
 
   <main>      
    
-    <div id="display-content" class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8" >
+    <div id="display-content" class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
 
     </div>
   </main>

@@ -177,7 +177,6 @@ const setOrg = asyncHandler(async (req, res) => {
   } else {
     post = true;
   }
-  console.log("req body", req.body);
 
   // Check if Org already exists
   const code = req.body.name.toLowerCase().replace(/ /g, "-");
@@ -250,9 +249,13 @@ const setOrg = asyncHandler(async (req, res) => {
   //   return org;
   // }
 
-  if (req.headers.ui) {
+  if (req.headers?.ui && req.headers?.action !== "register") {
     let HTML = resourceViewer(org, tabs);
     res.send(HTML);
+  }
+  console.log("Returning Org", JSON.stringify(org));
+  if (req.name) {
+    return org;
   } else {
     res.status(200).json(org);
   }
