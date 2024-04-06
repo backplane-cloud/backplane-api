@@ -6,6 +6,9 @@ import Request from "../models/requestModel.js";
 const fields = ["code", "name", "description", "type", "ownerId"];
 const tabs = [
   "Overview",
+  "Azure",
+  "GCP",
+  "AWS",
   "Users",
   "Teams",
   "Assignments",
@@ -28,6 +31,7 @@ import {
   HTMXify,
   resourceViewer,
   resourceOverviewTab,
+  orgCloudCredentialsTab,
 } from "../htmx/HTMXify.js";
 
 const getOrgs = asyncHandler(async (req, res) => {
@@ -94,7 +98,331 @@ const getOrg = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc  Get an Org
+// @desc  Get Cloud Credentials
+// @route GET /api/orgs/:id/azure | gcp | aws
+// @access Private
+
+const getOrgCloud = asyncHandler(async (req, res) => {
+  // Retrieve the Cloud from the URL
+  let url = req.url.split("/");
+
+  let cloud = url[url.length - 1].toLowerCase();
+  let slug = `orgs/${url[1]}/${cloud}`;
+
+  if (req.headers.action === "create") {
+    let fields;
+    switch (cloud) {
+      case "azure":
+        fields = [
+          "provider",
+          "tenantId",
+          "clientId",
+          "clientSecret",
+          "subscriptionId",
+        ];
+        break;
+      case "gcp":
+        fields = [
+          "provider",
+          "tenantId",
+          "type",
+          "project_id",
+          "private_key_id",
+          "private_key",
+          "client_email",
+          "client_id",
+          "auth_uri",
+          "token_uri",
+          "auth_provider_x509_cert_url",
+          "universe_domain",
+        ];
+        break;
+      case "aws":
+        fields = ["provider", "clientId", "clientSecret"];
+    }
+
+    let HTML = viewHTMXify(
+      {},
+      fields,
+      "Add Credentials",
+      slug,
+      req.headers.action
+    );
+    res.send(HTML);
+  } else {
+    let org;
+
+    if (req.params.id.length === 24) {
+      org = await Org.findById(req.params.id);
+
+      // if (org) {
+      //   res.status(200).json(org);
+      // } else {
+      //   res.send("Org not found");
+      //   res.status(400);
+      //   throw new Error("No Orgs Found");
+      // }
+      // console.log(org);
+    } else {
+      org = await Org.findOne({ code: req.params.id });
+    }
+    // console.log(org, org.csp);
+    let cloudCredentials;
+    if (org.csp !== undefined) {
+      cloudCredentials = org.csp.find((item) => item.provider === cloud);
+    }
+
+    if (req.headers.ui) {
+      // If Request came from UI
+      let HTML = orgCloudCredentialsTab(
+        cloudCredentials,
+        org.id,
+        req.headers.action,
+        cloud
+      );
+      res.send(HTML);
+    } else {
+      // Request came from REST or CLI
+      res.status(200).json(cloudCredentials);
+    }
+    // res.status(400);
+    // throw new Error("No Azure Credentials Found");
+  }
+});
+
+// @desc  Delete Cloud Credentials
+// @route DELETE /api/orgs/:id/azure | gcp | aws
+// @access Private
+
+const deleteOrgCloud = asyncHandler(async (req, res) => {
+  // Retrieve the Cloud from the URL
+  let url = req.url.split("/");
+  let cloud = url[url.length - 1].toLowerCase();
+
+  //let orgId = req.user.orgId.toHexString();
+  if (req.headers.action === "create") {
+    let HTML = viewHTMXify(
+      {},
+      ["name", "description"],
+      "Create Organisation",
+      "orgs",
+      req.headers.action
+    );
+    res.send(HTML);
+  } else {
+    let org;
+
+    if (req.params.id.length === 24) {
+      org = await Org.findById(req.params.id);
+
+      // if (org) {
+      //   res.status(200).json(org);
+      // } else {
+      //   res.send("Org not found");
+      //   res.status(400);
+      //   throw new Error("No Orgs Found");
+      // }
+      // console.log(org);
+    } else {
+      org = await Org.findOne({ code: req.params.id });
+    }
+
+    let csp = org.csp.filter((item) => item.provider !== cloud);
+
+    let updateOrg = { org, csp };
+
+    const updatedOrg = await Org.findByIdAndUpdate(org.id, updateOrg, {
+      new: true,
+    });
+
+    if (req.headers.ui) {
+      // If Request came from UI
+      let HTML = orgCloudCredentialsTab({}, org.id, req.headers.action);
+      res.send(HTML);
+    } else {
+      // Request came from REST or CLI
+      res.status(200).json(`Cloud Credentials removed for ${cloud}`);
+    }
+    // res.status(400);
+    // throw new Error("No Azure Credentials Found");
+  }
+});
+
+// @desc  Update Org Cloud Credentials
+// @route PUT /api/orgs/:id/azure | gcp | aws
+// @access Private
+const updateOrgCloud = asyncHandler(async (req, res) => {
+  // Retrieve the Cloud from the URL
+  let url = req.url.split("/");
+  let cloud = url[url.length - 1].toLowerCase();
+
+  const org = await Org.findById(req.params.id);
+
+  if (!org) {
+    res.status(400);
+    throw new Error("Org not found");
+  }
+
+  // Retrieve the Cloud Credentials to Retain and put in array
+  const retain = org.csp.filter((item) => item.provider !== cloud);
+  let csp;
+  if (cloud === "azure") {
+    csp = {
+      provider: "azure",
+      tenantId: req.body.tenantId,
+      clientId: req.body.clientId,
+      clientSecret: req.body.clientSecret,
+      subscriptionId: req.body.subscriptionId,
+    };
+
+    retain.push(csp);
+  }
+  if (cloud === "aws") {
+    csp = {
+      provider: "aws",
+      clientId: req.body.clientId,
+      clientSecret: req.body.clientSecret,
+    };
+    retain.push(csp);
+  }
+
+  if (cloud === "gcp") {
+    let gcpsecret = {
+      type: req.body.type,
+      project_id: req.body.project_id,
+      private_key_id: req.body.private_key_id,
+      private_key: req.body.private_key,
+      client_email: req.body.client_email,
+      client_id: req.body.client_id,
+      auth_uri: req.body.auth_uri,
+      token_uri: req.body.token_uri,
+      auth_provider_x509_cert_url: req.body.auth_provider_x509_cert_url,
+      client_x509_cert_url: req.body.client_x509_cert_url,
+      universe_domain: req.body.universe_domain,
+    };
+
+    csp = {
+      provider: "gcp",
+      tenantId: req.body.tenantId,
+      gcpsecret,
+    };
+
+    retain.push(csp);
+  }
+
+  csp = retain;
+
+  let updateOrg = { org, csp };
+
+  const updatedOrg = await Org.findByIdAndUpdate(org.id, updateOrg, {
+    new: true,
+  });
+
+  if (req.headers.ui) {
+    let cloudCredentials = updatedOrg.csp.find(
+      (item) => item.provider === cloud
+    );
+
+    let HTML = orgCloudCredentialsTab(
+      cloudCredentials,
+      org.id,
+      req.headers.action
+    );
+
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedOrg);
+  }
+});
+
+// @desc  Add Org Cloud Credentials
+// @route POST /api/orgs/:id/azure | gcp | aws
+// @access Private
+const addOrgCloud = asyncHandler(async (req, res) => {
+  // Retrieve the Cloud from the URL
+  let url = req.url.split("/");
+  let cloud = url[url.length - 1].toLowerCase();
+
+  const org = await Org.findById(req.params.id);
+
+  if (!org) {
+    res.status(400);
+    throw new Error("Org not found");
+  }
+
+  // Retrieve the Cloud Credentials to Retain and put in array
+  const retain = org.csp.filter((item) => item.provider !== cloud);
+  let csp;
+  if (cloud === "azure") {
+    csp = {
+      provider: "azure",
+      tenantId: req.body.tenantId,
+      clientId: req.body.clientId,
+      clientSecret: req.body.clientSecret,
+      subscriptionId: req.body.subscriptionId,
+    };
+
+    retain.push(csp);
+  }
+  if (cloud === "aws") {
+    csp = {
+      provider: "aws",
+      clientId: req.body.clientId,
+      clientSecret: req.body.clientSecret,
+    };
+    retain.push(csp);
+  }
+
+  if (cloud === "gcp") {
+    let gcpsecret = {
+      type: req.body.type,
+      project_id: req.body.project_id,
+      private_key_id: req.body.private_key_id,
+      private_key: req.body.private_key,
+      client_email: req.body.client_email,
+      client_id: req.body.client_id,
+      auth_uri: req.body.auth_uri,
+      token_uri: req.body.token_uri,
+      auth_provider_x509_cert_url: req.body.auth_provider_x509_cert_url,
+      client_x509_cert_url: req.body.client_x509_cert_url,
+      universe_domain: req.body.universe_domain,
+    };
+
+    csp = {
+      provider: "gcp",
+      tenantId: req.body.tenantId,
+      gcpsecret,
+    };
+
+    retain.push(csp);
+  }
+
+  csp = retain;
+
+  let updateOrg = { org, csp };
+
+  const updatedOrg = await Org.findByIdAndUpdate(org.id, updateOrg, {
+    new: true,
+  });
+
+  if (req.headers.ui) {
+    let cloudCredentials = updatedOrg.csp.find(
+      (item) => item.provider === cloud
+    );
+
+    let HTML = orgCloudCredentialsTab(
+      cloudCredentials,
+      org.id,
+      req.headers.action
+    );
+
+    res.send(HTML);
+  } else {
+    res.status(200).json(updatedOrg);
+  }
+});
+
+// @desc  Get Org Overview Tab
 // @route GET /api/orgs/:id/overview
 // @access Private
 const getOrgOverviewTab = asyncHandler(async (req, res) => {
@@ -374,4 +702,8 @@ export {
   getOrgRequests,
   getOrgOverviewTab,
   findOrg,
+  getOrgCloud,
+  updateOrgCloud,
+  deleteOrgCloud,
+  addOrgCloud,
 };

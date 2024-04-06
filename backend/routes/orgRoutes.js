@@ -268,7 +268,16 @@ import {
   getOrgRequests,
   getOrgOverviewTab,
   findOrg,
+  getOrgCloud,
+  updateOrgCloud,
+  deleteOrgCloud,
+  addOrgCloud,
 } from "../controllers/orgController.js";
+
+import { getUsers } from "../controllers/userController.js";
+import { getTeams } from "../controllers/teamController.js";
+import { getAssignments } from "../controllers/assignmentController.js";
+import { getRoles } from "../controllers/roleController.js";
 
 router.route("/").get(protect, authz, getOrgs).post(protect, authz, setOrg);
 router.route("/search").get(protect, authz, findOrg);
@@ -279,6 +288,34 @@ router
   .delete(protect, authz, deleteOrg);
 
 router.route("/:id/overview").get(protect, authz, getOrgOverviewTab);
+
+// Routes to get Cloud Credentials
+router
+  .route("/:id/azure")
+  .get(protect, authz, getOrgCloud)
+  .put(protect, authz, updateOrgCloud)
+  .delete(protect, authz, deleteOrgCloud)
+  .post(protect, authz, addOrgCloud);
+
+router
+  .route("/:id/gcp")
+  .get(protect, authz, getOrgCloud)
+  .put(protect, authz, updateOrgCloud)
+  .delete(protect, authz, deleteOrgCloud)
+  .post(protect, authz, addOrgCloud);
+
+router
+  .route("/:id/aws")
+  .get(protect, authz, getOrgCloud)
+  .put(protect, authz, updateOrgCloud)
+  .delete(protect, authz, deleteOrgCloud)
+  .post(protect, authz, addOrgCloud);
+
+router.route("/:id/users").get(protect, authz, getUsers);
+router.route("/:id/teams").get(protect, authz, getTeams);
+router.route("/:id/assignments").get(protect, authz, getAssignments);
+router.route("/:id/roles").get(protect, authz, getRoles);
+
 router.route("/:id/requests").get(protect, authz, getOrgRequests);
 
 export default router;
