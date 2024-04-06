@@ -28,8 +28,8 @@ const tabs = [
 
 import {
   viewHTMXify,
-  HTMXify,
-  resourceViewer,
+  resourceListView,
+  resourceView,
   resourceOverviewTab,
   orgCloudCredentialsTab,
 } from "../htmx/HTMXify.js";
@@ -42,7 +42,7 @@ const getOrgs = asyncHandler(async (req, res) => {
   // const orgs = await Org.find({ _id: req.user.orgId });
   if (orgs) {
     if (req.headers.ui) {
-      const htmlTable = HTMXify(orgs, fields, "Organsations", "orgs");
+      const htmlTable = resourceListView(orgs, fields, "Organsations", "orgs");
       res.send(htmlTable);
     } else {
       res.status(200).json(orgs);
@@ -86,7 +86,7 @@ const getOrg = asyncHandler(async (req, res) => {
 
     if (org) {
       if (req.headers.ui) {
-        let HTML = resourceViewer(org, tabs);
+        let HTML = resourceView(org, tabs);
         res.send(HTML);
       } else {
         res.status(200).json(org);
@@ -483,7 +483,7 @@ const findOrg = asyncHandler(async (req, res) => {
 
   if (orgs) {
     if (req.headers.ui) {
-      let HTML = HTMXify(orgs, fields, "Orgs", "orgs");
+      let HTML = resourceListView(orgs, fields, "Orgs", "orgs");
       res.send(HTML);
     } else {
       res.status(200).json(orgs);
@@ -578,7 +578,7 @@ const setOrg = asyncHandler(async (req, res) => {
   // }
 
   if (req.headers?.ui && req.headers?.action !== "register") {
-    let HTML = resourceViewer(org, tabs);
+    let HTML = resourceView(org, tabs);
     res.send(HTML);
   }
   console.log("Returning Org", JSON.stringify(org));

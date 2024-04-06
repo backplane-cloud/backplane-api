@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 
 import Team from "../models/teamModel.js";
 import User from "../models/userModel.js";
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import { viewHTMXify, resourceListView } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = ["name", "code", "members", "scope", "ownerId", "orgId"];
@@ -17,7 +17,7 @@ const getTeams = asyncHandler(async (req, res) => {
 
   if (teams) {
     if (req.headers.ui) {
-      let HTML = HTMXify(teams, fields, "Teams", "teams");
+      let HTML = resourceListView(teams, fields, "Teams", "teams");
       res.send(HTML);
     } else {
       res.status(200).json(teams);

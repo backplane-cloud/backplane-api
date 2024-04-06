@@ -3,8 +3,8 @@ import Platform from "../models/platformModel.js";
 import Request from "../models/requestModel.js";
 import {
   viewHTMXify,
-  HTMXify,
-  resourceViewer,
+  resourceListView,
+  resourceView,
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
 
@@ -41,7 +41,7 @@ const getPlatforms = asyncHandler(async (req, res) => {
   //console.log(platforms);
   if (platforms) {
     if (req.headers.ui) {
-      let HTML = HTMXify(platforms, fields, "Platforms", "platforms");
+      let HTML = resourceListView(platforms, fields, "Platforms", "platforms");
       res.send(HTML);
     } else {
       res.status(200).json(platforms);
@@ -76,7 +76,7 @@ const getPlatform = asyncHandler(async (req, res) => {
     );
     if (platform) {
       if (req.headers.ui) {
-        let HTML = resourceViewer(platform, tabs);
+        let HTML = resourceView(platform, tabs);
 
         res.send(HTML);
       } else {
@@ -115,7 +115,7 @@ const findPlatform = asyncHandler(async (req, res) => {
 
   if (platforms) {
     if (req.headers.ui) {
-      let HTML = HTMXify(platforms, fields, "Platforms", "platforms");
+      let HTML = resourceListView(platforms, fields, "Platforms", "platforms");
       res.send(HTML);
     } else {
       res.status(200).json(platforms);
@@ -196,7 +196,7 @@ const setPlatform = asyncHandler(async (req, res) => {
   // res.status(200).json(platform);
 
   if (req.headers.ui) {
-    let HTML = resourceViewer(platform, tabs);
+    let HTML = resourceView(platform, tabs);
     res.send(HTML);
   } else {
     res.status(200).json(platform);

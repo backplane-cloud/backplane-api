@@ -6,7 +6,7 @@ import {
   loginHTMX,
   registerHTMX,
   viewHTMXify,
-  HTMXify,
+  resourceListView,
 } from "../htmx/HTMXify.js";
 import { appshell } from "../htmx/appshell.js";
 
@@ -101,7 +101,7 @@ const getUsers = asyncHandler(async (req, res) => {
 
   if (users) {
     if (req.headers.ui) {
-      let HTML = HTMXify(users, fields, "Users", "users");
+      let HTML = resourceListView(users, fields, "Users", "users");
       res.send(HTML);
     } else {
       res.status(200).json(users);

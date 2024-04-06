@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler";
 import Assignment from "../models/assignmentModel.js";
 import Team from "../models/teamModel.js";
 
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import { viewHTMXify, resourceListView } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -25,7 +25,12 @@ const getAssignments = asyncHandler(async (req, res) => {
   );
   if (assignments) {
     if (req.headers.ui) {
-      let HTML = HTMXify(assignments, fields, "Assignments", "assignments");
+      let HTML = resourceListView(
+        assignments,
+        fields,
+        "Assignments",
+        "assignments"
+      );
       res.send(HTML);
     } else {
       res.status(200).json(assignments);

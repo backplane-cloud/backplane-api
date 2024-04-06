@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 
 import Service from "../models/serviceModel.js";
 
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import { viewHTMXify, resourceListView } from "../htmx/HTMXify.js";
 // These fields determine what to display on HTMX responses from Backplane UI
 
 const fields = ["name", "description", "url", "apikey", "ownerId"];
@@ -16,7 +16,7 @@ const getServices = asyncHandler(async (req, res) => {
   );
   if (services) {
     if (req.headers.ui) {
-      let HTML = HTMXify(services, fields, "Services", "services");
+      let HTML = resourceListView(services, fields, "Services", "services");
       res.send(HTML);
     } else {
       res.status(200).json(services);

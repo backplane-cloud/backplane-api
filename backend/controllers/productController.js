@@ -12,8 +12,8 @@ import { BillingManagementClient } from "@azure/arm-billing";
 
 import {
   viewHTMXify,
-  HTMXify,
-  resourceViewer,
+  resourceListView,
+  resourceView,
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
 
@@ -59,7 +59,7 @@ const getProducts = asyncHandler(async (req, res) => {
   const products = await Product.find(query);
   if (products) {
     if (req.headers.ui) {
-      let HTML = HTMXify(products, fields, "Products", "products");
+      let HTML = resourceListView(products, fields, "Products", "products");
       res.send(HTML);
     } else {
       res.status(200).json(products);
@@ -94,7 +94,7 @@ const getProduct = asyncHandler(async (req, res) => {
 
     if (product) {
       if (req.headers.ui) {
-        let HTML = resourceViewer(product, tabs);
+        let HTML = resourceView(product, tabs);
         res.send(HTML);
       } else {
         res.status(200).json(product);
@@ -132,7 +132,7 @@ const findProduct = asyncHandler(async (req, res) => {
   const products = await Product.find(query);
   if (products) {
     if (req.headers.ui) {
-      let HTML = HTMXify(products, fields, "Products", "products");
+      let HTML = resourceListView(products, fields, "Products", "products");
       res.send(HTML);
     } else {
       res.status(200).json(products);
@@ -239,7 +239,7 @@ const setProduct = asyncHandler(async (req, res) => {
   // res.status(200).json(product);
 
   if (req.headers.ui) {
-    let HTML = resourceViewer(product, tabs);
+    let HTML = resourceView(product, tabs);
     res.send(HTML);
   } else {
     res.status(200).json(app);

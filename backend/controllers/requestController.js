@@ -10,7 +10,7 @@ import Product from "../models/productModel.js";
 import Platform from "../models/platformModel.js";
 import Org from "../models/orgModel.js";
 
-import { viewHTMXify, HTMXify } from "../htmx/HTMXify.js";
+import { viewHTMXify, resourceListView } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -227,7 +227,7 @@ const getRequests = asyncHandler(async (req, res) => {
   );
   if (requests) {
     if (req.headers.ui) {
-      let HTML = HTMXify(requests, fields, "Requests", "requests");
+      let HTML = resourceListView(requests, fields, "Requests", "requests");
       res.send(HTML);
     } else {
       res.status(200).json(requests);

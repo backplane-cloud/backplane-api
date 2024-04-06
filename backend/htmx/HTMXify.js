@@ -1,4 +1,5 @@
-function HTMXify(jsonObject, fields, title, type) {
+// List Resources
+function resourceListView(jsonObject, fields, title, type) {
   let html = `
 
 <div>
@@ -99,6 +100,81 @@ function HTMXify(jsonObject, fields, title, type) {
   return html;
 }
 
+// View the Resource
+function resourceView(resource, tabs) {
+  let resourceType = resource.type + "s";
+  let resourceDisplay =
+    resourceType.charAt(0).toUpperCase() + resource.type.slice(1);
+
+  let HTML = ` 
+    <div>
+        <nav class="flex mb-10" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+            <li class="inline-flex items-center">
+            <a href="#" hx-get='/api/users/check-auth' hx-target='#main-window' hx-headers='{"ui": true}' class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                </svg>
+                Home
+            </a>
+            </li>
+            <li>
+            <div class="flex items-center">
+                <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <a href="#" hx-get='/api/${resourceType}' hx-target='#display-content' hx-headers='{"ui": true}' class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">${resourceDisplay}s</a>
+            </div>
+            </li>
+            <li aria-current="page">
+            <div class="flex items-center">
+                <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                </svg>
+                <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">${resource.name}</span>
+            </div>
+            </li>
+        </ol>
+        </nav>
+  
+  <h3 class="leading-7 text-gray-900 text-3xl mb-10">
+  ${resource.name}
+  </h3>
+  
+  
+  
+    <div class="border-b border-gray-200 dark:border-gray-700">
+      <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">`;
+
+  tabs.map((tab) => {
+    HTML += `<li class="me-2">
+              <a
+                href="#"
+                hx-target='#resource-content' hx-get='/api/${resourceType}/${resource.id}/${tab}' hx-headers='{"ui": true}'
+                class="inline-flex items-center text-blue-500 justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group"
+              >${tab}</a>
+            </li>`;
+  });
+
+  HTML += `</ul>
+    </div>
+  
+  
+  </div>
+  `;
+
+  HTML += "<div id='resource-content' class=''></div>";
+
+  HTML += `
+    
+        </dl>
+      </div>
+    </div>
+    `;
+  return HTML;
+}
+
+// Create Resources View
 function viewHTMXify(jsonObject, fields, title, type, action) {
   console.log("action", action);
   let html = `
@@ -148,6 +224,7 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
   return html;
 }
 
+// Login Form
 function loginHTMX(message) {
   let HTML = `
 
@@ -232,6 +309,7 @@ class="mt-0"
   return HTML;
 }
 
+// Registration of New User and Org
 function registerHTMX() {
   console.log("returning registerHTMX");
   let HTML = `
@@ -343,79 +421,6 @@ class="mt-0"
 </form>
 </div>`;
 
-  return HTML;
-}
-
-function resourceViewer(resource, tabs) {
-  let resourceType = resource.type + "s";
-  let resourceDisplay =
-    resourceType.charAt(0).toUpperCase() + resource.type.slice(1);
-
-  let HTML = ` 
-    <div>
-        <nav class="flex mb-10" aria-label="Breadcrumb">
-        <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-            <li class="inline-flex items-center">
-            <a href="#" hx-get='/api/users/check-auth' hx-target='#main-window' hx-headers='{"ui": true}' class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
-                <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
-                </svg>
-                Home
-            </a>
-            </li>
-            <li>
-            <div class="flex items-center">
-                <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <a href="#" hx-get='/api/${resourceType}' hx-target='#display-content' hx-headers='{"ui": true}' class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">${resourceDisplay}s</a>
-            </div>
-            </li>
-            <li aria-current="page">
-            <div class="flex items-center">
-                <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">${resource.name}</span>
-            </div>
-            </li>
-        </ol>
-        </nav>
-  
-  <h3 class="leading-7 text-gray-900 text-3xl mb-10">
-  ${resource.name}
-  </h3>
-  
-  
-  
-    <div class="border-b border-gray-200 dark:border-gray-700">
-      <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">`;
-
-  tabs.map((tab) => {
-    HTML += `<li class="me-2">
-              <a
-                href="#"
-                hx-target='#resource-content' hx-get='/api/${resourceType}/${resource.id}/${tab}' hx-headers='{"ui": true}'
-                class="inline-flex items-center text-blue-500 justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group"
-              >${tab}</a>
-            </li>`;
-  });
-
-  HTML += `</ul>
-    </div>
-  
-  
-  </div>
-  `;
-
-  HTML += "<div id='resource-content' class=''></div>";
-
-  HTML += `
-    
-        </dl>
-      </div>
-    </div>
-    `;
   return HTML;
 }
 
@@ -551,8 +556,8 @@ export {
   loginHTMX,
   registerHTMX,
   viewHTMXify,
-  HTMXify,
-  resourceViewer,
+  resourceListView,
+  resourceView,
   resourceOverviewTab,
   orgCloudCredentialsTab,
 };
