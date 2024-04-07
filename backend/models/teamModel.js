@@ -10,6 +10,10 @@ const teamSchema = mongoose.Schema(
       type: String,
       required: [false, "Description is Optional"],
     },
+    type: {
+      type: String,
+      required: [false, "Description is Optional"],
+    },
     code: {
       type: String,
       required: [true, "A code is required"],

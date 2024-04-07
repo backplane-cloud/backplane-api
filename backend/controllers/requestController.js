@@ -10,7 +10,7 @@ import Product from "../models/productModel.js";
 import Platform from "../models/platformModel.js";
 import Org from "../models/orgModel.js";
 
-import { viewHTMXify, resourceListView } from "../htmx/HTMXify.js";
+import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -24,6 +24,8 @@ const fields = [
   "requestedForType",
   "approvalStatus",
 ];
+
+const tabs = ["Overview"];
 
 // EVENT CODE
 
@@ -227,7 +229,7 @@ const getRequests = asyncHandler(async (req, res) => {
   );
   if (requests) {
     if (req.headers.ui) {
-      let HTML = resourceListView(requests, fields, "Requests", "requests");
+      let HTML = listResources(requests, fields, "Requests", "requests");
       res.send(HTML);
     } else {
       res.status(200).json(requests);
@@ -257,14 +259,21 @@ const getRequest = asyncHandler(async (req, res) => {
   } else {
     const request = await Request.findById(req.params.id);
     if (request) {
+      // Need to update Request model with 'type' to replace requestType for consistency.
+      let xrequest = {
+        ...request,
+        type: "request",
+      };
       if (req.headers.ui) {
-        let HTML = viewHTMXify(
-          request,
-          fields,
-          "Request",
-          "requests",
-          req.headers.action
-        );
+        let breadcrumbs = `requests,${xrequest.requestType}`;
+        let HTML = showResource(xrequest, tabs, breadcrumbs);
+        // let HTML = viewHTMXify(
+        //   request,
+        //   fields,
+        //   "Request",
+        //   "requests",
+        //   req.headers.action
+        // );
         res.send(HTML);
       } else {
         res.status(200).json(request);

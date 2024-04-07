@@ -14,6 +14,9 @@ const requestSchema = mongoose.Schema(
       required: true,
       ref: "Org",
     },
+    type: {
+      type: String,
+    },
     data: {
       type: String,
     },

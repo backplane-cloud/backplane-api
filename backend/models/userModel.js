@@ -28,6 +28,9 @@ const userSchema = mongoose.Schema(
     userType: {
       type: String,
     },
+    type: {
+      type: String,
+    },
     allowedActions: {
       type: [String],
     },

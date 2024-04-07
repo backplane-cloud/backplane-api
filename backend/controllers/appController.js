@@ -9,7 +9,8 @@ import Service from "../models/serviceModel.js";
 
 import {
   viewHTMXify,
-  resourceListView,
+  listResources,
+  showResource,
   resourceView,
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
@@ -72,7 +73,7 @@ const getApps = asyncHandler(async (req, res) => {
 
   if (apps) {
     if (req.headers.ui) {
-      let HTML = resourceListView(apps, fields, "Apps", "apps");
+      let HTML = listResources(apps, fields, "Apps", "apps");
       res.send(HTML);
     } else {
       res.status(200).json(apps);
@@ -103,7 +104,9 @@ const getApp = asyncHandler(async (req, res) => {
     if (app) {
       console.log("headers", req.headers);
       if (req.headers.ui) {
-        let HTML = resourceView(app, tabs);
+        let breadcrumbs = `apps,${app.name}`;
+        let HTML = showResource(app, tabs, breadcrumbs);
+        // let HTML = resourceView(app, tabs);
         res.send(HTML);
       } else {
         res.status(200).json(app);
@@ -140,7 +143,7 @@ const findApp = asyncHandler(async (req, res) => {
 
   if (apps) {
     if (req.headers.ui) {
-      let HTML = resourceListView(apps, fields, "Apps", "apps");
+      let HTML = listResources(apps, fields, "Apps", "apps");
       res.send(HTML);
     } else {
       res.status(200).json(apps);

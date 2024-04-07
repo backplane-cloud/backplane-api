@@ -1,10 +1,11 @@
 import asyncHandler from "express-async-handler";
 
 import Role from "../models/roleModel.js";
-import { viewHTMXify, resourceListView } from "../htmx/HTMXify.js";
+import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = ["name", "type", "allowActions", "orgId", "ownerId"];
+const tabs = ["Overview"];
 
 // @desc  Get Roles
 // @route GET /api/roles
@@ -15,7 +16,7 @@ const getRoles = asyncHandler(async (req, res) => {
   );
   if (roles) {
     if (req.headers.ui) {
-      let HTML = resourceListView(roles, fields, "Roles", "roles");
+      let HTML = listResources(roles, fields, "Roles", "roles");
       res.send(HTML);
     } else {
       res.status(200).json(roles);
@@ -57,13 +58,16 @@ const getRole = asyncHandler(async (req, res) => {
     const role = await Role.findById(req.params.id);
     if (role) {
       if (req.headers.ui) {
-        let HTML = viewHTMXify(
-          role,
-          fields,
-          role.name,
-          "roles",
-          req.headers.action
-        );
+        let breadcrumbs = `Roles,${role.name}`;
+        let HTML = showResource(role, tabs, breadcrumbs);
+
+        // let HTML = viewHTMXify(
+        //   role,
+        //   fields,
+        //   role.name,
+        //   "roles",
+        //   req.headers.action
+        // );
         res.send(HTML);
       } else {
         res.status(200).json(role);

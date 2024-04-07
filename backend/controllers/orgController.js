@@ -9,6 +9,7 @@ const tabs = [
   "Azure",
   "GCP",
   "AWS",
+  "Templates",
   "Users",
   "Teams",
   "Assignments",
@@ -22,27 +23,42 @@ const tabs = [
   "Apps",
 ];
 
-// @desc  Get Orgs
-// @route GET /api/orgs
-// @access Private
-
 import {
   viewHTMXify,
-  resourceListView,
+  listResources,
+  showResource,
   resourceView,
   resourceOverviewTab,
   orgCloudCredentialsTab,
 } from "../htmx/HTMXify.js";
 
+// @desc  Get Orgs
+// @route GET /api/orgs
+// @access Private
+
 const getOrgs = asyncHandler(async (req, res) => {
   const orgs = !req.user.allowedActions.includes("/*")
     ? await Org.findById(req.user.orgId)
-    : await Org.find();
+    : await Org.find().select("");
 
   // const orgs = await Org.find({ _id: req.user.orgId });
   if (orgs) {
     if (req.headers.ui) {
-      const htmlTable = resourceListView(orgs, fields, "Organsations", "orgs");
+      // Filter the Org fields down for ListView efficiency i.e. don't send whole document
+      let filteredOrgs = orgs.map((org) => {
+        const { _id, code, name, type, status, budget, description, ownerId } =
+          org;
+        return { _id, code, name, type, status, budget, description, ownerId };
+      });
+
+      let resources = filteredOrgs;
+
+      const htmlTable = listResources(
+        resources,
+        fields,
+        "Organsations",
+        "orgs"
+      );
       res.send(htmlTable);
     } else {
       res.status(200).json(orgs);
@@ -86,7 +102,8 @@ const getOrg = asyncHandler(async (req, res) => {
 
     if (org) {
       if (req.headers.ui) {
-        let HTML = resourceView(org, tabs);
+        let breadcrumbs = `orgs,${org.name}`;
+        let HTML = showResource(org, tabs, breadcrumbs);
         res.send(HTML);
       } else {
         res.status(200).json(org);
@@ -144,7 +161,7 @@ const getOrgCloud = asyncHandler(async (req, res) => {
     let HTML = viewHTMXify(
       {},
       fields,
-      "Add Credentials",
+      `Add ${cloud.toUpperCase()} Credentials`,
       slug,
       req.headers.action
     );
@@ -237,7 +254,7 @@ const deleteOrgCloud = asyncHandler(async (req, res) => {
 
     if (req.headers.ui) {
       // If Request came from UI
-      let HTML = orgCloudCredentialsTab({}, org.id, req.headers.action);
+      let HTML = orgCloudCredentialsTab(undefined, org.id, req.headers.action);
       res.send(HTML);
     } else {
       // Request came from REST or CLI
@@ -251,6 +268,7 @@ const deleteOrgCloud = asyncHandler(async (req, res) => {
 // @desc  Update Org Cloud Credentials
 // @route PUT /api/orgs/:id/azure | gcp | aws
 // @access Private
+
 const updateOrgCloud = asyncHandler(async (req, res) => {
   // Retrieve the Cloud from the URL
   let url = req.url.split("/");
@@ -338,6 +356,7 @@ const updateOrgCloud = asyncHandler(async (req, res) => {
 // @desc  Add Org Cloud Credentials
 // @route POST /api/orgs/:id/azure | gcp | aws
 // @access Private
+
 const addOrgCloud = asyncHandler(async (req, res) => {
   // Retrieve the Cloud from the URL
   let url = req.url.split("/");
@@ -350,8 +369,12 @@ const addOrgCloud = asyncHandler(async (req, res) => {
     throw new Error("Org not found");
   }
 
+  let retain = [];
   // Retrieve the Cloud Credentials to Retain and put in array
-  const retain = org.csp.filter((item) => item.provider !== cloud);
+  if (org.csp !== undefined) {
+    retain = org.csp.filter((item) => item.provider !== cloud);
+  }
+
   let csp;
   if (cloud === "azure") {
     csp = {
@@ -425,6 +448,7 @@ const addOrgCloud = asyncHandler(async (req, res) => {
 // @desc  Get Org Overview Tab
 // @route GET /api/orgs/:id/overview
 // @access Private
+
 const getOrgOverviewTab = asyncHandler(async (req, res) => {
   //let orgId = req.user.orgId.toHexString();
   if (req.headers.action === "create") {
@@ -470,6 +494,7 @@ const getOrgOverviewTab = asyncHandler(async (req, res) => {
 // @desc  Find Org
 // @route GET /api/orgs/search
 // @access Private
+
 const findOrg = asyncHandler(async (req, res) => {
   let query;
 
@@ -480,10 +505,19 @@ const findOrg = asyncHandler(async (req, res) => {
 
   console.log(query);
   const orgs = await Org.find(query);
+  console.log(orgs);
 
   if (orgs) {
     if (req.headers.ui) {
-      let HTML = resourceListView(orgs, fields, "Orgs", "orgs");
+      // Filter the Org fields down for ListView efficiency i.e. don't send whole document
+      let filteredOrgs = orgs.map((org) => {
+        const { _id, code, name, type, status, budget, description, ownerId } =
+          org;
+        return { _id, code, name, type, status, budget, description, ownerId };
+      });
+
+      let resources = filteredOrgs;
+      let HTML = listResources(resources, fields, "Orgs", "orgs");
       res.send(HTML);
     } else {
       res.status(200).json(orgs);

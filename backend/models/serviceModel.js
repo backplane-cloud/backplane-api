@@ -8,6 +8,7 @@ const serviceSchema = mongoose.Schema(
     url: String,
     apikey: String,
     status: String,
+    type: String,
 
     orgId: {
       type: mongoose.Schema.Types.ObjectId,

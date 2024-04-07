@@ -2,10 +2,11 @@ import asyncHandler from "express-async-handler";
 
 import Team from "../models/teamModel.js";
 import User from "../models/userModel.js";
-import { viewHTMXify, resourceListView } from "../htmx/HTMXify.js";
+import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = ["name", "code", "members", "scope", "ownerId", "orgId"];
+const tabs = ["Overview"];
 
 // @desc  Get Teams
 // @route GET /api/teams
@@ -17,7 +18,7 @@ const getTeams = asyncHandler(async (req, res) => {
 
   if (teams) {
     if (req.headers.ui) {
-      let HTML = resourceListView(teams, fields, "Teams", "teams");
+      let HTML = listResources(teams, fields, "Teams", "teams");
       res.send(HTML);
     } else {
       res.status(200).json(teams);
@@ -48,13 +49,9 @@ const getTeam = asyncHandler(async (req, res) => {
     const team = await Team.findById(req.params.id);
     if (team) {
       if (req.headers.ui) {
-        let HTML = viewHTMXify(
-          team,
-          fields,
-          team.name,
-          "teams",
-          req.headers.action
-        );
+        let breadcrumbs = `Teams,${team.name}`;
+        let HTML = showResource(team, tabs, breadcrumbs);
+
         res.send(HTML);
       } else {
         res.status(200).json(team);
@@ -107,10 +104,11 @@ const updateTeam = asyncHandler(async (req, res) => {
 
   const teamBody = {
     ...req.body,
-    members: [...req.body.members],
+    // members: [...req.body.members], <-- Need to do some conditioning when not sent
     // name: req.body.name,
     // code: req.body.code,
     // scope: req.body.scope,
+    // type: req.body.type,
   };
   const updatedTeam = await Team.findByIdAndUpdate(req.params.id, teamBody, {
     new: true,

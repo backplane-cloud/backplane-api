@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler";
 import Assignment from "../models/assignmentModel.js";
 import Team from "../models/teamModel.js";
 
-import { viewHTMXify, resourceListView } from "../htmx/HTMXify.js";
+import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -16,6 +16,8 @@ const fields = [
   "orgId",
 ];
 
+const tabs = ["Overview"];
+
 // @desc  Get Assignments
 // @route GET /api/assignments
 // @access Private
@@ -25,7 +27,7 @@ const getAssignments = asyncHandler(async (req, res) => {
   );
   if (assignments) {
     if (req.headers.ui) {
-      let HTML = resourceListView(
+      let HTML = listResources(
         assignments,
         fields,
         "Assignments",
@@ -70,13 +72,16 @@ const getAssignment = asyncHandler(async (req, res) => {
 
     if (assignment) {
       if (req.headers.ui) {
-        let HTML = viewHTMXify(
-          assignment,
-          fields,
-          "Assignment",
-          "assignments",
-          req.headers.action
-        );
+        let breadcrumbs = `assignment,${assignment.type}`;
+        let HTML = showResource(assignment, tabs, breadcrumbs);
+
+        // let HTML = viewHTMXify(
+        //   assignment,
+        //   fields,
+        //   "Assignment",
+        //   "assignments",
+        //   req.headers.action
+        // );
         res.send(HTML);
       } else {
         res.status(200).json(assignment);

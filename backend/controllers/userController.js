@@ -6,7 +6,8 @@ import {
   loginHTMX,
   registerHTMX,
   viewHTMXify,
-  resourceListView,
+  listResources,
+  showResource,
 } from "../htmx/HTMXify.js";
 import { appshell } from "../htmx/appshell.js";
 
@@ -90,6 +91,8 @@ const fields = [
   "allowedActions",
 ];
 
+const tabs = ["Overview"];
+
 // @desc    Get Users
 // route    GET /api/users
 // @access  Private
@@ -101,7 +104,7 @@ const getUsers = asyncHandler(async (req, res) => {
 
   if (users) {
     if (req.headers.ui) {
-      let HTML = resourceListView(users, fields, "Users", "users");
+      let HTML = listResources(users, fields, "Users", "users");
       res.send(HTML);
     } else {
       res.status(200).json(users);
@@ -146,14 +149,15 @@ const getUser = asyncHandler(async (req, res) => {
 
     if (user) {
       if (req.headers.ui) {
-        console.log(user);
-        let HTML = viewHTMXify(
-          user,
-          fields,
-          user.name,
-          "users",
-          req.headers.action
-        );
+        let breadcrumbs = `users,${user.name}`;
+        let HTML = showResource(user, tabs, breadcrumbs);
+        // let HTML = viewHTMXify(
+        //   user,
+        //   fields,
+        //   user.name,
+        //   "users",
+        //   req.headers.action
+        // );
         res.send(HTML);
       } else {
         res.status(200).json(user);
@@ -438,9 +442,12 @@ const loginUser = asyncHandler(async (req, res) => {
 
     user.allowedActions = allowedActions;
     user.save();
+    console.log(user);
 
     if (req.headers.ui) {
-      res.status(200).send(appshell());
+      res
+        .status(200)
+        .send(appshell(user.name, user.email, user.orgId, user.userType));
     } else {
       res.status(201).json({
         success: true,
@@ -535,7 +542,8 @@ const checkAuth = asyncHandler(async (req, res) => {
     // res.status(401);
     // throw new Error("Not authenticated, no token");
     if (req.headers.ui) {
-      res.send(loginHTMX({ message: "Invalid Username/Password" }));
+      // res.send(loginHTMX({ message: "Invalid Username/Password" }));
+      res.send("<login-form></login-form>");
     }
     // logger.warn(`Not authenticated, No Token`);
   }
@@ -603,6 +611,7 @@ const updateUser = asyncHandler(async (req, res) => {
     user.orgId = req.body.orgId || user.orgId;
     user.userType = req.body.userType || user.userType;
     user.teams = req.body.teams || user.teams;
+    user.type = req.body.type || user.type;
 
     if (req.body.password) {
       user.password = req.body.password;
