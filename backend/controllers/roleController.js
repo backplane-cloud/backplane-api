@@ -16,7 +16,8 @@ const getRoles = asyncHandler(async (req, res) => {
   );
   if (roles) {
     if (req.headers.ui) {
-      let HTML = listResources(roles, fields, "Roles", "roles");
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = listResources(roles, fields, "Roles", "roles", showbreadcrumb);
       res.send(HTML);
     } else {
       res.status(200).json(roles);

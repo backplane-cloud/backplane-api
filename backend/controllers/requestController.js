@@ -229,7 +229,14 @@ const getRequests = asyncHandler(async (req, res) => {
   );
   if (requests) {
     if (req.headers.ui) {
-      let HTML = listResources(requests, fields, "Requests", "requests");
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = listResources(
+        requests,
+        fields,
+        "Requests",
+        "requests",
+        showbreadcrumb
+      );
       res.send(HTML);
     } else {
       res.status(200).json(requests);

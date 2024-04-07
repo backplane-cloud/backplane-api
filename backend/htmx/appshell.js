@@ -43,14 +43,14 @@ function appshell(name, email, orgId, userType) {
         </h1>
       </div>
       <div>     
-        <nav-bar target='display-content' menu="Orgs,Platforms,Products,Apps,Requests,Services,Users,Roles,Assignments,Teams"></nav-bar>
+        <nav-bar target='display-content' menu="Dashboard,Orgs,Platforms,Products,Apps,Requests,Services"></nav-bar>
       </div>
     </div>
 
   </header>
 
   <main>
-    <div id="display-content" class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8"></div>
+    <div id="display-content" class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">Welcome back ${name}</div>
   </main>
 </div>
 `;

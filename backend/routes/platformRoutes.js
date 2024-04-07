@@ -256,6 +256,9 @@ import {
   findPlatform,
 } from "../controllers/platformController.js";
 
+import { getApps } from "../controllers/appController.js";
+import { getProducts } from "../controllers/productController.js";
+
 router
   .route("/")
   .get(protect, authz, getPlatforms)
@@ -270,5 +273,7 @@ router
 
 router.route("/:id/overview").get(protect, authz, getPlatformOverviewTab);
 router.route("/:id/requests").get(protect, authz, getPlatformRequests);
+router.route("/:id/products").get(protect, authz, getProducts);
+router.route("/:id/apps").get(protect, authz, getApps);
 
 export default router;

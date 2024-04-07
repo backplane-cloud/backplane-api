@@ -11,7 +11,6 @@ import {
   viewHTMXify,
   listResources,
   showResource,
-  resourceView,
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
 
@@ -73,7 +72,8 @@ const getApps = asyncHandler(async (req, res) => {
 
   if (apps) {
     if (req.headers.ui) {
-      let HTML = listResources(apps, fields, "Apps", "apps");
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = listResources(apps, fields, "Apps", "apps", showbreadcrumb);
       res.send(HTML);
     } else {
       res.status(200).json(apps);
@@ -563,7 +563,8 @@ const setApp = asyncHandler(async (req, res) => {
   // res.status(200).json({ app });
 
   if (req.headers.ui) {
-    let HTML = resourceView(app, tabs);
+    let breadcrumbs = `platforms,${platform.name}`;
+    let HTML = showResource(platform, tabs, breadcrumbs);
     res.send(HTML);
   } else {
     res.status(200).json(app);

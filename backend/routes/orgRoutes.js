@@ -278,6 +278,9 @@ import { getUsers } from "../controllers/userController.js";
 import { getTeams } from "../controllers/teamController.js";
 import { getAssignments } from "../controllers/assignmentController.js";
 import { getRoles } from "../controllers/roleController.js";
+import { getApps } from "../controllers/appController.js";
+import { getProducts } from "../controllers/productController.js";
+import { getPlatforms } from "../controllers/platformController.js";
 
 router.route("/").get(protect, authz, getOrgs).post(protect, authz, setOrg);
 router.route("/search").get(protect, authz, findOrg);
@@ -315,6 +318,9 @@ router.route("/:id/users").get(protect, authz, getUsers);
 router.route("/:id/teams").get(protect, authz, getTeams);
 router.route("/:id/assignments").get(protect, authz, getAssignments);
 router.route("/:id/roles").get(protect, authz, getRoles);
+router.route("/:id/platforms").get(protect, authz, getPlatforms);
+router.route("/:id/products").get(protect, authz, getProducts);
+router.route("/:id/apps").get(protect, authz, getApps);
 
 router.route("/:id/requests").get(protect, authz, getOrgRequests);
 

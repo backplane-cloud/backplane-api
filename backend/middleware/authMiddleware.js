@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import logger from "../utils/logger.js";
-import { loginHTMX } from "../htmx/HTMXify.js";
+// import { loginHTMX } from "../htmx/HTMXify.js";
 
 const protect = asyncHandler(async (req, res, next) => {
   let token;
@@ -14,7 +14,7 @@ const protect = asyncHandler(async (req, res, next) => {
     res.status(401);
     // throw new Error("Not authenticated, no token");
     if (req.headers.ui) {
-      res.send(loginHTMX("Not authenticated, No Token"));
+      res.send("<login-form></login-form>");
       // res.send({ isAuthenticated: false });
     }
     // logger.warn(`Not authenticated, No Token`);
@@ -26,7 +26,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
       next();
     } catch (error) {
-      res.send(loginHTMX("Not authenticated, No Token"));
+      res.send("<login-form></login-form>");
       // res.status(401).send(`Not authenticated, Invalid Token`);
       // throw new Error("Not authenticated, invalid token");
       logger.warn(new Error("Not authenticated, invalid token"));

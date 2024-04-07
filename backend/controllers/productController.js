@@ -14,7 +14,6 @@ import {
   viewHTMXify,
   listResources,
   showResource,
-  resourceView,
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
 
@@ -60,7 +59,14 @@ const getProducts = asyncHandler(async (req, res) => {
   const products = await Product.find(query);
   if (products) {
     if (req.headers.ui) {
-      let HTML = listResources(products, fields, "Products", "products");
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = listResources(
+        products,
+        fields,
+        "Products",
+        "products",
+        showbreadcrumb
+      );
       res.send(HTML);
     } else {
       res.status(200).json(products);
@@ -97,7 +103,6 @@ const getProduct = asyncHandler(async (req, res) => {
       if (req.headers.ui) {
         let breadcrumbs = `products,${product.name}`;
         let HTML = showResource(product, tabs, breadcrumbs);
-        // let HTML = resourceView(product, tabs);
         res.send(HTML);
       } else {
         res.status(200).json(product);
@@ -242,7 +247,8 @@ const setProduct = asyncHandler(async (req, res) => {
   // res.status(200).json(product);
 
   if (req.headers.ui) {
-    let HTML = resourceView(product, tabs);
+    let breadcrumbs = `products,${product.name}`;
+    let HTML = showResource(product, tabs, breadcrumbs);
     res.send(HTML);
   } else {
     res.status(200).json(app);

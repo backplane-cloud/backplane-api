@@ -18,7 +18,8 @@ const getTeams = asyncHandler(async (req, res) => {
 
   if (teams) {
     if (req.headers.ui) {
-      let HTML = listResources(teams, fields, "Teams", "teams");
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = listResources(teams, fields, "Teams", "teams", showbreadcrumb);
       res.send(HTML);
     } else {
       res.status(200).json(teams);

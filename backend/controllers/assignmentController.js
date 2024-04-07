@@ -27,11 +27,13 @@ const getAssignments = asyncHandler(async (req, res) => {
   );
   if (assignments) {
     if (req.headers.ui) {
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
       let HTML = listResources(
         assignments,
         fields,
         "Assignments",
-        "assignments"
+        "assignments",
+        showbreadcrumb
       );
       res.send(HTML);
     } else {
@@ -73,6 +75,7 @@ const getAssignment = asyncHandler(async (req, res) => {
     if (assignment) {
       if (req.headers.ui) {
         let breadcrumbs = `assignment,${assignment.type}`;
+
         let HTML = showResource(assignment, tabs, breadcrumbs);
 
         // let HTML = viewHTMXify(

@@ -10,6 +10,7 @@ const tabs = [
   "GCP",
   "AWS",
   "Templates",
+  "Budget",
   "Users",
   "Teams",
   "Assignments",
@@ -27,10 +28,10 @@ import {
   viewHTMXify,
   listResources,
   showResource,
-  resourceView,
   resourceOverviewTab,
-  orgCloudCredentialsTab,
 } from "../htmx/HTMXify.js";
+
+import { orgCloudCredentialsTab } from "../htmx/org.js";
 
 // @desc  Get Orgs
 // @route GET /api/orgs
@@ -52,12 +53,13 @@ const getOrgs = asyncHandler(async (req, res) => {
       });
 
       let resources = filteredOrgs;
-
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
       const htmlTable = listResources(
         resources,
         fields,
         "Organsations",
-        "orgs"
+        "orgs",
+        showbreadcrumb
       );
       res.send(htmlTable);
     } else {

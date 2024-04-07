@@ -5,7 +5,6 @@ import {
   viewHTMXify,
   listResources,
   showResource,
-  resourceView,
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
 
@@ -42,7 +41,14 @@ const getPlatforms = asyncHandler(async (req, res) => {
   //console.log(platforms);
   if (platforms) {
     if (req.headers.ui) {
-      let HTML = listResources(platforms, fields, "Platforms", "platforms");
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = listResources(
+        platforms,
+        fields,
+        "Platforms",
+        "platforms",
+        showbreadcrumb
+      );
       res.send(HTML);
     } else {
       res.status(200).json(platforms);
@@ -199,7 +205,9 @@ const setPlatform = asyncHandler(async (req, res) => {
   // res.status(200).json(platform);
 
   if (req.headers.ui) {
-    let HTML = resourceView(platform, tabs);
+    let breadcrumbs = `platforms,${platform.name}`;
+    let HTML = showResource(platform, tabs, breadcrumbs);
+
     res.send(HTML);
   } else {
     res.status(200).json(platform);

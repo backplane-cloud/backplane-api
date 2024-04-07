@@ -3,7 +3,6 @@ import User from "../models/userModel.js";
 import Org from "../models/orgModel.js";
 
 import {
-  loginHTMX,
   registerHTMX,
   viewHTMXify,
   listResources,
@@ -104,7 +103,8 @@ const getUsers = asyncHandler(async (req, res) => {
 
   if (users) {
     if (req.headers.ui) {
-      let HTML = listResources(users, fields, "Users", "users");
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = listResources(users, fields, "Users", "users", showbreadcrumb);
       res.send(HTML);
     } else {
       res.status(200).json(users);
@@ -294,7 +294,7 @@ const registerUser = asyncHandler(async (req, res) => {
     generateToken(res, user._id);
 
     if (req.headers.ui) {
-      res.status(200).send(loginHTMX());
+      res.status(200).send("<login-form></login-form>");
     } else {
       res.status(201).json({
         _id: user._id,
@@ -462,7 +462,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
   } else {
     if (req.headers.ui) {
-      res.send(loginHTMX());
+      res.send("<login-form></login-form>");
     } else {
       res
         .status(401)
@@ -486,7 +486,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     expires: new Date(0),
   });
   if (req.headers.ui) {
-    let HTML = loginHTMX({ message: "User Logged Out" });
+    let HTML = "<login-form></login-form>";
     res.send(HTML);
   } else {
     res.status(200).json({ message: "User Logged Out" });

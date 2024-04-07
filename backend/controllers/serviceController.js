@@ -17,7 +17,14 @@ const getServices = asyncHandler(async (req, res) => {
   );
   if (services) {
     if (req.headers.ui) {
-      let HTML = listResources(services, fields, "Services", "services");
+      let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = listResources(
+        services,
+        fields,
+        "Services",
+        "services",
+        showbreadcrumb
+      );
       res.send(HTML);
     } else {
       res.status(200).json(services);
