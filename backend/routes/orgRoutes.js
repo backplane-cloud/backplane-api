@@ -272,6 +272,8 @@ import {
   updateOrgCloud,
   deleteOrgCloud,
   addOrgCloud,
+  getOrgTemplates,
+  getOrgBudgets,
 } from "../controllers/orgController.js";
 
 import { getUsers } from "../controllers/userController.js";
@@ -314,6 +316,7 @@ router
   .delete(protect, authz, deleteOrgCloud)
   .post(protect, authz, addOrgCloud);
 
+// Pathes for HTMX Responses
 router.route("/:id/users").get(protect, authz, getUsers);
 router.route("/:id/teams").get(protect, authz, getTeams);
 router.route("/:id/assignments").get(protect, authz, getAssignments);
@@ -321,6 +324,8 @@ router.route("/:id/roles").get(protect, authz, getRoles);
 router.route("/:id/platforms").get(protect, authz, getPlatforms);
 router.route("/:id/products").get(protect, authz, getProducts);
 router.route("/:id/apps").get(protect, authz, getApps);
+router.route("/:id/templates").get(protect, authz, getOrgTemplates);
+router.route("/:id/budgets").get(protect, authz, getOrgBudgets);
 
 router.route("/:id/requests").get(protect, authz, getOrgRequests);
 

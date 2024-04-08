@@ -10,7 +10,7 @@ export default class NavBar extends HTMLElement {
     console.log("resourceId", resourceId);
 
     let HTML = `
-      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <div class="flex items-center">
             <div class="flex-shrink-0"></div>

@@ -10,7 +10,7 @@ const tabs = [
   "GCP",
   "AWS",
   "Templates",
-  "Budget",
+  "Budgets",
   "Users",
   "Teams",
   "Assignments",
@@ -31,7 +31,7 @@ import {
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
 
-import { orgCloudCredentialsTab } from "../htmx/org.js";
+import { orgCloudCredentialsTab, orgTab } from "../htmx/org.js";
 
 // @desc  Get Orgs
 // @route GET /api/orgs
@@ -729,6 +729,56 @@ const getOrgRequests = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get Org Templates
+// @route GET /api/orgs/:id/templates
+// @access Private
+const getOrgTemplates = asyncHandler(async (req, res) => {
+  const org = await Org.findById(req.params.id);
+  console.log("org", org.appTemplate);
+  if (org) {
+    let templates = org.appTemplate;
+
+    if (req.headers.ui) {
+      let HTML = orgTab(
+        templates,
+        ["name", "description", "environments", "services"],
+        req.headers.action
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(templates);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Requests Found for Org");
+  }
+});
+
+// @desc  Get Org Budgets
+// @route GET /api/orgs/:id/budgets
+// @access Private
+const getOrgBudgets = asyncHandler(async (req, res) => {
+  const org = await Org.findById(req.params.id);
+  console.log("org", org.budget);
+  if (org) {
+    let budgets = org.budget;
+
+    if (req.headers.ui) {
+      let HTML = orgTab(
+        budgets,
+        ["year", "budget", "budgetAllocated", "currency"],
+        req.headers.action
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(budgets);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Requests Found for Org");
+  }
+});
+
 export {
   getOrg,
   getOrgs,
@@ -742,4 +792,6 @@ export {
   updateOrgCloud,
   deleteOrgCloud,
   addOrgCloud,
+  getOrgTemplates,
+  getOrgBudgets,
 };

@@ -25,17 +25,17 @@ function showResource(resource, tabs, breadcrumbs) {
   let resourceDisplay =
     resourceType.charAt(0).toUpperCase() + resource.type.slice(1);
   let html = `
-  <div>
+  
     <div>
       <bread-crumb breadcrumbs='${breadcrumbs}'></bread-crumb>
     </div>
     <div>
-      <h3 class="leading-7 text-gray-900 text-3xl mb-10">${resource.name}</h3>
+      <h3 class="leading-7 text-gray-900 text-4xl mb-10">${resource.name}</h3>
     </div>
     <div>
       <nav-bar menu='${tabs}' type="${resource.type}" resourceId="${resource.id}" target='resource-content'></nav-bar>
     </div>
-  </div>
+  
 
   <div id='resource-content' class=''></div>
     
