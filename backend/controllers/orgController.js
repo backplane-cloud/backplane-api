@@ -58,7 +58,7 @@ const getOrgs = asyncHandler(async (req, res) => {
         resources,
         fields,
         "Organsations",
-        "orgs",
+        "Orgs",
         showbreadcrumb
       );
       res.send(htmlTable);

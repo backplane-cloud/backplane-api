@@ -73,7 +73,7 @@ const getApps = asyncHandler(async (req, res) => {
   if (apps) {
     if (req.headers.ui) {
       let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
-      let HTML = listResources(apps, fields, "Apps", "apps", showbreadcrumb);
+      let HTML = listResources(apps, fields, "Apps", "Apps", showbreadcrumb);
       res.send(HTML);
     } else {
       res.status(200).json(apps);

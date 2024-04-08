@@ -234,7 +234,7 @@ const getRequests = asyncHandler(async (req, res) => {
         requests,
         fields,
         "Requests",
-        "requests",
+        "Requests",
         showbreadcrumb
       );
       res.send(HTML);

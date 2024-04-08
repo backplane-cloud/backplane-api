@@ -22,7 +22,7 @@ const getServices = asyncHandler(async (req, res) => {
         services,
         fields,
         "Services",
-        "services",
+        "Services",
         showbreadcrumb
       );
       res.send(HTML);
