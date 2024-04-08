@@ -5,37 +5,25 @@ function appshell(name, email, orgId, userType) {
 
   <header>
     <div class="flex items-center justify-between">
+      
       <div class="flex">
         <img
-          class="h-10 m-2"
+          class="h-16 m-5"
           src="img/backplane-logo.png"
           alt="Backplane Software"
         />
 
-        <img
-          class="h-10 m-2"
-          src="img/backplane-logo-text.png"
-          alt="Backplane Software"
-        />
+ 
       </div>
-      <div>
-        <search-box type="products" title="Backplane"></search-box>
+
+      <div class="w-full justify-end">
+        <search-box type="products" title="Backplane" size="w-full"></search-box>
       </div>
-      <div class="flex items-center justify-end>
-
-
       
-        <div class="justify-end bg-blue-200">Logged in as  <span id='username'> </span>  (<span id='email'> </span>)</div>
+    
 
-        <div class="flex items-center">
-          <div> 
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-10 h-10">
-              <path fill-rule="evenodd" d="M2.25 6a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V6Zm3.97.97a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 0 1-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 0 1 0-1.06Zm4.28 4.28a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3Z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div><a class="bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded" href='https://backplane.dev/docs/cli'>Download CLI</a>
-          </div>
-      </div>
+    
+      <div >
       
         <button 
           id='logoutButton'
@@ -43,31 +31,32 @@ function appshell(name, email, orgId, userType) {
           hx-headers='{"ui": true, "action": "logout"}' 
           hx-post='/api/users/logout' 
           class="m-5 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded">Logout</button>
-
-
       </div>
+
     </div>
     
 
-    <div class="bg-white shadow">
-      <div class="mx-auto max-w-full px-4 py-6 sm:px-6 lg:px-8">
-        <h1 class="text-2xl font-bold tracking-tight text-gray-900">
+    <div class="bg-white shadow flex  justify-between items-center">
+           <div>     
+        <nav-bar target='display-content' menu="Dashboard,Orgs,Platforms,Products,Apps,Requests,Services"></nav-bar>
+      </div><div>
+        <h1 class="mr-5 align-start text-2xl font-bold tracking-tight text-gray-900">
           Management Console
         </h1>
       </div>
-      <div>     
-        <nav-bar target='display-content' menu="Dashboard,Orgs,Platforms,Products,Apps,Requests,Services"></nav-bar>
-      </div>
+      
+ 
     </div>
 
   </header>
 
   <main>
-    <div id="display-content" class="mx-auto max-w-full py-6 sm:px-6 lg:px-8">Welcome back <span id='welcome'></span></div>
+    <div id="display-content" class="mx-auto max-w-full py-6 sm:px-6 lg:px-8">Welcome back, <span id='username'> </span> </div>
   </main>
 
 
 
+  
 
 
 

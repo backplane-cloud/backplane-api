@@ -3,6 +3,7 @@ export default class SearchBox extends HTMLElement {
     super();
     const type = this.getAttribute("type");
     const title = this.getAttribute("title");
+    const size = this.getAttribute("size");
 
     this.innerHTML = `
         <form class=" mx-auto">   
@@ -18,9 +19,9 @@ export default class SearchBox extends HTMLElement {
                     hx-trigger="keyup changed delay:500ms"
                     hx-target="#display-content" 
                     id="${type}-search" 
-                class="block w-96 p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search ${title}" required />
+                class="block ${size} p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search ${title}" required />
             </div>
-    </form>
+        </form>
         `;
   }
 }

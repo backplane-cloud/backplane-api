@@ -30,9 +30,11 @@ function showResource(resource, tabs, breadcrumbs) {
       <bread-crumb breadcrumbs='${breadcrumbs}'></bread-crumb>
     </div>
     <div>
-      <h3 class="leading-7 text-gray-900 text-4xl mb-10">${resource.name}</h3>
+      <h1 class="mb-5 text-2xl font-bold tracking-tight text-gray-900">
+      ${resource.name}
+        </h1>
     </div>
-    <div>
+    <div class="mb-5">
       <nav-bar menu='${tabs}' type="${resource.type}" resourceId="${resource.id}" target='resource-content'></nav-bar>
     </div>
   
