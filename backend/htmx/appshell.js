@@ -8,7 +8,7 @@ function appshell(name, email, orgId, userType) {
       
       <div class="flex">
         <img
-          class="h-16 m-5"
+          class="h-14 m-5"
           src="img/backplane-logo.png"
           alt="Backplane Software"
         />

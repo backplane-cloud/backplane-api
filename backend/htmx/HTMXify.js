@@ -7,10 +7,17 @@ function listResources(resources, fields, title, type, showbreadcrumb) {
   showbreadcrumb &&
     (html += `<bread-crumb breadcrumbs="${type}"></bread-crumb>`);
 
-  html += `<search-box type="${type}" title="${title}"></search-box>
-
+  html += `
+  
+  
+  <div class="flex justify-between content-center">
+    <div class="content-center ml-5">
+    <search-box type="${type}" title="${title}" size="w-96"></search-box>
+    </div>
+    <div>
     <create-button type="${type}"></create-button>
-
+    </div>
+  </div>
     <list-view resources='${JSON.stringify(
       resources
     )}' fields="${fields}" type='${type}'><list-view>

@@ -142,7 +142,7 @@ const findProduct = asyncHandler(async (req, res) => {
   const products = await Product.find(query);
   if (products) {
     if (req.headers.ui) {
-      let HTML = listResources(products, fields, "Products", "products", true);
+      let HTML = listResources(products, fields, "Products", "Products", true);
       res.send(HTML);
     } else {
       res.status(200).json(products);
