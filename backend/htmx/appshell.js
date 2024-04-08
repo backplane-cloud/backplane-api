@@ -23,9 +23,10 @@ function appshell(name, email, orgId, userType) {
       </div>
       <div class="flex items-center justify-end>
 
-        <div class="justify-end bg-blue-200">Logged in as ${name} (${email})</div>
+        <div class="justify-end bg-blue-200">Logged in as  <span id='username'> </span>  (<span id='email'> </span>)</div>
 
         <button 
+          id='logoutButton'
           hx-target="#datapane" 
           hx-headers='{"ui": true, "action": "logout"}' 
           hx-post='/api/users/logout' 
@@ -50,9 +51,33 @@ function appshell(name, email, orgId, userType) {
   </header>
 
   <main>
-    <div id="display-content" class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">Welcome back ${name}</div>
+    <div id="display-content" class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">Welcome back <span id='welcome'></span></div>
   </main>
 </div>
+
+        <script>
+        
+        document.body.addEventListener('htmx:afterRequest', function(event) {
+       
+          if (event.detail.pathInfo.requestPath === '/api/users/logout') {
+            localStorage.clear()
+          }
+        }) 
+
+          if (!localStorage.getItem("username")) {
+            localStorage.setItem("username", '${name}');
+            localStorage.setItem("email", '${email}');
+            console.log("Username stored in local storage session variable.");
+          }
+
+        
+          
+          
+          document.getElementById("username").textContent = localStorage.getItem("username");
+          document.getElementById("welcome").textContent = localStorage.getItem("username");
+          document.getElementById("email").textContent = localStorage.getItem("email");
+
+        </script>
 `;
 
   return html;

@@ -3,11 +3,11 @@
 const template = `
 <div
     id="loginSection"
-    hx-get="/api/users/check-auth"
-    hx-target="#loginSection"
+
     class="mt-0"
   >
-    <form class="max-w-sm mx-auto" id="loginForm">
+    <form class="max-w-sm mx-auto" id="loginForm"     hx-get="/api/users/check-auth"
+    hx-target="#loginSection" hx-swap="innerHTML">
       <img src="img/backplane-logo-text.png" class="mx-auto" />
 
       <h1 class="text-3xl mb-10">Login</h1>
