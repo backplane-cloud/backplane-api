@@ -266,6 +266,7 @@ import {
   getProductRequests,
   getProductOverviewTab,
   findProduct,
+  getProductBudgets,
 } from "../controllers/productController.js";
 import { getApps } from "../controllers/appController.js";
 
@@ -282,8 +283,9 @@ router
 
 router.route("/:id/overview").get(protect, authz, getProductOverviewTab);
 
-router.route("/:id/cost").get(protect, getProductCost);
-router.route("/:id/requests").get(protect, getProductRequests);
+router.route("/:id/cost").get(protect, authz, getProductCost);
+router.route("/:id/requests").get(protect, authz, getProductRequests);
 router.route("/:id/apps").get(protect, getApps);
+router.route("/:id/budgets").get(protect, authz, getProductBudgets);
 
 export default router;

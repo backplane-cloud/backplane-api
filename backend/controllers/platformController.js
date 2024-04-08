@@ -21,6 +21,7 @@ const fields = [
 
 const tabs = [
   "Overview",
+  "Budgets",
   "Team",
   "Access",
   "Policy",
@@ -46,7 +47,7 @@ const getPlatforms = asyncHandler(async (req, res) => {
         platforms,
         fields,
         "Platforms",
-        "platforms",
+        "Platforms",
         showbreadcrumb
       );
       res.send(HTML);
@@ -295,6 +296,37 @@ const getPlatformRequests = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get Product Budgets
+// @route GET /api/products/:id/budgets
+// @access Private
+import { orgTab } from "../htmx/org.js";
+
+const getPlatformBudgets = asyncHandler(async (req, res) => {
+  const platform = await Platform.findById(req.params.id);
+
+  if (platform.budget) {
+    let budgets = platform.budget;
+    console.log(budgets);
+
+    if (req.headers.ui) {
+      let HTML = orgTab(
+        budgets,
+        ["year", "budget", "budgetAllocated", "currency"],
+        req.headers.action
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(budgets);
+    }
+  } else {
+    if (req.headers.ui) {
+      res.send("<h1>No Budgets Exist for Platform</h1>");
+    } else {
+      res.status(400);
+      throw new Error("No Budgets Found for Platform");
+    }
+  }
+});
 export {
   getPlatform,
   getPlatforms,
@@ -304,4 +336,5 @@ export {
   getPlatformRequests,
   getPlatformOverviewTab,
   findPlatform,
+  getPlatformBudgets,
 };

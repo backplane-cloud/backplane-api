@@ -32,6 +32,8 @@ const fields = [
 
 const tabs = [
   "Overview",
+  "Backlog",
+  "Budgets",
   "Team",
   "Access",
   "Policy",
@@ -64,7 +66,7 @@ const getProducts = asyncHandler(async (req, res) => {
         products,
         fields,
         "Products",
-        "products",
+        "Products",
         showbreadcrumb
       );
       res.send(HTML);
@@ -140,7 +142,7 @@ const findProduct = asyncHandler(async (req, res) => {
   const products = await Product.find(query);
   if (products) {
     if (req.headers.ui) {
-      let HTML = listResources(products, fields, "Products", "products");
+      let HTML = listResources(products, fields, "Products", "products", true);
       res.send(HTML);
     } else {
       res.status(200).json(products);
@@ -443,6 +445,38 @@ const getProductRequests = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get Product Budgets
+// @route GET /api/products/:id/budgets
+// @access Private
+import { orgTab } from "../htmx/org.js";
+
+const getProductBudgets = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (product.budget) {
+    let budgets = product.budget;
+    console.log(budgets);
+
+    if (req.headers.ui) {
+      let HTML = orgTab(
+        budgets,
+        ["year", "budget", "budgetAllocated", "currency"],
+        req.headers.action
+      );
+      res.send(HTML);
+    } else {
+      res.status(200).json(budgets);
+    }
+  } else {
+    if (req.headers.ui) {
+      res.send("<h1>No Budgets Exist for Product</h1>");
+    } else {
+      res.status(400);
+      throw new Error("No Budgets Found for Product");
+    }
+  }
+});
+
 export {
   getProduct,
   getProducts,
@@ -453,4 +487,5 @@ export {
   getProductRequests,
   getProductOverviewTab,
   findProduct,
+  getProductBudgets,
 };
