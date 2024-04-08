@@ -1,16 +1,18 @@
 // This is a LoginForm Web Component
 
 const template = `
-<div
-    id="loginSection"
+<div id="loginSection" class="mt-32">
 
-    class="mt-0"
-  >
-    <form class="max-w-sm mx-auto" id="loginForm"     hx-get="/api/users/check-auth"
-    hx-target="#loginSection" hx-swap="innerHTML">
-      <img src="img/backplane-logo-text.png" class="mx-auto" />
+    <form class="max-w-sm mx-auto" id="loginForm"     
+      hx-get="/api/users/check-auth"
+      hx-target="#loginSection" 
+      hx-swap="innerHTML">
+      
+      <img src="img/backplane-logo-black.png" class="mx-auto" />
 
-      <h1 class="text-3xl mb-10">Login</h1>
+      <h1 class="m-10 align-start text-2xl font-bold tracking-tight text-gray-900">
+      Management Console Login
+    </h1>
       <div class="mb-5">
         <label
           for="email"
@@ -27,6 +29,7 @@ const template = `
           required
         />
       </div>
+      
       <div class="mb-5">
         <label
           for="password"
@@ -42,6 +45,7 @@ const template = `
           required
         />
       </div>
+      
       <div class="flex items-start mb-5">
         <div class="flex items-center h-5">
           <input
@@ -60,26 +64,29 @@ const template = `
         </label>
       </div>
 
-      <div hx-boost="true" class="flex">
+      <div hx-boost="true" class="flex justify-around">
         <button
           hx-swap="outerHTML"
           hx-target="#loginSection"
           hx-post="/api/users/login"
           hx-headers='{"ui": true}'
           type="submit"
-          class="bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
+          class="w-36 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
         >
           Login
         </button>
-        <a
-          href="#"
+        <button
+          
           hx-get="/api/users/register"
           hx-target="#loginSection"
-          class="ml-5"
+          class="bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
+
         >
-          No Account ? Register{" "}
-        </a>
+          Create Account
+        </button>
+        
       </div>
+      
       <div class="text-red"></div>
     </form>
   </div>`;

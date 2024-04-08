@@ -10,14 +10,6 @@ function orgCloudCredentialsTab(resource, orgId, action, cloud) {
   let HTML = `<form class="space-y-6" action="#">`;
   let edit = action === "edit" && true;
 
-  edit
-    ? (HTML += `<button hx-put='/api/orgs/${orgId}/${resource.provider}' hx-target='#resource-content' hx-headers='{"ui": true, "action": "save"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5 text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
-                 <button hx-get='/api/orgs/${orgId}/${resource.provider}' hx-target='#resource-content' hx-headers='{"ui": true, "action": "cancel"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cancel</button>
-  
-            <button hx-confirm="Are you sure?" hx-delete="/api/orgs/${orgId}/${resource.provider}" hx-target="#resource-content" hx-headers='{"ui": true, "action": "delete"}' class="m-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>
-                 `)
-    : (HTML += `<button hx-get='/api/orgs/${orgId}/${resource.provider}' hx-target='#resource-content' hx-headers='{"ui": true, "action": "edit"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Edit</button>`);
-
   HTML += `
     
     <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
@@ -68,10 +60,18 @@ function orgCloudCredentialsTab(resource, orgId, action, cloud) {
         <div class="p-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
           <dt class="ml-5 text-sm font-medium leading-6 text-gray-900">${field}</dt>
           <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">${value}</dd>
-        </div>
-        </form>`;
+        </div>`;
   });
 
+  edit
+    ? (HTML += `<button hx-put='/api/orgs/${orgId}/${resource.provider}' hx-target='#resource-content' hx-headers='{"ui": true, "action": "save"}' class="m-3 text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5 text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
+                 <button hx-get='/api/orgs/${orgId}/${resource.provider}' hx-target='#resource-content' hx-headers='{"ui": true, "action": "cancel"}' class="m-3 text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cancel</button>
+  
+            <button hx-confirm="Are you sure?" hx-delete="/api/orgs/${orgId}/${resource.provider}" hx-target="#resource-content" hx-headers='{"ui": true, "action": "delete"}' class="m-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>
+                 `)
+    : (HTML += `<button hx-get='/api/orgs/${orgId}/${resource.provider}' hx-target='#resource-content' hx-headers='{"ui": true, "action": "edit"}' class="m-5 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded">Edit</button>`);
+
+  HTML += `</form>`;
   return HTML;
 }
 

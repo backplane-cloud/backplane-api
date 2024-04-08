@@ -6,16 +6,16 @@ function appshell(name, email, orgId, userType) {
   <header>
     <div class="flex items-center justify-between">
       
-      <div class="flex">
+      <div class="flex w-48 justify-center">
         <img
-          class="h-14 m-5"
-          src="img/backplane-logo.png"
+          class="h-16 m-5 justify-center"
+          src="img/backplane-logo-black.png"
           alt="Backplane Software"
         />
 
  
       </div>
-
+  
       <div class="w-full justify-end">
         <search-box type="products" title="Backplane" size="w-full"></search-box>
       </div>
@@ -23,7 +23,7 @@ function appshell(name, email, orgId, userType) {
     
 
     
-      <div >
+      <div class="flex w-48 justify-center">
       
         <button 
           id='logoutButton'
@@ -40,7 +40,7 @@ function appshell(name, email, orgId, userType) {
            <div>     
         <nav-bar target='display-content' menu="Dashboard,Orgs,Platforms,Products,Apps,Requests,Services"></nav-bar>
       </div><div>
-        <h1 class="mr-5 align-start text-2xl font-bold tracking-tight text-gray-900">
+        <h1 class="mr-10 align-start text-2xl font-bold tracking-tight text-gray-900">
           Management Console
         </h1>
       </div>
@@ -51,7 +51,15 @@ function appshell(name, email, orgId, userType) {
   </header>
 
   <main>
-    <div id="display-content" class="mx-auto max-w-full py-6 sm:px-6 lg:px-8">Welcome back, <span id='username'> </span> </div>
+
+    <div id="display-content" class="mx-auto max-w-full py-6 sm:px-6 lg:px-8">
+    Welcome back, <span id='username'> </span> 
+    
+
+    </div>
+    <span class="htmx-indicator" id="loading"><img src="img/loader.gif" class="m-auto m-10 h-10"/></span>
+
+
   </main>
 
 
@@ -70,7 +78,7 @@ function appshell(name, email, orgId, userType) {
   <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
     <div class="sm:flex sm:items-center sm:justify-between">
         <a href="https://backplane.dev/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
-            <img src="/img/backplane-logo-black.png" class="h-12" alt="Backplane Logo" />
+            <img src="/img/backplane-logo-black.png" class="h-10" alt="Backplane Logo" />
             <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-blue">Backplane</span>
         </a>
         <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">

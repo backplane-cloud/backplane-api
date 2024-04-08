@@ -53,6 +53,7 @@ const getOrgs = asyncHandler(async (req, res) => {
       });
 
       let resources = filteredOrgs;
+
       let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
       const htmlTable = listResources(
         resources,
@@ -62,6 +63,7 @@ const getOrgs = asyncHandler(async (req, res) => {
         showbreadcrumb
       );
       res.send(htmlTable);
+      // setTimeout(() => res.send(htmlTable), 2000);
     } else {
       res.status(200).json(orgs);
     }

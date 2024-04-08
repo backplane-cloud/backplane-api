@@ -26,6 +26,7 @@ export default class NavBar extends HTMLElement {
           hx-get="/api/${type}/${resourceId}/${item}"
           hx-target="#${target}"
           hx-headers='{"ui": true}'
+          hx-indicator='#loading'
         >${item}</a
       >`;
       } else {
@@ -36,6 +37,7 @@ export default class NavBar extends HTMLElement {
           hx-get="/api/${item}"
           hx-target="#${target}"
           hx-headers='{"ui": true}'
+          hx-indicator='#loading'
         >${item}</a
       >`;
       }

@@ -38,7 +38,6 @@ import {
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
-  "code",
   "name",
   "description",
   "repo",
@@ -46,7 +45,7 @@ const fields = [
   "appTemplate",
   "status",
   "platform",
-  "orgId",
+
   "ownerId",
 ];
 
