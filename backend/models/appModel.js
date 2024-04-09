@@ -7,6 +7,16 @@ const budgetSchema = mongoose.Schema({
   currency: String,
 });
 
+const costSchema = mongoose.Schema(
+  {
+    _id: mongoose.Schema.Types.ObjectId,
+    cost: Number,
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const appSchema = mongoose.Schema(
   {
     name: {
@@ -63,6 +73,10 @@ const appSchema = mongoose.Schema(
     repo: {
       type: String,
       required: [false, "Please add a Name value e.g. 'My App'"],
+    },
+    cost: {
+      type: [costSchema],
+      required: [false, "The Cost is updated automatically"],
     },
   },
   {

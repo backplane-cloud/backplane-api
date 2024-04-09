@@ -25,6 +25,8 @@ import requestRoutes from "./routes/requestRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import backlogRoutes from "./routes/backlogRoutes.js";
 
+import syncAppCost from "./controllers/costController.js";
+
 // Open API (Swagger)
 import swaggerUI from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
@@ -99,3 +101,6 @@ const port = 8000;
 app.listen(port, () =>
   console.log(`Backplane REST API Server started on port ${port}`)
 );
+
+// await syncAppCost();
+setInterval(() => syncAppCost(), 1800000); // Sync every hour

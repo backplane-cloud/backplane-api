@@ -31,6 +31,7 @@ import {
 } from "@backplane-software/backplane-gcp";
 
 import {
+  getAWSCost,
   getAWSPolicies,
   getAWSAccess,
   createAWSEnv,
@@ -65,17 +66,22 @@ const tabs = [
 // @route GET /api/apps
 // @access Private
 const getApps = asyncHandler(async (req, res) => {
+  console.log(req);
   const apps = await App.find(
     req.user.userType != "root" ? { orgId: req.user.orgId } : null
   );
 
   if (apps) {
-    if (req.headers.ui) {
+    if (req.headers?.ui) {
       let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
       let HTML = listResources(apps, fields, "Apps", "Apps", showbreadcrumb);
       res.send(HTML);
     } else {
-      res.status(200).json(apps);
+      if (req.sync) {
+        return apps;
+      } else {
+        res.status(200).json(apps);
+      }
     }
   } else {
     res.status(400);
@@ -352,33 +358,50 @@ const getAppPolicies = asyncHandler(async (req, res) => {
 // @route GET /api/apps/:id/cost
 // @access Private
 const getAppCost = asyncHandler(async (req, res) => {
+  // console.log(req.params.id, req.body.orgId, req.sync);
   const app = await App.findById(req.params.id);
   let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
 
   const cloud = app.cloud;
   const environments = app.environments;
+
+  // Get Org Cloud Credentials
+  // const org = await Org.findById(orgId);
+  // if (!org.csp) {
+  //   // Check for Cloud Service Provider Credentials
+  //   res.send("No Cloud Credentials Specified for Org, aborting App Creation");
+  //   return;
+  // }
+
+  // Get Cloud Credentials from Org for Cloud
+  // const cloudCredentials = org.csp.find(
+  //   (credentials) => credentials.provider === cloud
+  // );
+
   let cost;
-
-  if (cloud === "azure") {
-    // Get Org
-    const org = await Org.findById(orgId);
-
-    if (!org.csp) {
-      // Check for Cloud Service Provider Credentials
-      res.send("No Cloud Credentials Specified for Org, aborting App Creation");
-      return;
-    }
-
-    // Get Cloud Credentials from Org for Cloud
-    const cloudCredentials = org.csp.find(
-      (cloud) => cloud.provider === "azure"
-    );
-
-    cost = await getAzureCost({ cloudCredentials, environments });
+  switch (cloud) {
+    case "azure":
+      cost = await getAzureCost({ environments });
+      break;
+    case "aws":
+      cost = await getAWSCost({ environments });
+      break;
+    case "gcp":
+      cost = await getGCPCost({ environments });
+      break;
   }
 
   if (cost) {
-    res.status(200).json(cost);
+    if (req.headers?.ui) {
+      let HTML = "";
+      res.send(HTML);
+    } else {
+      if (req.sync) {
+        return cost;
+      } else {
+        res.status(200).json(cost);
+      }
+    }
   } else {
     res.status(400);
     throw new Error("No Cost Found for App");
@@ -647,11 +670,15 @@ const updateApp = asyncHandler(async (req, res) => {
 
   //console.log(JSON.stringify(updatedApp.cloudAccounts));
 
-  if (req.headers.ui) {
+  if (req.headers?.ui) {
     let HTML = resourceOverviewTab(updatedApp, fields);
     res.send(HTML);
   } else {
-    res.status(200).json(updatedApp);
+    if (req.sync) {
+      return updatedApp;
+    } else {
+      res.status(200).json(updatedApp);
+    }
   }
 });
 

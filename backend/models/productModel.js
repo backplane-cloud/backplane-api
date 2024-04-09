@@ -55,6 +55,10 @@ const productSchema = mongoose.Schema(
       type: Array,
       required: [false, "Please add Product Owner UUID"],
     },
+    cost: {
+      type: Number,
+      required: [false, "The Cost is updated automatically"],
+    },
   },
   {
     timestamps: true,

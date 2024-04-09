@@ -67,6 +67,10 @@ const orgSchema = mongoose.Schema(
       type: [appTemplateSchema],
       default: undefined,
     },
+    cost: {
+      type: Number,
+      required: [false, "The Cost is updated automatically"],
+    },
   },
   {
     timestamps: true,

@@ -46,6 +46,10 @@ const platformSchema = mongoose.Schema(
       type: [budgetSchema],
       default: undefined,
     },
+    cost: {
+      type: Number,
+      required: [false, "The Cost is updated automatically"],
+    },
   },
   {
     timestamps: true,
