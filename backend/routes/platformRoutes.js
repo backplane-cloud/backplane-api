@@ -255,6 +255,7 @@ import {
   getPlatformOverviewTab,
   findPlatform,
   getPlatformBudgets,
+  getPlatformCost,
 } from "../controllers/platformController.js";
 
 import { getApps } from "../controllers/appController.js";
@@ -277,5 +278,6 @@ router.route("/:id/requests").get(protect, authz, getPlatformRequests);
 router.route("/:id/products").get(protect, authz, getProducts);
 router.route("/:id/apps").get(protect, authz, getApps);
 router.route("/:id/budgets").get(protect, authz, getPlatformBudgets);
+router.route("/:id/cost").get(protect, authz, getPlatformCost);
 
 export default router;

@@ -27,7 +27,7 @@ export default class ListView extends HTMLElement {
       resources.map((entity) => {
         HTML += '<tr scope="col" class="px-6 py-3">';
         fields.map((field, i) => {
-          let value = entity[field] === undefined ? "Not Set" : entity[field];
+          let value = entity[field] === undefined ? "-" : entity[field];
 
           // Make first value linkable to resources
           let meta =
@@ -39,6 +39,16 @@ export default class ListView extends HTMLElement {
           let clouds = ["azure", "gcp", "aws"];
           if (clouds.includes(value)) {
             value = `<img src='img/${value}.png'/>`;
+          }
+
+          // Cost Processing
+          if (field === "cost") {
+            if (entity[field]?.length === 0 || entity[field] === undefined) {
+              console.log("Detected undefined for cost");
+              value = "-";
+            } else {
+              value = `$ ${entity[field].pop().cost.toLocaleString()}`;
+            }
           }
 
           // Display Repo image

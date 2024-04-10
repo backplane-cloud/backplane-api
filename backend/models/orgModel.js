@@ -26,6 +26,16 @@ const appTemplateSchema = mongoose.Schema({
   environments: [String],
 });
 
+const costSchema = mongoose.Schema(
+  {
+    // _id: mongoose.Schema.Types.ObjectId,
+    cost: Number,
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const orgSchema = mongoose.Schema(
   {
     code: {
@@ -68,7 +78,7 @@ const orgSchema = mongoose.Schema(
       default: undefined,
     },
     cost: {
-      type: Number,
+      type: [costSchema],
       required: [false, "The Cost is updated automatically"],
     },
   },

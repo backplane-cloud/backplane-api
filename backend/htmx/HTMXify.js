@@ -9,7 +9,11 @@ function listResources(resources, fields, title, type, showbreadcrumb) {
 
   html += `
   
-  
+  <div>
+  <h1 class="mb-5 text-2xl font-bold tracking-tight text-gray-900">
+  ${title}
+    </h1>
+</div>
   <div class="flex justify-between content-center">
     <div class="content-center ml-5">
     <search-box type="${type}" title="${title}" size="w-96"></search-box>

@@ -16,6 +16,8 @@ import {
 
 import { appEnvironments, appAccess, appPolicy } from "../htmx/app.js";
 
+import { showCostTab } from "../htmx/tabs.js";
+
 import {
   getAzureCost,
   getAzurePolicies,
@@ -44,10 +46,12 @@ const fields = [
   "repo",
   "cloud",
   "appTemplate",
-  "status",
-  "platform",
 
-  "ownerId",
+  "platform",
+  "productCode",
+  "ownerEmail",
+  "status",
+  "cost",
 ];
 
 // Custom Tabs for HTMX view of resource
@@ -66,7 +70,6 @@ const tabs = [
 // @route GET /api/apps
 // @access Private
 const getApps = asyncHandler(async (req, res) => {
-  console.log(req);
   const apps = await App.find(
     req.user.userType != "root" ? { orgId: req.user.orgId } : null
   );
@@ -377,23 +380,30 @@ const getAppCost = asyncHandler(async (req, res) => {
   // const cloudCredentials = org.csp.find(
   //   (credentials) => credentials.provider === cloud
   // );
-
   let cost;
-  switch (cloud) {
-    case "azure":
-      cost = await getAzureCost({ environments });
-      break;
-    case "aws":
-      cost = await getAWSCost({ environments });
-      break;
-    case "gcp":
-      cost = await getGCPCost({ environments });
-      break;
+  if (!req.headers?.ui) {
+    // Go and get the live cost, the CLI need to be updated with bp app cost show --id --live
+
+    switch (cloud) {
+      case "azure":
+        cost = await getAzureCost({ environments });
+        break;
+      case "aws":
+        cost = await getAWSCost({ environments });
+        break;
+      case "gcp":
+        cost = await getGCPCost({ environments });
+        break;
+    }
+  } else {
+    // Get the Cost data stored on the App resource
+    cost = app.cost;
   }
 
   if (cost) {
     if (req.headers?.ui) {
-      let HTML = "";
+      // let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
+      let HTML = showCostTab(cost);
       res.send(HTML);
     } else {
       if (req.sync) {
@@ -585,8 +595,8 @@ const setApp = asyncHandler(async (req, res) => {
   // res.status(200).json({ app });
 
   if (req.headers.ui) {
-    let breadcrumbs = `platforms,${platform.name}`;
-    let HTML = showResource(platform, tabs, breadcrumbs);
+    let breadcrumbs = `apps,${app.name}`;
+    let HTML = showResource(app, tabs, breadcrumbs);
     res.send(HTML);
   } else {
     res.status(200).json(app);

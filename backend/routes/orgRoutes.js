@@ -274,6 +274,7 @@ import {
   addOrgCloud,
   getOrgTemplates,
   getOrgBudgets,
+  getOrgCost,
 } from "../controllers/orgController.js";
 
 import { getUsers } from "../controllers/userController.js";
@@ -328,5 +329,6 @@ router.route("/:id/templates").get(protect, authz, getOrgTemplates);
 router.route("/:id/budgets").get(protect, authz, getOrgBudgets);
 
 router.route("/:id/requests").get(protect, authz, getOrgRequests);
+router.route("/:id/cost").get(protect, authz, getOrgCost);
 
 export default router;

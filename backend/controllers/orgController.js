@@ -3,7 +3,7 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
-const fields = ["code", "name", "description", "type", "ownerId"];
+const fields = ["code", "name", "description", "type", "ownerId", "cost"];
 const tabs = [
   "Overview",
   "Azure",
@@ -33,6 +33,8 @@ import {
 
 import { orgCloudCredentialsTab, orgTab } from "../htmx/org.js";
 
+import { showCostTab } from "../htmx/tabs.js";
+
 // @desc  Get Orgs
 // @route GET /api/orgs
 // @access Private
@@ -47,9 +49,28 @@ const getOrgs = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       // Filter the Org fields down for ListView efficiency i.e. don't send whole document
       let filteredOrgs = orgs.map((org) => {
-        const { _id, code, name, type, status, budget, description, ownerId } =
-          org;
-        return { _id, code, name, type, status, budget, description, ownerId };
+        const {
+          _id,
+          code,
+          name,
+          type,
+          status,
+          budget,
+          description,
+          ownerId,
+          cost,
+        } = org;
+        return {
+          _id,
+          code,
+          name,
+          type,
+          status,
+          budget,
+          description,
+          ownerId,
+          cost,
+        };
       });
 
       let resources = filteredOrgs;
@@ -692,11 +713,15 @@ const updateOrg = asyncHandler(async (req, res) => {
     new: true,
   });
 
-  if (req.headers.ui) {
+  if (req.headers?.ui) {
     let HTML = resourceOverviewTab(updatedOrg, fields);
     res.send(HTML);
   } else {
-    res.status(200).json(updatedOrg);
+    if (req.sync) {
+      return updatedOrg;
+    } else {
+      res.status(200).json(updatedOrg);
+    }
   }
 });
 
@@ -781,6 +806,36 @@ const getOrgBudgets = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get Org Cost
+// @route GET /api/orgs/:id/cost
+// @access Private
+const getOrgCost = asyncHandler(async (req, res) => {
+  console.log(req.params.id);
+  const org = await Org.findById(req.params.id);
+
+  if (org?.cost.length !== 0) {
+    if (req.headers?.ui) {
+      let HTML = showCostTab(org?.cost);
+      res.send(HTML);
+    } else {
+      if (req.sync) {
+        return org?.cost;
+      } else {
+        res.status(200).json(org.cost);
+      }
+    }
+  } else {
+    if (req.headers?.ui) {
+      res.send("<h1>No Cost Data Exists for Org</h1>");
+    } else {
+      return org?.cost;
+    }
+
+    // res.status(400).send("No Cost Data for Org");
+    // throw new Error("No Cost Data for Org");
+  }
+});
+
 export {
   getOrg,
   getOrgs,
@@ -796,4 +851,5 @@ export {
   addOrgCloud,
   getOrgTemplates,
   getOrgBudgets,
+  getOrgCost,
 };

@@ -25,7 +25,12 @@ import requestRoutes from "./routes/requestRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import backlogRoutes from "./routes/backlogRoutes.js";
 
-import syncAppCost from "./controllers/costController.js";
+import {
+  syncAppCost,
+  propagateAppCostToProduct,
+  propagateProductCostToPlatform,
+  propagatePlatformCostToOrg,
+} from "./controllers/costController.js";
 
 // Open API (Swagger)
 import swaggerUI from "swagger-ui-express";
@@ -103,4 +108,13 @@ app.listen(port, () =>
 );
 
 // await syncAppCost();
-setInterval(() => syncAppCost(), 1800000); // Sync every hour
+setInterval(() => syncAppCost(), 3600000); // Sync every hour 1800000
+
+// await propagateAppCostToProduct();
+setInterval(() => propagateAppCostToProduct(), 4200000); // Propagate ever 1 Hour 10 mins 2400000
+
+// await propagateProductCostToPlatform();
+setInterval(() => propagateProductCostToPlatform(), 4800000); // Propagate ever 1 Hour 10 mins 3000000
+
+// await propagatePlatformCostToOrg();
+setInterval(() => propagatePlatformCostToOrg(), 5400000); // Propagate ever 1 Hour 10 mins 3000000

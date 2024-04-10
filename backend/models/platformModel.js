@@ -12,6 +12,16 @@ const budgetSchema = mongoose.Schema({
   },
 });
 
+const costSchema = mongoose.Schema(
+  {
+    // _id: mongoose.Schema.Types.ObjectId,
+    cost: Number,
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const platformSchema = mongoose.Schema(
   {
     code: {
@@ -37,17 +47,23 @@ const platformSchema = mongoose.Schema(
       required: true,
       ref: "Org",
     },
+    orgCode: {
+      type: String,
+    },
     ownerId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "User",
+    },
+    ownerEmail: {
+      type: String,
     },
     budget: {
       type: [budgetSchema],
       default: undefined,
     },
     cost: {
-      type: Number,
+      type: [costSchema],
       required: [false, "The Cost is updated automatically"],
     },
   },

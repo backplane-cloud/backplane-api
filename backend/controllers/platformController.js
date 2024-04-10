@@ -8,15 +8,17 @@ import {
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
 
+import { showCostTab } from "../htmx/tabs.js";
+
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
   "code",
   "name",
   "description",
-  "type",
+  "orgCode",
+  "ownerEmail",
   "status",
-  "orgId",
-  "ownerId",
+  "cost",
 ];
 
 const tabs = [
@@ -41,7 +43,7 @@ const getPlatforms = asyncHandler(async (req, res) => {
   );
   //console.log(platforms);
   if (platforms) {
-    if (req.headers.ui) {
+    if (req.headers?.ui) {
       let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
       let HTML = listResources(
         platforms,
@@ -52,7 +54,11 @@ const getPlatforms = asyncHandler(async (req, res) => {
       );
       res.send(HTML);
     } else {
-      res.status(200).json(platforms);
+      if (req.sync) {
+        return platforms;
+      } else {
+        res.status(200).json(platforms);
+      }
     }
   } else {
     res.status(400);
@@ -247,11 +253,15 @@ const updatePlatform = asyncHandler(async (req, res) => {
     }
   );
 
-  if (req.headers.ui) {
+  if (req.headers?.ui) {
     let HTML = resourceOverviewTab(updatedPlatform, fields);
     res.send(HTML);
   } else {
-    res.status(200).json(updatedPlatform);
+    if (req.sync) {
+      return updatedPlatform;
+    } else {
+      res.status(200).json(updatedPlatform);
+    }
   }
 });
 
@@ -327,6 +337,31 @@ const getPlatformBudgets = asyncHandler(async (req, res) => {
     }
   }
 });
+
+// @desc  Get Platform Cost
+// @route GET /api/platforms/:id/cost
+// @access Private
+const getPlatformCost = asyncHandler(async (req, res) => {
+  const platform = await Platform.findById(req.params.id);
+
+  if (platform?.cost.length !== 0) {
+    if (req.headers?.ui) {
+      let HTML = showCostTab(platform?.cost);
+      res.send(HTML);
+    } else {
+      if (req.sync) {
+        return platform?.cost;
+      } else {
+        res.status(200).json(platform.cost);
+      }
+    }
+  } else {
+    return platform?.cost;
+    // res.status(400).send("No Cost Data for Platform");
+    // throw new Error("No Cost Data for Platform");
+  }
+});
+
 export {
   getPlatform,
   getPlatforms,
@@ -337,4 +372,5 @@ export {
   getPlatformOverviewTab,
   findPlatform,
   getPlatformBudgets,
+  getPlatformCost,
 };

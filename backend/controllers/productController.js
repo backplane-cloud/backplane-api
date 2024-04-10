@@ -17,17 +17,18 @@ import {
   resourceOverviewTab,
 } from "../htmx/HTMXify.js";
 
+import { showCostTab } from "../htmx/tabs.js";
+
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
   "code",
   "name",
   "description",
-  "type",
+  "orgCode",
+  "platformCode",
+  "ownerEmail",
   "status",
-  "platformId",
-  "orgId",
-  "ownerId",
-  "apps",
+  "cost",
 ];
 
 const tabs = [
@@ -47,7 +48,7 @@ const tabs = [
 // @access Private
 const getProducts = asyncHandler(async (req, res) => {
   let query;
-  if (req.query.filter === "true") {
+  if (req.query?.filter === "true") {
     query = req.user.userType != "root" && {
       orgId: req.user.orgId,
     };
@@ -60,7 +61,7 @@ const getProducts = asyncHandler(async (req, res) => {
 
   const products = await Product.find(query);
   if (products) {
-    if (req.headers.ui) {
+    if (req.headers?.ui) {
       let showbreadcrumb = req.headers["hx-target"] !== "resource-content";
       let HTML = listResources(
         products,
@@ -71,7 +72,11 @@ const getProducts = asyncHandler(async (req, res) => {
       );
       res.send(HTML);
     } else {
-      res.status(200).json(products);
+      if (req.sync) {
+        return products;
+      } else {
+        res.status(200).json(products);
+      }
     }
   } else {
     res.status(400);
@@ -298,11 +303,15 @@ const updateProduct = asyncHandler(async (req, res) => {
 
   // console.log(JSON.stringify(updatedProduct.cloudAccounts));
 
-  if (req.headers.ui) {
+  if (req.headers?.ui) {
     let HTML = resourceOverviewTab(updatedProduct, fields);
     res.send(HTML);
   } else {
-    res.status(200).json(updatedProduct);
+    if (req.sync) {
+      return updatedProduct;
+    } else {
+      res.status(200).json(updatedProduct);
+    }
   }
 });
 
@@ -338,98 +347,114 @@ const deleteProduct = asyncHandler(async (req, res) => {
 const getProductCost = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
-  // Get Product
-  if (!product) {
-    res.status(400);
-    throw new Error("Product Not Found");
-  }
-
-  // Get Cloud Provider
-
-  const cloudProvider = product.cloud;
-
-  console.log(cloudProvider);
-  if (cloudProvider === "azure") {
-    // Get Cloud Accounts
-    const cloudAccounts = product.cloudAccounts;
-    console.log(product.cloudAccounts[0]);
-
-    // Get Org for Product
-    const platform = await Platform.findById(product.platformId);
-    const org = await Org.findById(platform.orgId);
-    console.log(`Product ${product.name} belongs to Organisation ${org.name}`);
-
-    // Get Cloud Credentials from Org
-    const cloudCredentials = org.csp.find(
-      (element) => element.provider === cloudProvider
-    );
-    console.log(`Cloud Credentials: ${cloudCredentials}`);
-    const tenantId = cloudCredentials.tenantId;
-    const clientId = cloudCredentials.clientId;
-    const clientSecret = cloudCredentials.clientSecret;
-
-    // Authenticate to Cloud Platform
-    const credentials = new ClientSecretCredential(
-      tenantId,
-      clientId,
-      clientSecret
-    );
-
-    // Use Cloud API to retrieve cost for Cloud Accounts
-    async function listSubscriptions() {
-      try {
-        // use credential to authenticate with Azure SDKs
-        const client = new SubscriptionClient(credentials);
-        let results = [];
-        // get details of each subscription
-        for await (const item of client.subscriptions.list()) {
-          const subscriptionDetails = await client.subscriptions.get(
-            item.subscriptionId
-          );
-          /* 
-            Each item looks like:
-        
-            {
-            id: '/subscriptions/123456',
-            subscriptionId: '123456',
-            displayName: 'YOUR-SUBSCRIPTION-NAME',
-            state: 'Enabled',
-            subscriptionPolicies: {
-                locationPlacementId: 'Internal_2014-09-01',
-                quotaId: 'Internal_2014-09-01',
-                spendingLimit: 'Off'
-            },
-            authorizationSource: 'RoleBased'
-            },
-        */
-          //console.log(subscriptionDetails);
-          results.push(subscriptionDetails);
-          //console.log(results)
-        }
-        console.log(results[0].subscriptionId);
-
-        const billing = new BillingManagementClient(
-          credentials,
-          results[0].subscriptionId
-        );
-
-        return results;
-      } catch (err) {
-        console.error(JSON.stringify(err));
+  if (product.cost.length !== 0) {
+    if (req.headers?.ui) {
+      let HTML = showCostTab(product?.cost);
+      res.send(HTML);
+    } else {
+      if (req.sync) {
+        return product.cost;
+      } else {
+        res.status(200).json(product.cost);
       }
     }
-
-    listSubscriptions()
-      .then((p) => {
-        //console.log(p);
-        res.status(200).json(p);
-      })
-      .catch((ex) => {
-        console.log(ex);
-      });
   } else {
-    res.status(400).json(`${cloudProvider} not yet implemented`);
+    res.status(400).send("No Cost Data for Product");
+    throw new Error("No Cost Data for Product");
   }
+
+  // // Get Product
+  // if (!product) {
+  //   res.status(400);
+  //   throw new Error("Product Not Found");
+  // }
+
+  // // Get Cloud Provider
+
+  // const cloudProvider = product.cloud;
+
+  // console.log(cloudProvider);
+  // if (cloudProvider === "azure") {
+  //   // Get Cloud Accounts
+  //   const cloudAccounts = product.cloudAccounts;
+  //   console.log(product.cloudAccounts[0]);
+
+  //   // Get Org for Product
+  //   const platform = await Platform.findById(product.platformId);
+  //   const org = await Org.findById(platform.orgId);
+  //   console.log(`Product ${product.name} belongs to Organisation ${org.name}`);
+
+  //   // Get Cloud Credentials from Org
+  //   const cloudCredentials = org.csp.find(
+  //     (element) => element.provider === cloudProvider
+  //   );
+  //   console.log(`Cloud Credentials: ${cloudCredentials}`);
+  //   const tenantId = cloudCredentials.tenantId;
+  //   const clientId = cloudCredentials.clientId;
+  //   const clientSecret = cloudCredentials.clientSecret;
+
+  //   // Authenticate to Cloud Platform
+  //   const credentials = new ClientSecretCredential(
+  //     tenantId,
+  //     clientId,
+  //     clientSecret
+  //   );
+
+  //   // Use Cloud API to retrieve cost for Cloud Accounts
+  //   async function listSubscriptions() {
+  //     try {
+  //       // use credential to authenticate with Azure SDKs
+  //       const client = new SubscriptionClient(credentials);
+  //       let results = [];
+  //       // get details of each subscription
+  //       for await (const item of client.subscriptions.list()) {
+  //         const subscriptionDetails = await client.subscriptions.get(
+  //           item.subscriptionId
+  //         );
+  //         /*
+  //           Each item looks like:
+
+  //           {
+  //           id: '/subscriptions/123456',
+  //           subscriptionId: '123456',
+  //           displayName: 'YOUR-SUBSCRIPTION-NAME',
+  //           state: 'Enabled',
+  //           subscriptionPolicies: {
+  //               locationPlacementId: 'Internal_2014-09-01',
+  //               quotaId: 'Internal_2014-09-01',
+  //               spendingLimit: 'Off'
+  //           },
+  //           authorizationSource: 'RoleBased'
+  //           },
+  //       */
+  //         //console.log(subscriptionDetails);
+  //         results.push(subscriptionDetails);
+  //         //console.log(results)
+  //       }
+  //       console.log(results[0].subscriptionId);
+
+  //       const billing = new BillingManagementClient(
+  //         credentials,
+  //         results[0].subscriptionId
+  //       );
+
+  //       return results;
+  //     } catch (err) {
+  //       console.error(JSON.stringify(err));
+  //     }
+  //   }
+
+  //   listSubscriptions()
+  //     .then((p) => {
+  //       //console.log(p);
+  //       res.status(200).json(p);
+  //     })
+  //     .catch((ex) => {
+  //       console.log(ex);
+  //     });
+  // } else {
+  //   res.status(400).json(`${cloudProvider} not yet implemented`);
+  // }
 });
 
 // @desc  Get Product Requests

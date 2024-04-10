@@ -9,7 +9,7 @@ const budgetSchema = mongoose.Schema({
 
 const costSchema = mongoose.Schema(
   {
-    _id: mongoose.Schema.Types.ObjectId,
+    // _id: mongoose.Schema.Types.ObjectId,
     cost: Number,
   },
   {
@@ -36,6 +36,9 @@ const appSchema = mongoose.Schema(
       required: true,
       ref: "User",
     },
+    ownerEmail: {
+      type: String,
+    },
     orgId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -45,6 +48,10 @@ const appSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: false,
       ref: "Product",
+    },
+    productCode: {
+      type: String,
+      required: [false, "For UI efficiency"],
     },
     budget: {
       type: [budgetSchema],
