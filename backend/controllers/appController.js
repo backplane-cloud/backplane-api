@@ -46,8 +46,7 @@ const fields = [
   "repo",
   "cloud",
   "appTemplate",
-
-  "platform",
+  "platformCode",
   "productCode",
   "ownerEmail",
   "status",
@@ -71,7 +70,9 @@ const tabs = [
 // @access Private
 const getApps = asyncHandler(async (req, res) => {
   const apps = await App.find(
-    req.user.userType != "root" ? { orgId: req.user.orgId } : null
+    req.user.userType != "root"
+      ? { orgId: req.user.orgId, status: "active" }
+      : { status: "active" }
   );
 
   if (apps) {
@@ -219,10 +220,12 @@ const getAppAccess = asyncHandler(async (req, res) => {
   let orgId = req.body.orgId ? req.body.orgId : req.user.orgId;
 
   const cloud = app.cloud;
+
   const environments = app.environments;
   let access;
   // Get Org
   const org = await Org.findById(orgId);
+
   if (!org.csp) {
     // Check for Cloud Service Provider Credentials
     res.send("No Cloud Credentials Specified for Org, aborting App Creation");

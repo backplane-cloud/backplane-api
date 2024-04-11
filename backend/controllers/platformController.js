@@ -18,7 +18,10 @@ const fields = [
   "orgCode",
   "ownerEmail",
   "status",
+  "budget",
+
   "cost",
+  "utilisation",
 ];
 
 const tabs = [
@@ -306,8 +309,8 @@ const getPlatformRequests = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc  Get Product Budgets
-// @route GET /api/products/:id/budgets
+// @desc  Get Platform Budgets
+// @route GET /api/platforms/:id/budgets
 // @access Private
 import { orgTab } from "../htmx/org.js";
 

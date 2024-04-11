@@ -3,8 +3,6 @@ export default class ListView extends HTMLElement {
     super();
 
     const fields = this.getAttribute("fields").split(",");
-    // console.log("fields:", fields);
-
     const resources = JSON.parse(this.getAttribute("resources"));
     const type = this.getAttribute("type");
 
@@ -25,6 +23,7 @@ export default class ListView extends HTMLElement {
       // Create table rows for values
 
       resources.map((entity) => {
+        console.log(entity);
         HTML += '<tr scope="col" class="px-6 py-3">';
         fields.map((field, i) => {
           let value = entity[field] === undefined ? "-" : entity[field];
@@ -32,7 +31,7 @@ export default class ListView extends HTMLElement {
           // Make first value linkable to resources
           let meta =
             i === 0
-              ? `class="cursor-pointer px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" hx-get="/api/${type}/${entity._id}" hx-target="#display-content" hx-headers='{"ui": true, "action": "view"}'`
+              ? `class="cursor-pointer w-6 px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" hx-get="/api/${type}/${entity._id}" hx-target="#display-content" hx-headers='{"ui": true, "action": "view"}'`
               : `class="px-6 py-4"`;
 
           // Display Cloud Image instead of name
@@ -41,13 +40,51 @@ export default class ListView extends HTMLElement {
             value = `<img src='img/${value}.png'/>`;
           }
 
+          // Status Badge
+          if (field === "status") {
+            value = `<div class="badge badge-outline">${entity[field]}</div>`;
+          }
+
           // Cost Processing
           if (field === "cost") {
             if (entity[field]?.length === 0 || entity[field] === undefined) {
               console.log("Detected undefined for cost");
               value = "-";
             } else {
-              value = `$ ${entity[field].pop().cost.toLocaleString()}`;
+              value = `$ ${entity[field][
+                entity[field].length - 1
+              ].cost.toLocaleString()}`;
+            }
+          }
+          // Budget Processing
+          if (field === "budget") {
+            if (entity[field]?.length === 0 || entity[field] === undefined) {
+              console.log("Detected undefined for budget");
+              value = "-";
+            } else {
+              let budget = entity[field];
+              value = `$ ${budget[budget.length - 1].budget?.toLocaleString()}`;
+            }
+          }
+
+          // Delta
+          if (field === "utilisation") {
+            if (
+              entity["budget"] === undefined ||
+              entity["cost"] === undefined
+            ) {
+              value = "-";
+            } else {
+              let budget = parseInt(
+                entity["budget"][entity["budget"].length - 1]?.budget
+              );
+              let cost = entity["cost"][entity["cost"].length - 1]?.cost;
+              let utilisation = ((cost / budget) * 100).toFixed(1);
+              isNaN(utilisation)
+                ? "-"
+                : (value = `<div class="badge ${
+                    utilisation >= 100 ? "badge-neutral" : "badge-outline"
+                  }">${utilisation} %</div>`);
             }
           }
 
@@ -58,10 +95,11 @@ export default class ListView extends HTMLElement {
 
           switch (field) {
             case "orgId":
-              HTML += `<td class='text-blue-500'><a href='#' hx-get="/api/orgs/${value}" hx-target="#display-content" hx-headers='{"ui": true}'>${value}</a></td>`;
+              HTML += `<td><a href='#' hx-get="/api/orgs/${value}" hx-target="#display-content" hx-headers='{"ui": true}'>${value}</a></td>`;
               break;
-            case "ownerId":
-              HTML += `<td class='text-blue-500'><a href='#' hx-get="/api/users/${value}" hx-target="#display-content" hx-headers='{"ui": true}'>${value}</a></td>`;
+
+            case "ownerEmail":
+              HTML += `<td><a href='#' hx-get="/api/users/${entity["ownerId"]}" hx-target="#display-content" hx-headers='{"ui": true}'>${value}</a></td>`;
               break;
             default:
               HTML += `<td ${meta}>${value}</td>`; // Value cell

@@ -44,6 +44,15 @@ const appSchema = mongoose.Schema(
       required: true,
       ref: "Org",
     },
+    platformId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: false,
+      ref: "Platform",
+    },
+    platformCode: {
+      type: String,
+      required: [false, "For UI efficiency"],
+    },
     productId: {
       type: mongoose.Schema.Types.ObjectId,
       required: false,
@@ -53,6 +62,7 @@ const appSchema = mongoose.Schema(
       type: String,
       required: [false, "For UI efficiency"],
     },
+
     budget: {
       type: [budgetSchema],
       default: undefined,

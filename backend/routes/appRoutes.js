@@ -310,11 +310,14 @@ router
 // Routes HTMXified for App Tabs in UI
 router.route("/:id/environments").get(protect, authz, getAppEnvironments);
 router.route("/:id/overview").get(protect, authz, getAppOverview);
-router.route("/:id/access").get(protect, getAppAccess);
-router.route("/:id/policy").get(protect, getAppPolicies);
+router.route("/:id/access").get(protect, authz, getAppAccess);
+router.route("/:id/policy").get(protect, authz, getAppPolicies);
 
-router.route("/:id/billing").get(protect, getAppBilling);
-router.route("/:id/requests").get(protect, getAppRequests);
-router.route("/:id/cost").get(protect, getAppCost);
+router.route("/:id/billing").get(protect, authz, getAppBilling);
+router.route("/:id/requests").get(protect, authz, getAppRequests);
+router.route("/:id/cost").get(protect, authz, getAppCost);
+
+// UI Actions
+// router.route("/:id/disable").get(protect, authz, disableApp ); // Need to implement
 
 export default router;

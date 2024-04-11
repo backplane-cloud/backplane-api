@@ -252,7 +252,10 @@ function resourceOverviewTab(resource, fields, action) {
     
     <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">`;
 
-  fields.map((field) => {
+  let editFields = fields.filter(
+    (field) => field !== "cost" && field !== "utilisation"
+  );
+  editFields.map((field) => {
     let value;
     if (field === "cloud") {
       value = `<img src='img/${resource[field]}.png' />`;

@@ -74,8 +74,8 @@ function appshell(name, email, orgId, userType) {
 
 </div>
 
-<footer class="bg-gray-100  py-4 text-center fixed bottom-0 w-full">
-  <div class="w-full max-w-screen-xl mx-auto p-4 md:py-8">
+<footer class="bg-gray-100 text-center fixed bottom-0 w-full h-24">
+  <div class="w-full max-w-screen-xl mx-auto md:py-8">
     <div class="sm:flex sm:items-center sm:justify-between">
         <a href="https://backplane.dev/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
             <img src="/img/backplane-logo-black.png" class="h-10" alt="Backplane Logo" />

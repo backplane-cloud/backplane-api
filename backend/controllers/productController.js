@@ -28,7 +28,10 @@ const fields = [
   "platformCode",
   "ownerEmail",
   "status",
+  "budget",
+
   "cost",
+  "utilisation",
 ];
 
 const tabs = [

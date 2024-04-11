@@ -65,6 +65,9 @@ const orgSchema = mongoose.Schema(
       required: false,
       ref: "User",
     },
+    ownerEmail: {
+      type: String,
+    },
     csp: {
       type: [cloudSchema],
       default: undefined,

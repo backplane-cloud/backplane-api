@@ -108,13 +108,13 @@ app.listen(port, () =>
 );
 
 // await syncAppCost();
-setInterval(() => syncAppCost(), 3600000); // Sync every hour 1800000
+setInterval(() => syncAppCost(), 21600000); // Sync every 6 hours
 
 // await propagateAppCostToProduct();
-setInterval(() => propagateAppCostToProduct(), 4200000); // Propagate ever 1 Hour 10 mins 2400000
+setInterval(() => propagateAppCostToProduct(), 22200000); // Propagate ever 6hr 10m
 
 // await propagateProductCostToPlatform();
-setInterval(() => propagateProductCostToPlatform(), 4800000); // Propagate ever 1 Hour 10 mins 3000000
+setInterval(() => propagateProductCostToPlatform(), 22800000); // Propagate ever 6hr 20m
 
 // await propagatePlatformCostToOrg();
-setInterval(() => propagatePlatformCostToOrg(), 5400000); // Propagate ever 1 Hour 10 mins 3000000
+setInterval(() => propagatePlatformCostToOrg(), 23400000); // Propagate ever 6hr 30m

@@ -3,25 +3,35 @@ import Org from "../models/orgModel.js";
 import Request from "../models/requestModel.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
-const fields = ["code", "name", "description", "type", "ownerId", "cost"];
+const fields = [
+  "code",
+  "name",
+  "description",
+  "ownerEmail",
+  "status",
+  "budget",
+  "cost",
+
+  "utilisation",
+];
 const tabs = [
   "Overview",
   "Azure",
   "GCP",
   "AWS",
-  "Templates",
+  "Platforms",
+  "Products",
+  "Apps",
+  "Cost",
   "Budgets",
+  "Requests",
+  "Templates",
   "Users",
   "Teams",
   "Assignments",
   "Roles",
   "Access",
   "Policy",
-  "Cost",
-  "Requests",
-  "Platforms",
-  "Products",
-  "Apps",
 ];
 
 import {
@@ -40,15 +50,18 @@ import { showCostTab } from "../htmx/tabs.js";
 // @access Private
 
 const getOrgs = asyncHandler(async (req, res) => {
-  const orgs = !req.user.allowedActions.includes("/*")
+  const orgs = !req.user.allowedActions.includes("/*/")
     ? await Org.findById(req.user.orgId)
     : await Org.find().select("");
+
+  let orgArray = [];
+  !Array.isArray(orgs) ? orgArray.push(orgs) : (orgArray = orgs);
 
   // const orgs = await Org.find({ _id: req.user.orgId });
   if (orgs) {
     if (req.headers.ui) {
       // Filter the Org fields down for ListView efficiency i.e. don't send whole document
-      let filteredOrgs = orgs.map((org) => {
+      let filteredOrgs = orgArray.map((org) => {
         const {
           _id,
           code,
@@ -58,6 +71,7 @@ const getOrgs = asyncHandler(async (req, res) => {
           budget,
           description,
           ownerId,
+          ownerEmail,
           cost,
         } = org;
         return {
@@ -69,6 +83,7 @@ const getOrgs = asyncHandler(async (req, res) => {
           budget,
           description,
           ownerId,
+          ownerEmail,
           cost,
         };
       });
@@ -79,7 +94,7 @@ const getOrgs = asyncHandler(async (req, res) => {
       const htmlTable = listResources(
         resources,
         fields,
-        "Organsations",
+        "Organisations",
         "Orgs",
         showbreadcrumb
       );

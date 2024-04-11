@@ -17,7 +17,10 @@ export async function syncAppCost() {
   let apps;
 
   try {
-    apps = await getApps({ user: { userType: "root" }, sync: true });
+    apps = await getApps({
+      user: { userType: "root" },
+      sync: true,
+    });
 
     let filteredApps = apps; //.slice(0, 25); //.filter((app) => app.cloud !== "gcp"); //apps.slice(0, 15);
 
@@ -67,7 +70,7 @@ export async function syncAppCost() {
   //     console.error("Error fetching apps:", error);
   //     throw error; // Re-throw the error to be caught by the caller
   //   }
-
+  console.log(apps.length + " Apps processed");
   console.timeEnd("Running Sync App Cost");
 }
 
