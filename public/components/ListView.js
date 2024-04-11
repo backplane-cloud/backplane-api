@@ -82,9 +82,10 @@ export default class ListView extends HTMLElement {
               let utilisation = ((cost / budget) * 100).toFixed(1);
               isNaN(utilisation)
                 ? "-"
-                : (value = `<div class="badge ${
-                    utilisation >= 100 ? "badge-neutral" : "badge-outline"
-                  }">${utilisation} %</div>`);
+                : (value = `<progress class="progress w-56" value="${utilisation}" max="100"></progress>`);
+              // : (value = `<div class="badge ${
+              //     utilisation >= 100 ? "badge-neutral" : "badge-outline"
+              //   }">${utilisation} %</div>`);
             }
           }
 

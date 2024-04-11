@@ -100,8 +100,8 @@ const getApp = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New App
   if (req.headers.action === "create") {
     let HTML = viewHTMXify(
-      {},
-      ["name", "cloud", "template"],
+      { user: req.user.email },
+      ["name", "cloud"],
       "Create App",
       "apps",
       req.headers.action

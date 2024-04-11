@@ -19,7 +19,16 @@ function listResources(resources, fields, title, type, showbreadcrumb) {
     <search-box type="${type}" title="${title}" size="w-96"></search-box>
     </div>
     <div>
-    <create-button type="${type}"></create-button>
+    
+    <button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onclick="my_modal_1.showModal()"  hx-get="/api/${type}/create" hx-target="#my_modal" hx-headers='{"ui": true, "action": "create"}'>Create ${type.slice(
+    0,
+    type.length - 1
+  )}</button>
+
+      <dialog id="my_modal_1" class="modal">    
+      <div class="modal-box w-4/12 max-w-5xl" id="my_modal">
+      </div>
+      </dialog>
     </div>
   </div>
     <list-view resources='${JSON.stringify(
@@ -61,7 +70,7 @@ function showResource(resource, tabs, breadcrumbs) {
 function viewHTMXify(jsonObject, fields, title, type, action) {
   console.log("action", action);
   let html = `
-      <div class="mx-auto max-w-lg p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+      <div class="">
         <form class="space-y-6" action="#">
           <h5 class="text-3xl font-medium text-gray-900 dark:text-white">${
             jsonObject.name || title
@@ -77,17 +86,45 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
     //                             </textarea>
     //                           </div>`;
     // } else {
-    html += `<div class="m-5 ">
+    if (field === "cloud") {
+      html += `
+        <div class="m-5 ">
+          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">${field}</label>
+          <select class="select select-bordered w-full max-w-xs" name="cloud">
+            <option disabled selected>Select Cloud Platform</option>
+            <option value="azure">Azure</option>
+            <option value="gcp">GCP</option>
+            <option value="aws">AWS</option>
+            <option value="alibaba" disabled>Alibaba</option>
+            <option value="oci" disabled>OCI</option>
+          </select>
+        </div>
+        <div class="m-5 ">
+          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Environments (App Template)</label>
+          <select class="select select-bordered w-full max-w-xs" name="template">
+            <option disabled selected>Select App template</option>
+            <option value="default">Prod, NonProd, Dev and Test</option>
+            <option value="sandbox">Sandbox</option>
+          </select>
+        </div>
+        <div class="m-5">
+            <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Owner</label>
+            <input type="text" value=${jsonObject.user} disabled class="w-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
+        </div>
+        `;
+    } else {
+      html += `<div class="m-5 ">
                                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">${field}</label>
                                 <input value='${
                                   jsonObject[field] === undefined
                                     ? ""
                                     : jsonObject[field]
-                                }' name="${field}" id="${field}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required ${
-      action !== "edit" && action !== "create" && "disabled"
-    } ${field === "id" && "readonly"}/>
+                                }' name="${field}" id="${field}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" ${
+        action !== "edit" && action !== "create" && "disabled"
+      } ${field === "id" && "readonly"}/>
                               </div>`;
-    // }
+      // }
+    }
   });
 
   html += `</div>`;
@@ -98,6 +135,7 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
     html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#display-content" hx-headers='{"ui": true}'>Cancel</button>`;
   } else if (action === "create") {
     html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-post="/api/${type}" hx-target="#display-content" hx-headers='{"ui": true}'>Create</button>`;
+    html += `<button class="btn" hx-get="/api/${type}" hx-target='#display-content' hx-headers='{"ui": true}'>Close</button>`;
   } else {
     html += `<button type="submit" class="m-3 text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#display-content" hx-headers='{"ui": true, "action": "edit"}'>Edit</button>`;
   }

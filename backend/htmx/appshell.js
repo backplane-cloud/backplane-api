@@ -76,7 +76,7 @@ function appshell(name, email, orgId, userType) {
 
 <footer class="bg-gray-100 text-center fixed bottom-0 w-full h-24">
   <div class="w-full max-w-screen-xl mx-auto md:py-8">
-    <div class="sm:flex sm:items-center sm:justify-between">
+    <div class="flex items-center justify-between">
         <a href="https://backplane.dev/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
             <img src="/img/backplane-logo-black.png" class="h-10" alt="Backplane Logo" />
             <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-blue">Backplane</span>
