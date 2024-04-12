@@ -6,9 +6,11 @@ import Request from "../models/requestModel.js";
 
 import { Backlog } from "../models/backlogModel.js";
 
-import { ClientSecretCredential } from "@azure/identity";
-import { SubscriptionClient } from "@azure/arm-subscriptions";
-import { BillingManagementClient } from "@azure/arm-billing";
+// import { ClientSecretCredential } from "@azure/identity";
+// import { SubscriptionClient } from "@azure/arm-subscriptions";
+// import { BillingManagementClient } from "@azure/arm-billing";
+
+import { getPlatforms, getPlatform } from "./platformController.js";
 
 import {
   viewHTMXify,
@@ -36,14 +38,15 @@ const fields = [
 
 const tabs = [
   "Overview",
-  "Backlog",
+  "Apps",
   "Budgets",
+  "Cost",
+  "Requests",
+  "Backlog",
+
   "Team",
   "Access",
   "Policy",
-  "Cost",
-  "Requests",
-  "Apps",
 ];
 
 // @desc  Get Products
@@ -111,8 +114,22 @@ const getProduct = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New Product
 
   if (req.headers.action === "create") {
+    let platforms = await getPlatforms({
+      sync: true,
+      headers: { filter: "orgs", filterid: req.user.orgId.toHexString() },
+    });
+
+    let platformPicker = platforms.map((platform) => {
+      return {
+        platformId: platform.id,
+        name: platform.name,
+      };
+    });
+
+    console.log(platformPicker);
+
     let HTML = viewHTMXify(
-      {},
+      { platforms: JSON.stringify(platformPicker) },
       ["name", "description", "platformId"],
       "Create Product",
       "products",
@@ -241,6 +258,15 @@ const setProduct = asyncHandler(async (req, res) => {
     throw new Error("Product already exists");
   }
 
+  // Get OrgCode and PlatformCode
+  let platform = await getPlatform({
+    params: { id: req.body.platformId },
+    user: { orgId },
+    internal: true,
+  });
+  let platformCode = platform.code;
+  let orgCode = platform.orgCode;
+
   // Create New Product
   const product = await Product.create({
     code,
@@ -251,6 +277,8 @@ const setProduct = asyncHandler(async (req, res) => {
     status: "active",
     type: "product",
     description: req.body.description,
+    platformCode,
+    orgCode,
   });
 
   // Create Backlog

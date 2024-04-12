@@ -552,12 +552,11 @@ const checkAuth = asyncHandler(async (req, res) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.userId).select("-password");
-
       res.send(appshell());
     } catch (error) {
       // res.status(401).send(`Not authenticated, Invalid Token`);
       // throw new Error("Not authenticated, invalid token");
-      logger.warn(new Error("Not authenticated, invalid token"));
+      // logger.warn(new Error("Not authenticated, invalid token"));
     }
   } else {
     // res.send(loginHTMX({ message: "Invalid Username/Password" }));
