@@ -51,15 +51,32 @@ const tabs = [
 // @access Private
 const getProducts = asyncHandler(async (req, res) => {
   let query;
-  if (req.query?.filter === "true") {
-    query = req.user.userType != "root" && {
-      orgId: req.user.orgId,
-    };
+
+  if (req.headers?.filter) {
+    if (req.headers.filter === "orgs") {
+      query = {
+        orgId: req.headers.filterid,
+        status: "active",
+      };
+    }
+    if (req.headers.filter === "platforms") {
+      query = {
+        platformId: req.headers.filterid,
+        orgId: req.user.orgId,
+        status: "active",
+      };
+    }
   } else {
-    query =
-      req.user.userType != "root"
-        ? { orgId: req.user.orgId, status: "active" }
-        : null;
+    if (req.query?.filter === "true") {
+      query = req.user.userType != "root" && {
+        orgId: req.user.orgId,
+      };
+    } else {
+      query =
+        req.user.userType != "root"
+          ? { orgId: req.user.orgId, status: "active" }
+          : null;
+    }
   }
 
   const products = await Product.find(query);

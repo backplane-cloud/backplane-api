@@ -41,9 +41,29 @@ const tabs = [
 // @route GET /api/platforms
 // @access Private
 const getPlatforms = asyncHandler(async (req, res) => {
-  const platforms = await Platform.find(
-    req.user.userType != "root" ? { orgId: req.user.orgId } : null
-  );
+  let query;
+
+  if (req.headers?.filter) {
+    if (req.headers.filter === "orgs") {
+      query = {
+        orgId: req.headers.filterid,
+        status: "active",
+      };
+    }
+  } else {
+    if (req.query?.filter === "true") {
+      query = req.user.userType != "root" && {
+        orgId: req.user.orgId,
+      };
+    } else {
+      query =
+        req.user.userType != "root"
+          ? { orgId: req.user.orgId, status: "active" }
+          : null;
+    }
+  }
+
+  const platforms = await Platform.find(query);
   //console.log(platforms);
   if (platforms) {
     if (req.headers?.ui) {

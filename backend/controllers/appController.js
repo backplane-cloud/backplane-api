@@ -69,11 +69,42 @@ const tabs = [
 // @route GET /api/apps
 // @access Private
 const getApps = asyncHandler(async (req, res) => {
-  const apps = await App.find(
-    req.user.userType != "root"
-      ? { orgId: req.user.orgId, status: "active" }
-      : { status: "active" }
-  );
+  let query;
+  if (req.headers?.filter) {
+    if (req.headers.filter === "products") {
+      query = {
+        productId: req.headers.filterid,
+        orgId: req.user.orgId,
+        status: "active",
+      };
+    }
+    if (req.headers.filter === "platforms") {
+      query = {
+        platformId: req.headers.filterid,
+        orgId: req.user.orgId,
+        status: "active",
+      };
+    }
+    if (req.headers.filter === "orgs") {
+      query = {
+        orgId: req.headers.filterid,
+        status: "active",
+      };
+    }
+  } else {
+    if (req.query?.filter === "true") {
+      query = req.user.userType != "root" && {
+        orgId: req.user.orgId,
+      };
+    } else {
+      query =
+        req.user.userType != "root"
+          ? { orgId: req.user.orgId, status: "active" }
+          : null;
+    }
+  }
+
+  const apps = await App.find(query);
 
   if (apps) {
     if (req.headers?.ui) {
