@@ -36,14 +36,15 @@ export async function syncAppCost() {
 
         // Add Cost to App
         let currentCostHistory = app.cost; // retrieve the current cost array
+
         let getLastCost =
-          currentCostHistory[currentCostHistory.length - 1]?.cost;
+          currentCostHistory[currentCostHistory.length - 1].cost;
 
         getLastCost
           ? currentCostHistory.push({ cost: getLastCost + parseInt(newCost) })
           : currentCostHistory.push({ cost: parseInt(newCost) });
 
-        console.log({ cost: currentCostHistory });
+        // console.log({ cost: currentCostHistory });
 
         // // Update App wiht new Cost
         await updateApp({
@@ -58,18 +59,6 @@ export async function syncAppCost() {
     throw error; // Re-throw the error to be caught by the caller
   }
 
-  //   try {
-  //     apps[0].map(async (app) => {
-  //       let cost = await getAppCost({
-  //         params: { id: app.id },
-  //         body: { orgId: app.orgId },
-  //       });
-  //       console.log(`${app.name} : ${cost}`);
-  //     });
-  //   } catch (error) {
-  //     console.error("Error fetching apps:", error);
-  //     throw error; // Re-throw the error to be caught by the caller
-  //   }
   console.log(apps.length + " Apps processed");
   console.timeEnd("Running Sync App Cost");
 }

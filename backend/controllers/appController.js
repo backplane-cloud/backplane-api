@@ -384,8 +384,8 @@ const getAppCost = asyncHandler(async (req, res) => {
   //   (credentials) => credentials.provider === cloud
   // );
   let cost;
-  if (!req.headers?.ui) {
-    // Go and get the live cost, the CLI need to be updated with bp app cost show --id --live
+  if (!req.headers?.ui && !req.user) {
+    // Only get Live cost for Cost Sync, i.e. if UI or CLI, return cost history
 
     switch (cloud) {
       case "azure":
@@ -400,6 +400,7 @@ const getAppCost = asyncHandler(async (req, res) => {
     }
   } else {
     // Get the Cost data stored on the App resource
+
     cost = app.cost;
   }
 
