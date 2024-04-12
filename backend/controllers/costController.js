@@ -69,13 +69,16 @@ export async function propagateAppCostToProduct() {
 
   try {
     // Get all Apps
-    apps = await getApps({ user: { userType: "root" }, sync: true });
-    // console.log(apps.length + " Apps for processing");
+    apps = await getApps({
+      user: { userType: "root", status: "active" },
+      sync: true,
+    });
+    console.log(apps.length + " Apps for processing");
 
     // Filter the Apps to only those with a parent Product
     const appsLinkedToProducts = apps.filter((app) => app.productId);
     appsLinkedToProducts.map((app) => {
-      // console.log(app.name + " linked to => " + app.productId);
+      console.log(app.name + " linked to => " + app.productId);
     });
 
     // Get Unique Product IDs
@@ -85,6 +88,7 @@ export async function propagateAppCostToProduct() {
     }, new Set());
 
     // console.log("unique products", uniqueProductIds);
+    // return;
 
     let productIds = [...uniqueProductIds];
     // console.log(appsLinkedToProducts);
@@ -154,7 +158,10 @@ export async function propagateProductCostToPlatform() {
 
   try {
     // Get all Products
-    products = await getProducts({ user: { userType: "root" }, sync: true });
+    products = await getProducts({
+      user: { userType: "root", status: "active" },
+      sync: true,
+    });
     console.log(products.length + " Products for processing");
 
     // Filter the Products to only those with a parent Platform
