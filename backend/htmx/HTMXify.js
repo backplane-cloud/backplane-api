@@ -55,7 +55,7 @@ function showResource(resource, tabs, breadcrumbs) {
         </h1>
     </div>
     <div class="mb-5">
-      <nav-bar menu='${tabs}' type="${resource.type}" resourceId="${resource.id}" target='resource-content'></nav-bar>
+      <tab-bar menu='${tabs}' type="${resource.type}" resourceId="${resource.id}" target='resource-content'></tab-bar>
     </div>
   
 
