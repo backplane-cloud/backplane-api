@@ -32,6 +32,13 @@ function appshell(name, email, orgId, userType) {
           hx-post='/api/users/logout' 
           class="m-5 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded">Logout</button>
       </div>
+      <div>
+        <div class="avatar placeholder">
+          <div class="bg-neutral text-neutral-content rounded-full w-14 mr-10">
+            <span id='profile'> LS</span>
+          </div>
+        </div> 
+      </div>
 
     </div>
     
@@ -124,6 +131,7 @@ function appshell(name, email, orgId, userType) {
           document.getElementById("username").textContent = localStorage.getItem("username");
           document.getElementById("welcome").textContent = localStorage.getItem("username");
           document.getElementById("email").textContent = localStorage.getItem("email");
+          document.getElementById("profile").textContent = localStorage.getItem("username");
 
         </script>
 `;
