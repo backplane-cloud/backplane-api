@@ -33,11 +33,7 @@ function appshell(name, email, orgId, userType) {
           class="m-5 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded">Logout</button>
       </div>
       <div>
-        <div class="avatar placeholder">
-          <div class="bg-neutral text-neutral-content rounded-full w-14 mr-10">
-            <span id='profile'> LS</span>
-          </div>
-        </div> 
+        <user-profile name="${name}"></user-profile>
       </div>
 
     </div>
@@ -48,7 +44,7 @@ function appshell(name, email, orgId, userType) {
         <nav-bar target='display-content' menu="Dashboard,Orgs,Platforms,Products,Apps,Requests,Services"></nav-bar>
       </div><div>
         <h1 class="mr-10 align-start text-2xl font-bold tracking-tight text-gray-900">
-          Management Console
+          Admin Console
         </h1>
       </div>
       
@@ -82,12 +78,15 @@ function appshell(name, email, orgId, userType) {
 </div>
 
 <footer class="bg-gray-100 text-center fixed bottom-0 w-full h-24">
-  <div class="w-full max-w-screen-xl mx-auto md:py-8">
-    <div class="flex items-center justify-between">
+  <div class="w-full  md:py-8 flex justify-between">
+    <div class="flex items-center  ml-10">
         <a href="https://backplane.dev/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
-            <img src="/img/backplane-logo-black.png" class="h-10" alt="Backplane Logo" />
-            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-blue">Backplane</span>
+            <img src="/img/backplane-logo-gray.svg" class="h-10" alt="Backplane Logo" />
+            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-blue text-gray-300	">Backplane</span>
         </a>
+    </div>
+    <div></div>
+    <div>
         <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
             <li>
                 <a href="https://backplane.dev/docs/intro" class="hover:underline me-4 md:me-6">Documentation</a>

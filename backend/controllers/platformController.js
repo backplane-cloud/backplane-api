@@ -26,15 +26,14 @@ const fields = [
 
 const tabs = [
   "Overview",
+  "Products",
+  "Apps",
   "Budgets",
   "Team",
   "Access",
   "Policy",
   "Cost",
   "Requests",
-
-  "Products",
-  "Apps",
 ];
 
 // @desc  Get Platforms
@@ -94,9 +93,9 @@ const getPlatforms = asyncHandler(async (req, res) => {
 // @access Private
 const getPlatform = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New Platform
-  console.log(req.headers.action);
+  // console.log(req.headers.action);
 
-  if (req.headers.action === "create") {
+  if (req.headers?.action === "create") {
     let HTML = viewHTMXify(
       {},
       ["name", "description"],
@@ -107,19 +106,24 @@ const getPlatform = asyncHandler(async (req, res) => {
     res.send(HTML);
   } else {
     const platform = await Platform.findById(
-      req.user.userType != "root"
+      req.user?.userType != "root"
         ? { orgId: req.user.orgId, _id: req.params.id }
         : { _id: req.params.id }
     );
     if (platform) {
-      if (req.headers.ui) {
+      if (req.headers?.ui) {
         let breadcrumbs = `platforms,${platform.name}`;
         let HTML = showResource(platform, tabs, breadcrumbs);
         // let HTML = resourceView(platform, tabs);
 
         res.send(HTML);
       } else {
-        res.status(200).json(platform);
+        if (req.internal) {
+          // i.e. a call from Product Controller as part of Product Create to retrieve Platform Code and Org Code.
+          return platform;
+        } else {
+          res.status(200).json(platform);
+        }
       }
     } else {
       //res.status(400);
