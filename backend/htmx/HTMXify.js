@@ -86,7 +86,7 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
       if (field === "cloud") {
         html += `
           <div class="m-5 ">
-            <select-picker collection='${jsonObject.cloud}' label='${jsonObject.label}' field='cloud'></select-picker>
+            <select-picker collection='${jsonObject.cloud.collection}' label='${jsonObject.cloud.label}' field='cloud'></select-picker>
             
           </div>`;
       }
@@ -94,13 +94,13 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
       if (field === "appTemplate") {
         html += `
           <div class="m-5 ">
-            <select-picker collection='${jsonObject.appTemplate}' label='${jsonObject.label}' field='template'></select-picker>
+            <select-picker collection='${jsonObject.appTemplate.collection}' label='${jsonObject.appTemplate.label}' field='template'></select-picker>
           </div>
                   `;
       }
 
       if (field === "platformId") {
-        html += `<div class="m-5"><select-picker collection='${jsonObject.platforms}' label='${jsonObject.label}' field='platformId'></select-picker></div>`;
+        html += `<div class="m-5"><select-picker collection='${jsonObject.platforms.collection}' label='${jsonObject.platforms.label}' field='platformId'></select-picker></div>`;
       }
     } else {
       html += `<div class="m-5">

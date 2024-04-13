@@ -152,9 +152,11 @@ const getApp = asyncHandler(async (req, res) => {
     let HTML = viewHTMXify(
       {
         user: req.user.email,
-        cloud: JSON.stringify(csp),
-        appTemplate: JSON.stringify(appTemplate),
-        label: "Cloud Platform",
+        cloud: { collection: JSON.stringify(csp), label: "Cloud Platform" },
+        appTemplate: {
+          collection: JSON.stringify(appTemplate),
+          label: "Template",
+        },
       },
       ["name", "cloud", "appTemplate"],
       "Create App",

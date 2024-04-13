@@ -128,7 +128,12 @@ const getProduct = asyncHandler(async (req, res) => {
     });
 
     let HTML = viewHTMXify(
-      { platforms: JSON.stringify(platformPicker), label: "Platform" },
+      {
+        platforms: {
+          collection: JSON.stringify(platformPicker),
+          label: "Platform",
+        },
+      },
       ["name", "description", "platformId"],
       "Create Product",
       "products",
