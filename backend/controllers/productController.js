@@ -114,6 +114,7 @@ const getProduct = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New Product
 
   if (req.headers.action === "create") {
+    // Retrieve Platforms for <select-picker>
     let platforms = await getPlatforms({
       sync: true,
       headers: { filter: "orgs", filterid: req.user.orgId.toHexString() },
@@ -121,15 +122,13 @@ const getProduct = asyncHandler(async (req, res) => {
 
     let platformPicker = platforms.map((platform) => {
       return {
-        platformId: platform.id,
+        id: platform.id,
         name: platform.name,
       };
     });
 
-    console.log(platformPicker);
-
     let HTML = viewHTMXify(
-      { platforms: JSON.stringify(platformPicker) },
+      { platforms: JSON.stringify(platformPicker), label: "Platform" },
       ["name", "description", "platformId"],
       "Create Product",
       "products",

@@ -29,11 +29,12 @@ const tabs = [
   "Products",
   "Apps",
   "Budgets",
+  "Cost",
+  "Requests",
+
   "Team",
   "Access",
   "Policy",
-  "Cost",
-  "Requests",
 ];
 
 // @desc  Get Platforms

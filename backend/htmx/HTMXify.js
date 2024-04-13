@@ -78,42 +78,30 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
           <div>`;
 
   fields.map((field) => {
-    // if (Array.isArray(jsonObject[field])) {
-    //   html += `<div class="m-5 ">
-    //                             <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">${field}</label>
-    //                             <textarea name="${field}" id="${field}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com">
-    //                             ${jsonObject[field]}
-    //                             </textarea>
-    //                           </div>`;
-    // } else {
-    if (field === "cloud") {
-      html += `
-        <div class="m-5 ">
-          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">${field}</label>
-          <select class="select select-bordered w-full max-w-xs" name="cloud">
-            <option disabled selected>Select Cloud Platform</option>
-            <option value="azure">Azure</option>
-            <option value="gcp">GCP</option>
-            <option value="aws">AWS</option>
-            <option value="alibaba" disabled>Alibaba</option>
-            <option value="oci" disabled>OCI</option>
-          </select>
-        </div>
-        <div class="m-5 ">
-          <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Environments (App Template)</label>
-          <select class="select select-bordered w-full max-w-xs" name="template">
-            <option disabled selected>Select App template</option>
-            <option value="default">Prod, NonProd, Dev and Test</option>
-            <option value="sandbox">Sandbox</option>
-          </select>
-        </div>
-        <div class="m-5">
-            <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Owner</label>
-            <input type="text" value=${jsonObject.user} disabled class="w-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
-        </div>
-        `;
-    } else if (field === "platformId") {
-      html += `<div class="m-5"><platform-picker platforms='${jsonObject.platforms}'></platform-picker></div>`;
+    if (
+      field === "cloud" ||
+      field === "appTemplate" ||
+      field === "platformId"
+    ) {
+      if (field === "cloud") {
+        html += `
+          <div class="m-5 ">
+            <select-picker collection='${jsonObject.cloud}' label='${jsonObject.label}' field='cloud'></select-picker>
+            
+          </div>`;
+      }
+
+      if (field === "appTemplate") {
+        html += `
+          <div class="m-5 ">
+            <select-picker collection='${jsonObject.appTemplate}' label='${jsonObject.label}' field='template'></select-picker>
+          </div>
+                  `;
+      }
+
+      if (field === "platformId") {
+        html += `<div class="m-5"><select-picker collection='${jsonObject.platforms}' label='${jsonObject.label}' field='platformId'></select-picker></div>`;
+      }
     } else {
       html += `<div class="m-5">
                                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">${field}</label>
@@ -125,7 +113,6 @@ function viewHTMXify(jsonObject, fields, title, type, action) {
         action !== "edit" && action !== "create" && "disabled"
       } ${field === "id" && "readonly"}/>
                               </div>`;
-      // }
     }
   });
 

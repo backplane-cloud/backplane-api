@@ -6,7 +6,7 @@ import NavBar from "./NavBar.js";
 import TabBar from "./TabBar.js";
 import SearchBox from "./SearchBox.js";
 import UserProfile from "./UserProfile.js";
-import PlatformPicker from "./PlatformPicker.js";
+import SelectPicker from "./SelectPicker.js";
 
 // Register global error handler for HTMX
 document.body.addEventListener("htmx:error", function (event) {

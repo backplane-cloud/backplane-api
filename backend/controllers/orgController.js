@@ -22,8 +22,9 @@ const tabs = [
   "Platforms",
   "Products",
   "Apps",
-  "Cost",
   "Budgets",
+
+  "Cost",
   "Requests",
   "Templates",
   "Users",
@@ -114,7 +115,7 @@ const getOrgs = asyncHandler(async (req, res) => {
 // @access Private
 const getOrg = asyncHandler(async (req, res) => {
   //let orgId = req.user.orgId.toHexString();
-  if (req.headers.action === "create") {
+  if (req.headers?.action === "create") {
     let HTML = viewHTMXify(
       {},
       ["name", "description"],
@@ -141,12 +142,16 @@ const getOrg = asyncHandler(async (req, res) => {
     }
 
     if (org) {
-      if (req.headers.ui) {
+      if (req.headers?.ui) {
         let breadcrumbs = `orgs,${org.name}`;
         let HTML = showResource(org, tabs, breadcrumbs);
         res.send(HTML);
       } else {
-        res.status(200).json(org);
+        if (req.sync) {
+          return org;
+        } else {
+          res.status(200).json(org);
+        }
       }
     } else {
       res.status(400);

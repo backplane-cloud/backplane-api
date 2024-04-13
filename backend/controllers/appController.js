@@ -39,6 +39,8 @@ import {
   createAWSEnv,
 } from "@backplane-software/backplane-aws";
 
+import { getOrg } from "./orgController.js";
+
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
   "name",
@@ -56,13 +58,15 @@ const fields = [
 // Custom Tabs for HTMX view of resource
 const tabs = [
   "Overview",
+  "Cost",
+  "Requests",
+
+  "Repo",
+
   "Team",
   "Access",
   "Policy",
-  "Cost",
-  "Requests",
   "Environments",
-  "Repo",
 ];
 
 // @desc  Get Apps
@@ -129,10 +133,30 @@ const getApps = asyncHandler(async (req, res) => {
 // @access Private
 const getApp = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New App
+
   if (req.headers.action === "create") {
+    // Retrieve Clouds Service Providers for <select-picker>
+    let org = await getOrg({
+      sync: true,
+      params: { id: req.user.orgId.toHexString() },
+    });
+
+    let csp = org.csp.map((cloud) => {
+      return { id: cloud.provider, name: cloud.provider };
+    });
+
+    let appTemplate = org.appTemplate.map((template) => {
+      return { id: template.name, name: template.description };
+    });
+
     let HTML = viewHTMXify(
-      { user: req.user.email },
-      ["name", "cloud"],
+      {
+        user: req.user.email,
+        cloud: JSON.stringify(csp),
+        appTemplate: JSON.stringify(appTemplate),
+        label: "Cloud Platform",
+      },
+      ["name", "cloud", "appTemplate"],
       "Create App",
       "apps",
       req.headers.action
