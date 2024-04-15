@@ -2,13 +2,17 @@ import asyncHandler from "express-async-handler";
 import Platform from "../models/platformModel.js";
 import Request from "../models/requestModel.js";
 import {
-  viewHTMXify,
+  createResource,
   listResources,
   showResource,
-  resourceOverviewTab,
-} from "../htmx/HTMXify.js";
+} from "../views/resource.js";
 
-import { showCostTab } from "../htmx/tabs.js";
+import {
+  showCostTab,
+  showBudgetTab,
+  showRequestTab,
+  resourceOverviewTab,
+} from "../views/tabs.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -28,8 +32,9 @@ const tabs = [
   "Overview",
   "Products",
   "Apps",
-  "Budgets",
   "Cost",
+  "Budgets",
+
   "Requests",
 
   "Team",
@@ -96,42 +101,48 @@ const getPlatform = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New Platform
   // console.log(req.headers.action);
 
-  if (req.headers?.action === "create") {
-    let HTML = viewHTMXify(
-      {},
-      ["name", "description"],
-      "Create Platform",
-      "platforms",
-      req.headers.action
-    );
-    res.send(HTML);
-  } else {
-    const platform = await Platform.findById(
-      req.user?.userType != "root"
-        ? { orgId: req.user.orgId, _id: req.params.id }
-        : { _id: req.params.id }
-    );
-    if (platform) {
-      if (req.headers?.ui) {
-        let breadcrumbs = `platforms,${platform.name}`;
-        let HTML = showResource(platform, tabs, breadcrumbs);
-        // let HTML = resourceView(platform, tabs);
+  const platform = await Platform.findById(
+    req.user?.userType != "root"
+      ? { orgId: req.user.orgId, _id: req.params.id }
+      : { _id: req.params.id }
+  );
+  if (platform) {
+    if (req.headers?.ui) {
+      let breadcrumbs = `platforms,${platform.name}`;
+      let HTML = showResource(platform, tabs, breadcrumbs);
+      // let HTML = resourceView(platform, tabs);
 
-        res.send(HTML);
-      } else {
-        if (req.internal) {
-          // i.e. a call from Product Controller as part of Product Create to retrieve Platform Code and Org Code.
-          return platform;
-        } else {
-          res.status(200).json(platform);
-        }
-      }
+      res.send(HTML);
     } else {
-      //res.status(400);
-      // throw new Error("No Platforms Found");
-      res.send("No Platforms Found for Org");
+      if (req.internal) {
+        // i.e. a call from Product Controller as part of Product Create to retrieve Platform Code and Org Code.
+        return platform;
+      } else {
+        res.status(200).json(platform);
+      }
     }
+  } else {
+    //res.status(400);
+    // throw new Error("No Platforms Found");
+    res.send("No Platforms Found for Org");
   }
+});
+
+// @desc  Create Platform UI
+// @route GET /api/platforms/create
+// @access Private
+const createPlatformUI = asyncHandler(async (req, res) => {
+  // Handles return of HTMX for Create New Platform
+  // console.log(req.headers.action);
+
+  let HTML = createResource(
+    {},
+    ["name", "description"],
+    "Create Platform",
+    "platforms",
+    req.headers.action
+  );
+  res.send(HTML);
 });
 
 // @desc  Find Platform
@@ -178,7 +189,7 @@ const getPlatformOverviewTab = asyncHandler(async (req, res) => {
   console.log(req.headers.action);
 
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       ["name", "description"],
       "Create Platform",
@@ -326,18 +337,27 @@ const deletePlatform = asyncHandler(async (req, res) => {
 // @access Private
 const getPlatformRequests = asyncHandler(async (req, res) => {
   const requests = await Request.find({ requestedForId: req.params.id });
-  if (requests) {
-    res.status(200).json(requests);
+  if (requests.length != 0) {
+    if (req.headers.ui) {
+      let HTML = showRequestTab(requests);
+      res.send(HTML);
+    } else {
+      res.status(200).json(requests);
+    }
   } else {
-    res.status(400);
-    throw new Error("No Requests Found for Org");
+    if (req.headers.ui) {
+      res.send("<h1>No Requests Found</h1>");
+    } else {
+      res.status(400);
+      throw new Error("No Requests Found for Platform");
+    }
   }
 });
 
 // @desc  Get Platform Budgets
 // @route GET /api/platforms/:id/budgets
 // @access Private
-import { orgTab } from "../htmx/org.js";
+import { orgTab } from "../views/org.js";
 
 const getPlatformBudgets = asyncHandler(async (req, res) => {
   const platform = await Platform.findById(req.params.id);
@@ -347,7 +367,7 @@ const getPlatformBudgets = asyncHandler(async (req, res) => {
     console.log(budgets);
 
     if (req.headers.ui) {
-      let HTML = orgTab(
+      let HTML = showBudgetTab(
         budgets,
         ["year", "budget", "budgetAllocated", "currency"],
         req.headers.action
@@ -401,4 +421,5 @@ export {
   findPlatform,
   getPlatformBudgets,
   getPlatformCost,
+  createPlatformUI,
 };

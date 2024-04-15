@@ -267,6 +267,7 @@ import {
   getProductOverviewTab,
   findProduct,
   getProductBudgets,
+  createProductUI,
 } from "../controllers/productController.js";
 import { getApps } from "../controllers/appController.js";
 
@@ -275,6 +276,7 @@ router
   .get(protect, authz, getProducts)
   .post(protect, authz, setProduct);
 router.route("/search").get(protect, authz, findProduct);
+router.route("/create").get(protect, authz, createProductUI);
 router
   .route("/:id")
   .get(protect, authz, getProduct)

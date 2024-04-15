@@ -256,6 +256,7 @@ import {
   findPlatform,
   getPlatformBudgets,
   getPlatformCost,
+  createPlatformUI,
 } from "../controllers/platformController.js";
 
 import { getApps } from "../controllers/appController.js";
@@ -266,6 +267,7 @@ router
   .get(protect, authz, getPlatforms)
   .post(protect, authz, setPlatform);
 router.route("/search").get(protect, authz, findPlatform);
+router.route("/create").get(protect, authz, createPlatformUI); // Returns HTMX
 
 router
   .route("/:id")

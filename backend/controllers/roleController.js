@@ -1,7 +1,11 @@
 import asyncHandler from "express-async-handler";
 
 import Role from "../models/roleModel.js";
-import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
+import {
+  createResource,
+  listResources,
+  showResource,
+} from "../views/resource.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = ["name", "type", "allowActions", "orgId", "ownerId"];
@@ -47,7 +51,7 @@ const getRole = asyncHandler(async (req, res) => {
   console.log(req.headers.action);
 
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       ["name", "type", "allowActions"],
       "Create Role",
@@ -62,7 +66,7 @@ const getRole = asyncHandler(async (req, res) => {
         let breadcrumbs = `Roles,${role.name}`;
         let HTML = showResource(role, tabs, breadcrumbs);
 
-        // let HTML = viewHTMXify(
+        // let HTML = createResource(
         //   role,
         //   fields,
         //   role.name,
@@ -133,7 +137,7 @@ const setRole = asyncHandler(async (req, res) => {
   // res.status(200).json(role);
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(role, fields, role.name, "roles");
+    let HTML = createResource(role, fields, role.name, "roles");
     res.send(HTML);
   } else {
     res.status(200).json(role);
@@ -189,7 +193,7 @@ const updateRole = asyncHandler(async (req, res) => {
   }
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedOrg, fields, "Role", "roles");
+    let HTML = createResource(updatedOrg, fields, "Role", "roles");
     res.send(HTML);
   } else {
     res.status(200).json(updatedRole);

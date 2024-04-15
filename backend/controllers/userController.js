@@ -4,11 +4,11 @@ import Org from "../models/orgModel.js";
 
 import {
   registerHTMX,
-  viewHTMXify,
+  createResource,
   listResources,
   showResource,
-} from "../htmx/HTMXify.js";
-import { appshell } from "../htmx/appshell.js";
+} from "../views/resource.js";
+import { appshell } from "../views/appshell.js";
 
 import generateToken from "../utils/generateToken.js";
 
@@ -136,7 +136,7 @@ const getUser = asyncHandler(async (req, res) => {
   console.log(req.headers.action);
 
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       ["name", "email", "password", "userType"],
       "Create User",
@@ -151,7 +151,7 @@ const getUser = asyncHandler(async (req, res) => {
       if (req.headers.ui) {
         let breadcrumbs = `users,${user.name}`;
         let HTML = showResource(user, tabs, breadcrumbs);
-        // let HTML = viewHTMXify(
+        // let HTML = createResource(
         //   user,
         //   fields,
         //   user.name,
@@ -342,7 +342,7 @@ const createUser = asyncHandler(async (req, res) => {
     generateToken(res, user._id);
 
     if (req.headers.ui) {
-      let HTML = viewHTMXify(user, fields, user.name, "users");
+      let HTML = createResource(user, fields, user.name, "users");
       res.send(HTML);
     } else {
       res.status(201).json({
@@ -619,7 +619,7 @@ const updateUser = asyncHandler(async (req, res) => {
     const updatedUser = await user.save();
 
     if (req.headers.ui) {
-      let HTML = viewHTMXify(updatedUser, fields, "User", "users");
+      let HTML = createResource(updatedUser, fields, "User", "users");
       res.send(HTML);
     } else {
       res.status(200).json({

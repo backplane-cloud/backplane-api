@@ -297,10 +297,12 @@ import {
   getAppEnvironments,
   getAppOverview,
   findApp,
+  createAppUI,
 } from "../controllers/appController.js";
 
 router.route("/").get(protect, authz, getApps).post(protect, authz, setApp);
 router.route("/search").get(protect, authz, findApp);
+router.route("/create").get(protect, authz, createAppUI);
 router
   .route("/:id")
   .get(protect, authz, getApp)

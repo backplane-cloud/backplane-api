@@ -22,9 +22,9 @@ const tabs = [
   "Platforms",
   "Products",
   "Apps",
+  "Cost",
   "Budgets",
 
-  "Cost",
   "Requests",
   "Templates",
   "Users",
@@ -36,15 +36,19 @@ const tabs = [
 ];
 
 import {
-  viewHTMXify,
+  createResource,
   listResources,
   showResource,
+} from "../views/resource.js";
+
+import { orgCloudCredentialsTab, orgTab } from "../views/org.js";
+
+import {
+  showCostTab,
+  showBudgetTab,
+  showRequestTab,
   resourceOverviewTab,
-} from "../htmx/HTMXify.js";
-
-import { orgCloudCredentialsTab, orgTab } from "../htmx/org.js";
-
-import { showCostTab } from "../htmx/tabs.js";
+} from "../views/tabs.js";
 
 // @desc  Get Orgs
 // @route GET /api/orgs
@@ -115,49 +119,55 @@ const getOrgs = asyncHandler(async (req, res) => {
 // @access Private
 const getOrg = asyncHandler(async (req, res) => {
   //let orgId = req.user.orgId.toHexString();
-  if (req.headers?.action === "create") {
-    let HTML = viewHTMXify(
-      {},
-      ["name", "description"],
-      "Create Organisation",
-      "orgs",
-      req.headers.action
-    );
-    res.send(HTML);
+
+  let org;
+
+  if (req.params.id.length === 24) {
+    org = await Org.findById(req.params.id);
+
+    // if (org) {
+    //   res.status(200).json(org);
+    // } else {
+    //   res.send("Org not found");
+    //   res.status(400);
+    //   throw new Error("No Orgs Found");
+    // }
   } else {
-    let org;
-
-    if (req.params.id.length === 24) {
-      org = await Org.findById(req.params.id);
-
-      // if (org) {
-      //   res.status(200).json(org);
-      // } else {
-      //   res.send("Org not found");
-      //   res.status(400);
-      //   throw new Error("No Orgs Found");
-      // }
-    } else {
-      org = await Org.findOne({ code: req.params.id });
-    }
-
-    if (org) {
-      if (req.headers?.ui) {
-        let breadcrumbs = `orgs,${org.name}`;
-        let HTML = showResource(org, tabs, breadcrumbs);
-        res.send(HTML);
-      } else {
-        if (req.sync) {
-          return org;
-        } else {
-          res.status(200).json(org);
-        }
-      }
-    } else {
-      res.status(400);
-      throw new Error("No Orgs Found");
-    }
+    org = await Org.findOne({ code: req.params.id });
   }
+
+  if (org) {
+    if (req.headers?.ui) {
+      let breadcrumbs = `orgs,${org.name}`;
+      let HTML = showResource(org, tabs, breadcrumbs);
+      res.send(HTML);
+    } else {
+      if (req.sync) {
+        return org;
+      } else {
+        res.status(200).json(org);
+      }
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Orgs Found");
+  }
+});
+
+// @desc  Create Org UI
+// @route GET /api/orgs/create
+// @access Private
+const createOrgUI = asyncHandler(async (req, res) => {
+  //let orgId = req.user.orgId.toHexString();
+
+  let HTML = createResource(
+    {},
+    ["name", "description"],
+    "Create Organisation",
+    "orgs",
+    req.headers.action
+  );
+  res.send(HTML);
 });
 
 // @desc  Get Cloud Credentials
@@ -203,7 +213,7 @@ const getOrgCloud = asyncHandler(async (req, res) => {
         fields = ["provider", "clientId", "clientSecret"];
     }
 
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       fields,
       `Add ${cloud.toUpperCase()} Credentials`,
@@ -263,7 +273,7 @@ const deleteOrgCloud = asyncHandler(async (req, res) => {
 
   //let orgId = req.user.orgId.toHexString();
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       ["name", "description"],
       "Create Organisation",
@@ -497,7 +507,7 @@ const addOrgCloud = asyncHandler(async (req, res) => {
 const getOrgOverviewTab = asyncHandler(async (req, res) => {
   //let orgId = req.user.orgId.toHexString();
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       ["name", "description"],
       "Create Organisation",
@@ -768,11 +778,20 @@ const deleteOrg = asyncHandler(async (req, res) => {
 // @access Private
 const getOrgRequests = asyncHandler(async (req, res) => {
   const requests = await Request.find({ orgId: req.params.id });
-  if (requests) {
-    res.status(200).json(requests);
+  if (requests.length != 0) {
+    if (req.headers.ui) {
+      let HTML = showRequestTab(requests);
+      res.send(HTML);
+    } else {
+      res.status(200).json(requests);
+    }
   } else {
-    res.status(400);
-    throw new Error("No Requests Found for Org");
+    if (req.headers.ui) {
+      res.send("<h1>No Requests Found</h1>");
+    } else {
+      res.status(400);
+      throw new Error("No Requests Found for Org");
+    }
   }
 });
 
@@ -811,7 +830,7 @@ const getOrgBudgets = asyncHandler(async (req, res) => {
     let budgets = org.budget;
 
     if (req.headers.ui) {
-      let HTML = orgTab(
+      let HTML = showBudgetTab(
         budgets,
         ["year", "budget", "budgetAllocated", "currency"],
         req.headers.action
@@ -872,4 +891,5 @@ export {
   getOrgTemplates,
   getOrgBudgets,
   getOrgCost,
+  createOrgUI,
 };

@@ -3,7 +3,11 @@ import asyncHandler from "express-async-handler";
 import Assignment from "../models/assignmentModel.js";
 import Team from "../models/teamModel.js";
 
-import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
+import {
+  createResource,
+  listResources,
+  showResource,
+} from "../views/resource.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -53,7 +57,7 @@ const getAssignment = asyncHandler(async (req, res) => {
   console.log(req.headers.action);
 
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       ["type", "principal", "principalRef", "scope", "role", "expires"],
       "Create Role Assignment",
@@ -78,7 +82,7 @@ const getAssignment = asyncHandler(async (req, res) => {
 
         let HTML = showResource(assignment, tabs, breadcrumbs);
 
-        // let HTML = viewHTMXify(
+        // let HTML = createResource(
         //   assignment,
         //   fields,
         //   "Assignment",
@@ -212,7 +216,7 @@ const setAssignment = asyncHandler(async (req, res) => {
 
   // if (req?.headers?.ui !== undefined && req?.headers?.action !== "register") {
   //   // if (req.headers.ui) {
-  //   let HTML = viewHTMXify(assignment, fields, "Assignment", "assignments");
+  //   let HTML = createResource(assignment, fields, "Assignment", "assignments");
   //   res.send(HTML);
   // } else {
   // res.status(200).json(assignment);
@@ -260,7 +264,12 @@ const updateAssignment = asyncHandler(async (req, res) => {
   );
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedAssignment, fields, "Organsations", "orgs");
+    let HTML = createResource(
+      updatedAssignment,
+      fields,
+      "Organsations",
+      "orgs"
+    );
     res.send(HTML);
   } else {
     res.status(200).json(updatedAssignment);

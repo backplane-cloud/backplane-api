@@ -8,15 +8,18 @@ import Request from "../models/requestModel.js";
 import Service from "../models/serviceModel.js";
 
 import {
-  viewHTMXify,
+  createResource,
   listResources,
   showResource,
+} from "../views/resource.js";
+
+import { appEnvironments, appAccess, appPolicy } from "../views/app.js";
+
+import {
+  showCostTab,
+  showRequestTab,
   resourceOverviewTab,
-} from "../htmx/HTMXify.js";
-
-import { appEnvironments, appAccess, appPolicy } from "../htmx/app.js";
-
-import { showCostTab } from "../htmx/tabs.js";
+} from "../views/tabs.js";
 
 import {
   getAzureCost,
@@ -60,9 +63,7 @@ const tabs = [
   "Overview",
   "Cost",
   "Requests",
-
   "Repo",
-
   "Team",
   "Access",
   "Policy",
@@ -128,60 +129,97 @@ const getApps = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Create App UI
+// @route GET /api/apps/create
+// @access Private
+const createAppUI = asyncHandler(async (req, res) => {
+  // Handles return of HTMX for Create New App
+
+  // Retrieve Clouds Service Providers and App Templates for <select-picker>
+  let org = await getOrg({
+    sync: true,
+    params: { id: req.user.orgId.toHexString() },
+  });
+
+  let csp = org.csp.map((cloud) => {
+    return { id: cloud.provider, name: cloud.provider };
+  });
+
+  let appTemplate = org.appTemplate.map((template) => {
+    return { id: template.name, name: template.description };
+  });
+
+  let HTML = createResource(
+    {
+      user: req.user.email,
+      cloud: { collection: JSON.stringify(csp), label: "Cloud Platform" },
+      appTemplate: {
+        collection: JSON.stringify(appTemplate),
+        label: "Template",
+      },
+    },
+    ["name", "cloud", "appTemplate"],
+    "Create App",
+    "apps",
+    req.headers.action
+  );
+  res.send(HTML);
+});
+
 // @desc  Get App
 // @route GET /api/apps/:id
 // @access Private
 const getApp = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New App
 
-  if (req.headers.action === "create") {
-    // Retrieve Clouds Service Providers for <select-picker>
-    let org = await getOrg({
-      sync: true,
-      params: { id: req.user.orgId.toHexString() },
-    });
+  // if (req.headers.action === "create") {
+  //   // Retrieve Clouds Service Providers for <select-picker>
+  //   let org = await getOrg({
+  //     sync: true,
+  //     params: { id: req.user.orgId.toHexString() },
+  //   });
 
-    let csp = org.csp.map((cloud) => {
-      return { id: cloud.provider, name: cloud.provider };
-    });
+  //   let csp = org.csp.map((cloud) => {
+  //     return { id: cloud.provider, name: cloud.provider };
+  //   });
 
-    let appTemplate = org.appTemplate.map((template) => {
-      return { id: template.name, name: template.description };
-    });
+  //   let appTemplate = org.appTemplate.map((template) => {
+  //     return { id: template.name, name: template.description };
+  //   });
 
-    let HTML = viewHTMXify(
-      {
-        user: req.user.email,
-        cloud: { collection: JSON.stringify(csp), label: "Cloud Platform" },
-        appTemplate: {
-          collection: JSON.stringify(appTemplate),
-          label: "Template",
-        },
-      },
-      ["name", "cloud", "appTemplate"],
-      "Create App",
-      "apps",
-      req.headers.action
-    );
-    res.send(HTML);
-  } else {
-    const app = await App.findById(req.params.id);
+  //   let HTML = createResource(
+  //     {
+  //       user: req.user.email,
+  //       cloud: { collection: JSON.stringify(csp), label: "Cloud Platform" },
+  //       appTemplate: {
+  //         collection: JSON.stringify(appTemplate),
+  //         label: "Template",
+  //       },
+  //     },
+  //     ["name", "cloud", "appTemplate"],
+  //     "Create App",
+  //     "apps",
+  //     req.headers.action
+  //   );
+  //   res.send(HTML);
+  // } else {
+  const app = await App.findById(req.params.id);
 
-    if (app) {
-      console.log("headers", req.headers);
-      if (req.headers.ui) {
-        let breadcrumbs = `apps,${app.name}`;
-        let HTML = showResource(app, tabs, breadcrumbs);
-        // let HTML = resourceView(app, tabs);
-        res.send(HTML);
-      } else {
-        res.status(200).json(app);
-      }
+  if (app) {
+    console.log("headers", req.headers);
+    if (req.headers.ui) {
+      let breadcrumbs = `apps,${app.name}`;
+      let HTML = showResource(app, tabs, breadcrumbs);
+      // let HTML = resourceView(app, tabs);
+      res.send(HTML);
     } else {
-      res.status(400);
-      throw new Error("No Apps Found");
+      res.status(200).json(app);
     }
+  } else {
+    res.status(400);
+    throw new Error("No Apps Found");
   }
+  // }
 });
 
 // @desc  Find Apps
@@ -261,11 +299,21 @@ const getAppOverview = asyncHandler(async (req, res) => {
 // @access Private
 const getAppRequests = asyncHandler(async (req, res) => {
   const requests = await Request.find({ requestedForId: req.params.id });
-  if (requests) {
-    res.status(200).json(requests);
+  console.log(requests);
+  if (requests.length != 0) {
+    if (req.headers.ui) {
+      let HTML = showRequestTab(requests);
+      res.send(HTML);
+    } else {
+      res.status(200).json(requests);
+    }
   } else {
-    res.status(400);
-    throw new Error("No Requests Found for App");
+    if (req.headers.ui) {
+      res.send("<h1>No Requests Found</h1>");
+    } else {
+      res.status(400);
+      throw new Error("No Requests Found for App");
+    }
   }
 });
 
@@ -945,4 +993,5 @@ export {
   getAppEnvironments,
   getAppOverview,
   findApp,
+  createAppUI,
 };

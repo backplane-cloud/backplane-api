@@ -38,7 +38,7 @@ export async function syncAppCost() {
         let currentCostHistory = app.cost; // retrieve the current cost array
 
         let getLastCost =
-          currentCostHistory[currentCostHistory.length - 1].cost;
+          currentCostHistory[currentCostHistory.length - 1]?.cost;
 
         getLastCost
           ? currentCostHistory.push({ cost: getLastCost + parseInt(newCost) })

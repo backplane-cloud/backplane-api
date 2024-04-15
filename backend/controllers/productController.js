@@ -13,13 +13,17 @@ import { Backlog } from "../models/backlogModel.js";
 import { getPlatforms, getPlatform } from "./platformController.js";
 
 import {
-  viewHTMXify,
+  createResource,
   listResources,
   showResource,
-  resourceOverviewTab,
-} from "../htmx/HTMXify.js";
+} from "../views/resource.js";
 
-import { showCostTab } from "../htmx/tabs.js";
+import {
+  showCostTab,
+  showBudgetTab,
+  showRequestTab,
+  resourceOverviewTab,
+} from "../views/tabs.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
@@ -39,8 +43,9 @@ const fields = [
 const tabs = [
   "Overview",
   "Apps",
-  "Budgets",
   "Cost",
+  "Budgets",
+
   "Requests",
   "Backlog",
 
@@ -113,54 +118,59 @@ const getProducts = asyncHandler(async (req, res) => {
 const getProduct = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New Product
 
-  if (req.headers.action === "create") {
-    // Retrieve Platforms for <select-picker>
-    let platforms = await getPlatforms({
-      sync: true,
-      headers: { filter: "orgs", filterid: req.user.orgId.toHexString() },
-    });
+  const product = await Product.findById(
+    req.user.userType != "root"
+      ? { orgId: req.user.orgId, _id: req.params.id }
+      : { _id: req.params.id }
+  );
 
-    let platformPicker = platforms.map((platform) => {
-      return {
-        id: platform.id,
-        name: platform.name,
-      };
-    });
-
-    let HTML = viewHTMXify(
-      {
-        platforms: {
-          collection: JSON.stringify(platformPicker),
-          label: "Platform",
-        },
-      },
-      ["name", "description", "platformId"],
-      "Create Product",
-      "products",
-      req.headers.action
-    );
-    res.send(HTML);
-  } else {
-    const product = await Product.findById(
-      req.user.userType != "root"
-        ? { orgId: req.user.orgId, _id: req.params.id }
-        : { _id: req.params.id }
-    );
-
-    if (product) {
-      if (req.headers.ui) {
-        let breadcrumbs = `products,${product.name}`;
-        let HTML = showResource(product, tabs, breadcrumbs);
-        res.send(HTML);
-      } else {
-        res.status(200).json(product);
-      }
+  if (product) {
+    if (req.headers.ui) {
+      let breadcrumbs = `products,${product.name}`;
+      let HTML = showResource(product, tabs, breadcrumbs);
+      res.send(HTML);
     } else {
-      // res.status(400);
-      // throw new Error("No Products Found");
-      res.send("No Products found matching ID for this Org");
+      res.status(200).json(product);
     }
+  } else {
+    // res.status(400);
+    // throw new Error("No Products Found");
+    res.send("No Products found matching ID for this Org");
   }
+});
+
+// @desc  Create Product UI
+// @route GET /api/products/create
+// @access Private
+const createProductUI = asyncHandler(async (req, res) => {
+  // Handles return of HTMX for Create New Product
+
+  // Retrieve Platforms for <select-picker>
+  let platforms = await getPlatforms({
+    sync: true,
+    headers: { filter: "orgs", filterid: req.user.orgId.toHexString() },
+  });
+
+  let platformPicker = platforms.map((platform) => {
+    return {
+      id: platform.id,
+      name: platform.name,
+    };
+  });
+
+  let HTML = createResource(
+    {
+      platforms: {
+        collection: JSON.stringify(platformPicker),
+        label: "Platform",
+      },
+    },
+    ["name", "description", "platformId"],
+    "Create Product",
+    "products",
+    req.headers.action
+  );
+  res.send(HTML);
 });
 
 // @desc  Find Products
@@ -206,7 +216,7 @@ const getProductOverviewTab = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New Product
 
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       ["name", "description", "platformId"],
       "Create Product",
@@ -514,18 +524,27 @@ const getProductCost = asyncHandler(async (req, res) => {
 // @access Private
 const getProductRequests = asyncHandler(async (req, res) => {
   const requests = await Request.find({ requestedForId: req.params.id });
-  if (requests) {
-    res.status(200).json(requests);
+  if (requests.length != 0) {
+    if (req.headers.ui) {
+      let HTML = showRequestTab(requests);
+      res.send(HTML);
+    } else {
+      res.status(200).json(requests);
+    }
   } else {
-    res.status(400);
-    throw new Error("No Requests Found for Org");
+    if (req.headers.ui) {
+      res.send("<h1>No Requests Found</h1>");
+    } else {
+      res.status(400);
+      throw new Error("No Requests Found for /oridyct");
+    }
   }
 });
 
 // @desc  Get Product Budgets
 // @route GET /api/products/:id/budgets
 // @access Private
-import { orgTab } from "../htmx/org.js";
+import { orgTab } from "../views/org.js";
 
 const getProductBudgets = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
@@ -535,9 +554,9 @@ const getProductBudgets = asyncHandler(async (req, res) => {
     console.log(budgets);
 
     if (req.headers.ui) {
-      let HTML = orgTab(
+      let HTML = showBudgetTab(
         budgets,
-        ["year", "budget", "budgetAllocated", "currency"],
+        ["year", "budget", "currency"],
         req.headers.action
       );
       res.send(HTML);
@@ -565,4 +584,5 @@ export {
   getProductOverviewTab,
   findProduct,
   getProductBudgets,
+  createProductUI,
 };

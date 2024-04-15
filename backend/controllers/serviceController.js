@@ -2,7 +2,11 @@ import asyncHandler from "express-async-handler";
 
 import Service from "../models/serviceModel.js";
 
-import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
+import {
+  createResource,
+  listResources,
+  showResource,
+} from "../views/resource.js";
 // These fields determine what to display on HTMX responses from Backplane UI
 
 const fields = ["name", "description", "url", "apikey", "ownerId"];
@@ -43,7 +47,7 @@ const getService = asyncHandler(async (req, res) => {
   console.log("req action", req.headers.action);
 
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       fields,
       "Create Service",
@@ -58,7 +62,7 @@ const getService = asyncHandler(async (req, res) => {
         let breadcrumbs = `services,${service.name}`;
         let HTML = showResource(service, tabs, breadcrumbs);
 
-        // let HTML = viewHTMXify(
+        // let HTML = createResource(
         //   service,
         //   fields,
         //   service.name,
@@ -99,7 +103,7 @@ const setService = asyncHandler(async (req, res) => {
   });
   console.log(req.body);
   if (req.headers.ui) {
-    let HTML = viewHTMXify(service, fields, service.name, "services");
+    let HTML = createResource(service, fields, service.name, "services");
     res.send(HTML);
   } else {
     res.status(200).json(service);
@@ -126,7 +130,7 @@ const updateService = asyncHandler(async (req, res) => {
   );
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedService, fields, "Service", "services");
+    let HTML = createResource(updatedService, fields, "Service", "services");
     res.send(HTML);
   } else {
     res.status(200).json(updatedService);

@@ -2,7 +2,11 @@ import asyncHandler from "express-async-handler";
 
 import Team from "../models/teamModel.js";
 import User from "../models/userModel.js";
-import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
+import {
+  createResource,
+  listResources,
+  showResource,
+} from "../views/resource.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = ["name", "code", "members", "scope", "ownerId", "orgId"];
@@ -38,7 +42,7 @@ const getTeam = asyncHandler(async (req, res) => {
   console.log(req.headers.ui);
 
   if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
+    let HTML = createResource(
       {},
       ["name", "description", "scope"],
       "Create Team",
@@ -85,7 +89,7 @@ const setTeam = asyncHandler(async (req, res) => {
   // res.status(200).json(team);
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(team, fields, team.name, "teams");
+    let HTML = createResource(team, fields, team.name, "teams");
     res.send(HTML);
   } else {
     res.status(200).json(team);
@@ -116,7 +120,7 @@ const updateTeam = asyncHandler(async (req, res) => {
   });
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedTeam, fields, "Team", "teams");
+    let HTML = createResource(updatedTeam, fields, "Team", "teams");
     res.send(HTML);
   } else {
     res.status(200).json(updatedTeam);

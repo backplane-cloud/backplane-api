@@ -19,15 +19,12 @@ function listResources(resources, fields, title, type, showbreadcrumb) {
     <search-box type="${type}" title="${title}" size="w-96"></search-box>
     </div>
     <div>
-    
-    <button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onclick="my_modal_1.showModal()"  hx-get="/api/${type}/create" hx-target="#my_modal" hx-headers='{"ui": true, "action": "create"}'>Create ${type.slice(
+      <button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onclick="my_modal_1.showModal()"  hx-get="/api/${type}/create" hx-target="#my_modal" hx-headers='{"ui": true, "action": "create"}'>Create ${type.slice(
     0,
     type.length - 1
   )}</button>
-
       <dialog id="my_modal_1" class="modal">    
-      <div class="modal-box w-4/12 max-w-5xl" id="my_modal">
-      </div>
+        <div class="modal-box w-4/12 max-w-5xl" id="my_modal"></div>
       </dialog>
     </div>
   </div>
@@ -51,11 +48,14 @@ function showResource(resource, tabs, breadcrumbs) {
     </div>
     <div>
       <h1 class="mb-5 text-2xl font-bold tracking-tight text-gray-900">
-      ${resource.name}
+      ${resource.name || resource.type}
         </h1>
     </div>
+    
     <div class="mb-5">
-      <tab-bar menu='${tabs}' type="${resource.type}" resourceId="${resource.id}" target='resource-content'></tab-bar>
+      <tab-bar menu='${tabs}' type="${resource.type}" resourceId="${
+    resource.id
+  }" target='resource-content'></tab-bar>
     </div>
   
 
@@ -67,7 +67,7 @@ function showResource(resource, tabs, breadcrumbs) {
   return html;
 }
 
-function viewHTMXify(jsonObject, fields, title, type, action) {
+function createResource(jsonObject, fields, title, type, action) {
   console.log("action", action);
   let html = `
       <div class="">
@@ -252,64 +252,4 @@ class="mt-0"
   return HTML;
 }
 
-function resourceOverviewTab(resource, fields, action) {
-  let edit = action === "edit" && true;
-  console.log("edit", edit);
-
-  let HTML;
-
-  HTML = `
-  <form class="space-y-6" action="#"> 
-  
-  `;
-
-  edit
-    ? (HTML += `<button hx-put='/api/${resource.type}s/${resource.id}' hx-target='#resource-content' hx-headers='{"ui": true}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save</button>
-    <button hx-get='/api/${resource.type}s/${resource.id}/overview' hx-target='#resource-content' hx-headers='{"ui": true, "action": "cancel"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Cancel</button>
-    <button hx-confirm="Are you sure?" hx-delete="/api/${resource.type}s/${resource.id}" hx-target="#display-content" hx-headers='{"ui": true, "action": "delete"}'class="m-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Delete</button>    
-    <button hx-confirm="Are you sure?" hx-put="/api/${resource.type}s/${resource.id}/disable" hx-target="#display-content" hx-headers='{"ui": true, "action": "disable"}'class="m-3 text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Disable</button>    `)
-    : (HTML += `<button hx-get='/api/${resource.type}s/${resource.id}/overview' hx-target='#resource-content' hx-headers='{"ui": true, "action": "edit"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Edit</button>
-    
-    `);
-
-  HTML += `
-  <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-
-    <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-    
-    <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">`;
-
-  let editFields = fields.filter(
-    (field) => field !== "cost" && field !== "utilisation"
-  );
-  editFields.map((field) => {
-    let value;
-    if (field === "cloud") {
-      value = `<img src='img/${resource[field]}.png' />`;
-    } else {
-      value = edit
-        ? `<input class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name='${field}' id='${field}' value='${
-            resource[field] === undefined ? "" : resource[field]
-          }' />`
-        : resource[field];
-    }
-
-    HTML += `</form>
-            <div class="p-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt class="ml-5 text-sm font-medium leading-6 text-gray-900">${field}</dt>
-              <dd class="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">${value}</dd>
-          </div>`;
-  });
-
-  HTML += "</div>";
-
-  return HTML;
-}
-
-export {
-  listResources,
-  showResource,
-  viewHTMXify,
-  registerHTMX,
-  resourceOverviewTab,
-};
+export { listResources, showResource, createResource, registerHTMX };
