@@ -16,9 +16,7 @@ const fields = [
 ];
 const tabs = [
   "Overview",
-  "Azure",
-  "GCP",
-  "AWS",
+
   "Platforms",
   "Products",
   "Apps",
@@ -31,8 +29,9 @@ const tabs = [
   "Teams",
   "Assignments",
   "Roles",
-  "Access",
-  "Policy",
+  "Azure",
+  "GCP",
+  "AWS",
 ];
 
 import {
