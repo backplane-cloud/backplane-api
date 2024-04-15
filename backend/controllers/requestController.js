@@ -10,18 +10,26 @@ import Product from "../models/productModel.js";
 import Platform from "../models/platformModel.js";
 import Org from "../models/orgModel.js";
 
-import { viewHTMXify, listResources, showResource } from "../htmx/HTMXify.js";
+import {
+  createResource,
+  listResources,
+  showResource,
+} from "../views/resource.js";
+
+import { resourceOverviewTab } from "../views/tabs.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
-  "id",
-  "requestType",
+  "_id",
   "orgId",
+  "type",
+  "requestType",
   "data",
   "approvalCode",
   "approver",
   "requestedBy",
   "requestedForType",
+  "requestedForId",
   "approvalStatus",
 ];
 
@@ -36,12 +44,13 @@ const events = new EventEmitter();
 events.on("approvalRequest", async function (id, approvalStatus, data) {
   // Get Request
   const request = await Request.findById(id);
-
+  console.log("Approval Request Received for");
   // Get Requester
   const requester = await User.findById(request.requestedBy);
-
+  console.log("Approval Status:", request.approvalStatus);
   if (request.approvalStatus === "approved") {
     // REQUEST - LINK
+    console.log("Request is approved");
 
     if (request.requestType === "link") {
       // Add the App ID to Product.apps
@@ -63,7 +72,10 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
 
     // REQUEST - BUDGET
     if (request.requestType === "budget") {
+      console.log("Request for Budget");
       if (request.requestedForType === "product") {
+        console.log("Request for Product Budget");
+
         const product = await Product.findById(request.requestedForId);
         const platform = await Platform.findById(product.platformId);
 
@@ -127,7 +139,7 @@ events.on("approvalRequest", async function (id, approvalStatus, data) {
 
           // Add Budget to Platform
           const budget = {
-            year: "2023",
+            year: "2024",
             budget: request.data,
             currency: "USD",
             budgetAllocated: 0,
@@ -247,49 +259,55 @@ const getRequests = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc  Get Request
+// @desc  Get  a Request
 // @route GET /api/requests/:id
 // @access Private
 const getRequest = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New Request
   console.log(req.headers.action);
 
-  if (req.headers.action === "create") {
-    let HTML = viewHTMXify(
-      {},
-      ["requestType", "requestedForType", "requestedForId", "appId"],
-      "Create Request",
-      "requests",
-      req.headers.action
-    );
-    res.send(HTML);
-  } else {
-    const request = await Request.findById(req.params.id);
-    if (request) {
-      // Need to update Request model with 'type' to replace requestType for consistency.
-      let xrequest = {
-        ...request,
-        type: "request",
-      };
-      if (req.headers.ui) {
-        let breadcrumbs = `requests,${xrequest.requestType}`;
-        let HTML = showResource(xrequest, tabs, breadcrumbs);
-        // let HTML = viewHTMXify(
-        //   request,
-        //   fields,
-        //   "Request",
-        //   "requests",
-        //   req.headers.action
-        // );
-        res.send(HTML);
-      } else {
-        res.status(200).json(request);
-      }
+  const request = await Request.findById(req.params.id);
+  if (request) {
+    // Need to update Request model with 'type' to replace requestType for consistency.
+    // let xrequest = {
+    //   ...request,
+    //   type: "request",
+    // };
+    if (req.headers.ui) {
+      let breadcrumbs = `requests,${request.requestType}`;
+      let HTML = showResource(request, tabs, breadcrumbs);
+      // let HTML = createResource(
+      //   request,
+      //   fields,
+      //   "Request",
+      //   "requests",
+      //   req.headers.action
+      // );
+      res.send(HTML);
     } else {
-      res.status(400);
-      throw new Error("No Requests Found");
+      res.status(200).json(request);
     }
+  } else {
+    res.status(400);
+    throw new Error("No Requests Found");
   }
+});
+
+// @desc  Create Request UI
+// @route GET /api/requests/create
+// @access Private
+const createRequestUI = asyncHandler(async (req, res) => {
+  // Handles return of HTMX for Create New Request
+  console.log(req.headers.action);
+
+  let HTML = createResource(
+    {},
+    ["requestType", "requestedForType", "requestedForId", "data"],
+    "Create Request",
+    "requests",
+    req.headers.action
+  );
+  res.send(HTML);
 });
 
 // @desc  Get My Requests
@@ -345,6 +363,8 @@ const setRequest = asyncHandler(async (req, res) => {
     orgId,
     approvalCode,
     approver: approver.ownerId,
+    type: "request",
+    approvalStatus: "pending",
   });
 
   // Raising FirstEvent
@@ -360,7 +380,10 @@ const setRequest = asyncHandler(async (req, res) => {
   // res.status(200).json(request);
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(request, fields, "Request", "requests");
+    // let HTML = createResource(request, fields, "Request", "requests");
+    // res.send(HTML);
+    let breadcrumbs = `requests,${request.id}`;
+    let HTML = showResource(request, tabs, breadcrumbs);
     res.send(HTML);
   } else {
     res.status(200).json(request);
@@ -386,7 +409,7 @@ const updateRequest = asyncHandler(async (req, res) => {
   // res.status(200).json(updatedRequest);
 
   if (req.headers.ui) {
-    let HTML = viewHTMXify(updatedRequest, fields, "Request", "requests");
+    let HTML = createResource(updatedRequest, fields, "Request", "requests");
     res.send(HTML);
   } else {
     res.status(200).json(updatedRequest);
@@ -485,6 +508,26 @@ const deleteRequest = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get Request Overview Tab
+// @route GET /api/requests/:id/overview
+// @access Private
+const getRequestOverviewTab = asyncHandler(async (req, res) => {
+  console.log("id = ", req.params.id);
+  const request = await Request.findById(req.params.id);
+  console.log(request);
+  if (request) {
+    if (req.headers.ui) {
+      let HTML = resourceOverviewTab(request, fields, req.headers.action);
+      res.send(HTML);
+    } else {
+      res.status(200).json(app);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Requests Found");
+  }
+});
+
 export {
   getRequest,
   getRequests,
@@ -494,4 +537,6 @@ export {
   approveRequest,
   rejectRequest,
   getMyRequests,
+  createRequestUI,
+  getRequestOverviewTab,
 };
