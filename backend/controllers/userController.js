@@ -10,6 +10,8 @@ import {
 } from "../views/resource.js";
 import { appshell } from "../views/appshell.js";
 
+import { resourceOverviewTab } from "../views/tabs.js";
+
 import generateToken from "../utils/generateToken.js";
 
 import nodemailer from "nodemailer";
@@ -658,6 +660,24 @@ const deleteUser = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get User Overview
+// @route GET /api/users/:id/overview
+// @access Private
+const getUserOverview = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (user) {
+    if (req.headers.ui) {
+      let HTML = resourceOverviewTab(user, fields, req.headers.action);
+      res.send(HTML);
+    } else {
+      res.status(200).json(app);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Users Found");
+  }
+});
+
 export {
   getUser,
   getUsers,
@@ -672,4 +692,5 @@ export {
   createUser,
   checkAuth,
   registerUserUI,
+  getUserOverview,
 };

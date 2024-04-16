@@ -9,6 +9,8 @@ import {
   showResource,
 } from "../views/resource.js";
 
+import { resourceOverviewTab } from "../views/tabs.js";
+
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
   "id",
@@ -295,6 +297,24 @@ const deleteAssignment = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get Assignment Overview
+// @route GET /api/assignments/:id/overview
+// @access Private
+const getAssignmentOverviewTab = asyncHandler(async (req, res) => {
+  const assignment = await Assignment.findById(req.params.id);
+  if (assignment) {
+    if (req.headers.ui) {
+      let HTML = resourceOverviewTab(assignment, fields, req.headers.action);
+      res.send(HTML);
+    } else {
+      res.status(200).json(app);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Users Found");
+  }
+});
+
 export {
   getAssignment,
   getAssignments,
@@ -303,4 +323,5 @@ export {
   deleteAssignment,
   getUserAssignments, // For AuthZ Middleware
   getTeamAssignments, // For AuthZ Middleware
+  getAssignmentOverviewTab,
 };

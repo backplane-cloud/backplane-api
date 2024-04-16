@@ -30,10 +30,10 @@ function appshell(name, email, orgId, userType) {
       
       <div class="bg-white shadow flex  justify-between items-center">
         <div>     
-          <nav-bar target='display-content' menu="Orgs,Platforms,Products,Apps,Requests,Services"></nav-bar>
+          <nav-bar target='display-content' menu="Orgs,Platforms,Products,Apps,Requests,Services,Users,Roles,Assignments,Teams"></nav-bar>
         </div>
         <div>
-          <h1 class="mr-10 align-start text-2xl font-bold tracking-tight text-gray-900">Admin Console</h1>
+          <h1 class="mr-10 align-start text-2xl font-bold tracking-tight text-gray-900">Management Console</h1>
         </div>
       </div>
 

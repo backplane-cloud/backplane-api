@@ -237,6 +237,7 @@ import {
   createUser,
   checkAuth,
   registerUserUI,
+  getUserOverview,
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -245,6 +246,7 @@ router.route("/check-auth").get(checkAuth);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.route("/register").get(registerUserUI).post(registerUser);
+
 router
   .route("/")
   .post(protect, authz, createUser)
@@ -255,5 +257,7 @@ router
   .get(protect, authz, getUser)
   .put(protect, authz, updateUser)
   .delete(protect, authz, deleteUser);
+
+router.route("/:id/overview").get(protect, authz, getUserOverview);
 
 export default router;

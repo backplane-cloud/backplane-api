@@ -222,6 +222,7 @@ import {
   setAssignment,
   updateAssignment,
   deleteAssignment,
+  getAssignmentOverviewTab,
 } from "../controllers/assignmentController.js";
 
 router
@@ -233,5 +234,7 @@ router
   .get(protect, authz, getAssignment)
   .put(protect, authz, updateAssignment)
   .delete(protect, authz, deleteAssignment);
+
+router.route("/:id/overview").get(protect, authz, getAssignmentOverviewTab);
 
 export default router;

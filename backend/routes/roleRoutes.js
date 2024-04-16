@@ -313,6 +313,7 @@ import {
   getRoleActions,
   updateRoleActions,
   deleteRoleActions,
+  getRoleOverview,
 } from "../controllers/roleController.js";
 
 router.route("/").get(protect, authz, getRoles).post(protect, authz, setRole);
@@ -321,6 +322,8 @@ router
   .get(protect, authz, getRole)
   .put(protect, authz, updateRole)
   .delete(protect, authz, deleteRole);
+
+router.route("/:id/overview").get(protect, authz, getRoleOverview);
 
 router
   .route("/:id/actions")

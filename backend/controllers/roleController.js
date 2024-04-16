@@ -7,6 +7,8 @@ import {
   showResource,
 } from "../views/resource.js";
 
+import { resourceOverviewTab } from "../views/tabs.js";
+
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = ["name", "type", "allowActions", "orgId", "ownerId"];
 const tabs = ["Overview"];
@@ -271,6 +273,24 @@ const deleteRole = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Get Role Overview
+// @route GET /api/roles/:id/overview
+// @access Private
+const getRoleOverview = asyncHandler(async (req, res) => {
+  const role = await Role.findById(req.params.id);
+  if (role) {
+    if (req.headers.ui) {
+      let HTML = resourceOverviewTab(role, fields, req.headers.action);
+      res.send(HTML);
+    } else {
+      res.status(200).json(role);
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Roles Found");
+  }
+});
+
 export {
   getRole,
   getRoles,
@@ -283,4 +303,5 @@ export {
   getInternalRoles,
   getInternalRoleActions,
   setInternalRole,
+  getRoleOverview,
 };
