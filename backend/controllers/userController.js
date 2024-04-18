@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import Org from "../models/orgModel.js";
+import pkg from "../../package.json" assert { type: "json" };
 
 import {
   registerHTMX,
@@ -447,9 +448,7 @@ const loginUser = asyncHandler(async (req, res) => {
     console.log(user);
 
     if (req.headers.ui) {
-      res
-        .status(200)
-        .send(appshell(user.name, user.email, user.orgId, user.userType));
+      res.status(200).send(appshell(user.name, user.email));
     } else {
       res.status(201).json({
         success: true,
@@ -545,7 +544,9 @@ const checkAuth = asyncHandler(async (req, res) => {
     // throw new Error("Not authenticated, no token");
     if (req.headers.ui) {
       // res.send(loginHTMX({ message: "Invalid Username/Password" }));
-      res.send("<login-form></login-form>");
+      res.send(
+        `<login-form version='${pkg.version}' release='${pkg.releaseName}'></login-form>`
+      );
     }
     // logger.warn(`Not authenticated, No Token`);
   }

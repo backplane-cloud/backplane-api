@@ -1,4 +1,4 @@
-function appshell(name, email, orgId, userType) {
+function appshell(name, email) {
   let html = `
 
   <div class="min-h-full" id="main-window">
@@ -56,8 +56,9 @@ function appshell(name, email, orgId, userType) {
             <img src="/img/backplane-logo-gray.svg" class="h-10" alt="Backplane Logo" />
             <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-blue text-gray-300	">Backplane</span>
         </a>
+        
       </div>
-      <div></div>
+   
       <div>
         <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
             <li>

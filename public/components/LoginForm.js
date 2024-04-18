@@ -1,6 +1,6 @@
 // This is a LoginForm Web Component
 
-const template = `
+const template = (version, release) => `
 <div id="loginSection" class="mt-32">
 
     <form class="max-w-sm mx-auto" id="loginForm"     
@@ -86,7 +86,7 @@ const template = `
         </button>
         
       </div>
-      
+      <div class="text-xs mt-5">Version: ${version}-${release}</div>
       <div class="text-red"></div>
     </form>
   </div>`;
@@ -94,11 +94,12 @@ const template = `
 export default class LoginForm extends HTMLElement {
   constructor() {
     super();
-
+    let version = this.getAttribute("version");
+    let release = this.getAttribute("release");
     // this.attachShadow({ mode: "open" });
     // this.shadowRoot.appendChild(template.content.cloneNode(true));
 
-    this.innerHTML = template;
+    this.innerHTML = template(version, release);
   }
 }
 
