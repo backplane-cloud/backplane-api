@@ -41,9 +41,15 @@ function appshell(name, email) {
 
     <main>
 
-      <div id="display-content" class="mx-auto max-w-full py-6 sm:px-6 lg:px-8">Welcome back, <span id='username'></span></div>
+      <div id="display-content" class="mx-auto max-w-full py-6 sm:px-6 lg:px-8">Welcome back, <span id='username'></span>
+      
+      </div>
       
       <span class="htmx-indicator" id="loading"><img src="img/loader.gif" class="m-auto m-10 h-10"/></span>
+     
+      <div id="terminalContainer" style="display: none" class="rounded-lg">
+        <div id="terminal"></div>
+      </div>
 
     </main>
 
@@ -58,7 +64,7 @@ function appshell(name, email) {
         </a>
         
       </div>
-   
+
       <div>
         <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
             <li>
@@ -78,12 +84,17 @@ function appshell(name, email) {
             <li>
                 <a href="https://github.com/backplane-cloud/" class="hover:underline me-4 md:me-6">GitHub</a>
             </li>
+            <li>
+                <a id="toggleTerminalBtn" class="hover:underline me-4 md:me-6">Cloud Shell</a>
+            </li>
         </ul>
       </div>
     </div>
   </footer>
   
   <script>      
+
+
     document.body.addEventListener('htmx:afterRequest', function(event) {
       if (event.detail.pathInfo.requestPath === '/api/users/logout') {
         localStorage.clear()
@@ -102,6 +113,8 @@ function appshell(name, email) {
     document.getElementById("profile").textContent = localStorage.getItem("username");
 
   </script>
+  <script src="https://unpkg.com/xterm/lib/xterm.js"></script>
+  <script src="./components/xterm.js"></script>
 `;
 
   return html;
