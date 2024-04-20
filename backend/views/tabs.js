@@ -42,14 +42,17 @@ function showCostTab(cost) {
   return HTML;
 }
 
-function showBudgetTab(budget) {
+function showBudgetTab(budget, orgId) {
   let HTML;
 
   HTML = `
   
   <h1>Budgets</h1>
     <div class="px-4 py-6 sm:grid sm:grid-cols-1 sm:gap-4 sm:px-0">
-  
+    <button hx-get='/api/orgs/${orgId}/budgets/create' onclick="my_modal_1.showModal()" hx-target="#my_modal" hx-headers='{"ui": true, "action": "create"}' class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 w-32">Set Budget</button>
+    <dialog id="my_modal_1" class="modal">
+      <div class="modal-box w-4/12 max-w-5xl" id="my_modal"></div>
+    </dialog>
       <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
       
       <ul role="list" class="divide-y divide-gray-100 rounded-md border border-gray-200">`;
@@ -68,7 +71,7 @@ function showBudgetTab(budget) {
           </thead>
           <tbody>`;
 
-  // Map through the Cost Hsitory
+  // Map through the Cost History
   budget.reverse().map((entry) => {
     let budgetValue = entry.budget ? "$" + entry.budget.toLocaleString() : "-";
     let budgetAllocated = entry.budgetAllocated
@@ -160,7 +163,6 @@ function showRequestTab(requests) {
 
 function resourceOverviewTab(resource, fields, action) {
   let edit = action === "edit" && true;
-  console.log("edit", edit);
 
   let HTML;
 

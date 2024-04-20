@@ -169,6 +169,23 @@ const createOrgUI = asyncHandler(async (req, res) => {
   res.send(HTML);
 });
 
+// @desc  Create Org Budget UI
+// @route GET /api/orgs/:id/budgets/create
+// @access Private
+const createOrgBudgetUI = asyncHandler(async (req, res) => {
+  let orgId = req.params.id; //req.user.orgId.toHexString();
+
+  let HTML = createResource(
+    {},
+    ["year", "budget", "currency"],
+    "Create Budget",
+    "orgs",
+    req.headers.action,
+    orgId
+  );
+  res.send(HTML);
+});
+
 // @desc  Get Cloud Credentials
 // @route GET /api/orgs/:id/azure | gcp | aws
 // @access Private
@@ -831,8 +848,9 @@ const getOrgBudgets = asyncHandler(async (req, res) => {
     if (req.headers.ui) {
       let HTML = showBudgetTab(
         budgets,
-        ["year", "budget", "budgetAllocated", "currency"],
-        req.headers.action
+        // ["year", "budget", "budgetAllocated", "currency"],
+        // req.headers.action,
+        org._id
       );
       res.send(HTML);
     } else {
@@ -841,6 +859,62 @@ const getOrgBudgets = asyncHandler(async (req, res) => {
   } else {
     res.status(400);
     throw new Error("No Requests Found for Org");
+  }
+});
+
+// @desc  Add Org Budget
+// @route POST /api/orgs/:id/budgets/create
+// @access Private
+
+const addOrgBudget = asyncHandler(async (req, res) => {
+  // Retrieve the Cloud from the URL
+
+  let year = req.body.year;
+
+  const org = await Org.findById(req.params.id);
+
+  if (!org) {
+    res.status(400);
+    throw new Error("Org not found");
+  }
+
+  let retain = [];
+  // Retrieve the Cloud Credentials to Retain and put in array
+  if (org.budget !== undefined) {
+    retain = org.budget.filter((item) => item.year !== year);
+  }
+
+  let budget;
+
+  budget = {
+    year: req.body.year,
+    budget: req.body.budget,
+    allocated: 0,
+    available: 0,
+    currency: req.body.currency,
+  };
+
+  retain.push(budget);
+
+  budget = retain;
+
+  let updateOrg = { org, budget };
+
+  const updatedOrg = await Org.findByIdAndUpdate(org.id, updateOrg, {
+    new: true,
+  });
+
+  if (req.headers.ui) {
+    let HTML = showBudgetTab(
+      budget,
+      // ["year", "budget", "budgetAllocated", "currency"],
+      // req.headers.action,
+      org._id
+    );
+
+    res.send(HTML);
+  } else {
+    res.status(200).json(budget);
   }
 });
 
@@ -891,4 +965,6 @@ export {
   getOrgBudgets,
   getOrgCost,
   createOrgUI,
+  createOrgBudgetUI,
+  addOrgBudget,
 };

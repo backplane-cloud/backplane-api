@@ -276,6 +276,8 @@ import {
   getOrgBudgets,
   getOrgCost,
   createOrgUI,
+  createOrgBudgetUI,
+  addOrgBudget,
 } from "../controllers/orgController.js";
 
 import { getUsers } from "../controllers/userController.js";
@@ -329,6 +331,11 @@ router.route("/:id/products").get(protect, authz, getProducts);
 router.route("/:id/apps").get(protect, authz, getApps);
 router.route("/:id/templates").get(protect, authz, getOrgTemplates);
 router.route("/:id/budgets").get(protect, authz, getOrgBudgets);
+
+router
+  .route("/:id/budgets/create")
+  .get(protect, authz, createOrgBudgetUI)
+  .post(protect, authz, addOrgBudget);
 
 router.route("/:id/requests").get(protect, authz, getOrgRequests);
 router.route("/:id/cost").get(protect, authz, getOrgCost);

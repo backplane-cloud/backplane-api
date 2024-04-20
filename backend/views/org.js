@@ -78,7 +78,6 @@ function orgCloudCredentialsTab(resource, orgId, action, cloud) {
 function orgTab(resource, fields, action) {
   console.log("Resource", resource, fields, action);
   let edit = action === "edit" && true;
-  console.log("edit", edit);
 
   let HTML = `<list-view resources='${JSON.stringify(
     resource
