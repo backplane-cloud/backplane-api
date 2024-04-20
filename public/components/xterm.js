@@ -1,5 +1,5 @@
 let term = null;
-let cliServerURL = "http://localhost:3000";
+let cliServerURL = "http://localhost:8000";
 
 document.getElementById("toggleTerminalBtn").addEventListener("click", () => {
   toggleTerminal();
@@ -75,7 +75,7 @@ function setupTerminal(terminal) {
 function executeCommand(command) {
   // Remove the "$" character from the command
   command = command.replace(/^\$/, "");
-  fetch(`${cliServerURL}/execute-command`, {
+  fetch(`${cliServerURL}/cloudshell`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -84,7 +84,7 @@ function executeCommand(command) {
   })
     .then((response) => response.text())
     .then((output) => {
-      output = output.replace(/\s+/g, "");
+      output = output.replace(/\s+/g, " ");
       output = output.replace(/\\n/g, "\n");
       term.writeln(output.trim());
       term.prompt();

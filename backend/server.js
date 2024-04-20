@@ -1,5 +1,6 @@
 import express from "express";
 // import dotenv from "dotenv";
+import { exec } from "child_process";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -95,6 +96,30 @@ export default function init(app) {
   // Handle root URL ("/") to serve index.html
   app.get("/admin", (req, res) => {
     res.sendFile(path.join(__dirname, "../public", "index.html"));
+  });
+
+  app.post("/cloudshell", (req, res) => {
+    const command = req.body.command;
+
+    console.log("Received Command:", command);
+    console.log(command.slice(0, 2));
+    if (command.trim().slice(0, 2) == "bp") {
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          res.status(500).send(error.message);
+          return;
+        }
+        if (stderr) {
+          res.status(400).send(stderr);
+          return;
+        }
+        res.send(stdout);
+      });
+    } else {
+      res.send(
+        "Only the Backplane CLI commands are allowed, e.g. bp <resource> <action>"
+      );
+    }
   });
   return;
 }
