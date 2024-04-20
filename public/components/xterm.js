@@ -29,7 +29,7 @@ function toggleTerminal() {
 
 function setupTerminal(terminal) {
   // Ensure the terminal has focus after it's opened
-  term.writeln("");
+  term.writeln(" Backplane Cloud Shell");
 
   term.focus();
   // Write the initial prompt character
