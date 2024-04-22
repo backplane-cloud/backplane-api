@@ -25,6 +25,7 @@ import appRoutes from "./routes/appRoutes.js";
 import requestRoutes from "./routes/requestRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import backlogRoutes from "./routes/backlogRoutes.js";
+import pageRoutes from "./routes/pageRoutes.js";
 
 import {
   syncAppCost,
@@ -77,6 +78,7 @@ export default function init(app) {
   app.use(cookieParser());
 
   app.use("/openapi", swaggerUI.serve, swaggerUI.setup(specs));
+  app.use("/pages", pageRoutes);
 
   app.use("/api/users", userRoutes);
   app.use("/api/teams", teamRoutes);
@@ -103,7 +105,7 @@ export default function init(app) {
 
     console.log("Received Command:", command);
     console.log(command.slice(0, 2));
-    if (command.trim().slice(0, 2) == "bp") {
+    if (command.trim().slice(0, 2) == "bp" || command.trim() === "clear") {
       exec(command, (error, stdout, stderr) => {
         if (error) {
           res.status(500).send(error.message);

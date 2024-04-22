@@ -5,6 +5,12 @@ document.getElementById("toggleTerminalBtn").addEventListener("click", () => {
   toggleTerminal();
 });
 
+document
+  .getElementById("toggleTerminalBtnMenu")
+  .addEventListener("click", () => {
+    toggleTerminal();
+  });
+
 function toggleTerminal() {
   const terminalContainer = document.getElementById("terminalContainer");
   if (terminalContainer.style.display === "none") {
@@ -29,11 +35,11 @@ function toggleTerminal() {
 
 function setupTerminal(terminal) {
   // Ensure the terminal has focus after it's opened
-  term.writeln(" Backplane Cloud Shell");
+  terminal.writeln(" Backplane Cloud Shell");
 
-  term.focus();
+  terminal.focus();
   // Write the initial prompt character
-  term.write("$ ");
+  terminal.write("$ ");
 
   terminal.onKey((e) => {
     const printable =
@@ -85,7 +91,11 @@ function executeCommand(command) {
     .then((response) => response.text())
     .then((output) => {
       output = output.replace(/\s+/g, " ");
-      output = output.replace(/\\n/g, "\n");
+      output = output.replace(/\[Object\]/g, "");
+      output = output.replace(/, ,/g, "");
+      output = output.replace(/,/g, "\r\n  ");
+      output = output.replace(/{/g, "{\r\n  ");
+      output = output.replace(/}/g, "\r\n}");
       term.writeln(output.trim());
       term.prompt();
     })
@@ -96,7 +106,7 @@ function executeCommand(command) {
 term.attachCustomKeyEventHandler((e) => {
   if (e.ctrlKey && e.key === "v") {
     navigator.clipboard.readText().then((text) => {
-      term.write(text[0]);
+      term.write(text);
     });
     return false; // Prevent default paste behavior
   } else if (e.ctrlKey && e.key === "c") {
