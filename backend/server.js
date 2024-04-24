@@ -25,7 +25,6 @@ import appRoutes from "./routes/appRoutes.js";
 import requestRoutes from "./routes/requestRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import backlogRoutes from "./routes/backlogRoutes.js";
-import pageRoutes from "./routes/pageRoutes.js";
 
 import {
   syncAppCost,
@@ -78,7 +77,6 @@ export default function init(app) {
   app.use(cookieParser());
 
   app.use("/openapi", swaggerUI.serve, swaggerUI.setup(specs));
-  app.use("/pages", pageRoutes);
 
   app.use("/api/users", userRoutes);
   app.use("/api/teams", teamRoutes);
