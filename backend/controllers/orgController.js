@@ -809,7 +809,7 @@ const updateOrg = asyncHandler(async (req, res) => {
 // @route PUT /api/orgs/:id/budgets
 // @access Private
 const setOrgBudget = asyncHandler(async (req, res) => {
-  const org = await Org.findById(req.params.id);
+  const org = await Org.findById(req.user.orgId);
 
   if (!org) {
     res.status(400);
@@ -826,7 +826,7 @@ const setOrgBudget = asyncHandler(async (req, res) => {
   console.log(budget);
 
   const updatedOrg = await Org.findByIdAndUpdate(
-    req.params.id,
+    req.user.orgId,
     { $set: { budget } },
     {
       new: true,

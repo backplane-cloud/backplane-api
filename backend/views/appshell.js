@@ -93,10 +93,7 @@ function appshell(name, email, orgId) {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
           </svg>
-          
-          
-          
-            Setup</a>
+          Setup</a>
             </li>
             <li>
             
@@ -239,8 +236,13 @@ Cost Manager</a></li>
       </div>
 
 
-      <div id="display-content" class="mx-auto max-w-full py-6 sm:px-6 lg:px-8">Welcome back, <span id='username'></span>
-      
+      <div id="display-content" class="mx-auto max-w-full py-6 sm:px-6 lg:px-8">
+      <!-- Welcome back, <span id='username'></span> -->
+      <h1 class="align-start text-2xl font-bold tracking-tight text-gray-900">Welcome to Backplane, let's get started by setting up your organisation</h1>
+      <p class="mt-10">
+      We'll begin with setting your Organisation's Budget and adding Cloud Credentials to one of the major public Cloud Providers.
+      </p>
+      <button hx-get="api/orgs/${orgId}/setup" hx-headers='{"ui": true}' hx-target='#display-content' class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Click here to get started</button>
       </div>
       
       <span class="htmx-indicator" id="loading"><img src="img/loader.gif" class="m-auto m-10 h-10"/></span>

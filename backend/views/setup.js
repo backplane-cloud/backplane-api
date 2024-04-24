@@ -8,13 +8,11 @@ function setup(orgId, budget, csp) {
     aws = csp.filter((item) => item.provider === "aws")[0];
     gcp = csp.filter((item) => item.provider === "gcp")[0];
   }
-  console.log(aws);
+
   let html = `
   <div>
-    <h1 class="align-start text-2xl font-bold tracking-tight text-gray-900">Setup your Organisation</h1>
-<p class="mt-10">
-Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to create the necessary Service Principals in your Cloud Platform.
-</p>
+    <h1 class="align-start text-2xl font-bold tracking-tight text-gray-900">Setup</h1>
+
     <div class="mt-10">
             <div class="overflow-x-auto">
             <table class="table">
@@ -41,7 +39,7 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                       </select>
                       <input type="text" placeholder="$" class="input input-bordered w-full max-w-xs" name="budget" ${
                         budget && "readonly"
-                      } value="${budget && budget[0].budget}"/>
+                      } value='${budget ? budget[0].budget : ""}'/>
                       <select class="select select-bordered max-w-xs" name="currency" ${
                         budget && "readonly"
                       }>
@@ -66,7 +64,7 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                         <div class="collapse collapse-arrow join-item border border-base-300">
                           <input type="radio" name="my-accordion-4" checked="checked" /> 
                           <div class="collapse-title text-xl font-medium">
-                            <img src='./img/azure.png' />
+                            <img src='./img/azure.svg' class='h-10' />
                           </div>
                           <div class="collapse-content"> 
                          
@@ -95,7 +93,7 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                                 }"   ${azure && "readonly"}/></td>
                               </tr>
                               <tr>
-                                <td colspan='2' class="text-right"><button class="btn btn-neutral btn-sm" type="submit"  ${
+                                <td colspan='2' class="text-right"><button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="submit"  ${
                                   azure && "disabled"
                                 }>Save</button></td>
                               </tr>
@@ -140,7 +138,7 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                         <div class="collapse collapse-arrow join-item border border-base-300">
                           <input type="radio" name="my-accordion-4" /> 
                           <div class="collapse-title text-lg font-medium">
-                          <img src='./img/aws.png' />
+                          <img src='./img/aws.svg' class='w-10' />
                           </div>
                           <div class="collapse-content"> 
                             
@@ -161,7 +159,7 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                                   }" /></td>
                                 </tr>
                                 <tr>
-                                  <td colspan='2' class="text-right"><button class="btn btn-neutral btn-sm" ${
+                                  <td colspan='2' class="text-right"><button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" ${
                                     aws && "disabled"
                                   }>Save</button></td>
                                 </tr>
@@ -178,8 +176,8 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                                       <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                     </svg>
                                   </div>
-                                  <div>
-                                    Instructions
+                                  <div class="ml-5">
+                                    Instructions for creating a Service Principal in AWS
                                   </div>
                                 </div>  
                               </summary>
@@ -225,7 +223,7 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                         <div class="collapse collapse-arrow join-item border border-base-300">
                           <input type="radio" name="my-accordion-4" /> 
                           <div class="collapse-title text-xl font-medium">
-                            <img src='./img/gcp.png' />             
+                            <img src='./img/gcp.svg' class='w-10' />             
                           </div>
                           <div class="collapse-content"> 
                             
@@ -271,7 +269,7 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                                     `
                                       : `<form id="gcpForm">
                                     <input type="file" id="fileInput" accept=".json" class="file-input file-input-bordered w-full max-w-xs" />
-                                    <button type="submit" class="text-right"><button class="btn btn-neutral btn-sm" ${
+                                    <button type="submit" class="text-right"><button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" ${
                                       gcp && "disabled"
                                     }>Save</button><div id="result"></div>
                                   </form>
@@ -284,9 +282,9 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                                       <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
                                     </svg>
                                   </div>
-                                  <div>
-                                    Instructions
-                                  </div>
+                                  <div class="ml-5">
+                                  Instructions for creating a Service Principal in GCP
+                                </div>
                                 </div>
                               </summary>
                               <div class="collapse-content"> 
@@ -369,6 +367,25 @@ Please visit <a class="link">Backplane.dev/docs</a> for instructions on how to c
                 </tr>
 
 
+                <!-- row 3 -->
+                ${
+                  (azure || aws || gcp) &&
+                  `
+                <tr>
+                  
+                  <td></td>
+                  <td>
+                    Great, now you've configured your Cloud Credentials, you can begin creating Cloud Apps. 
+
+                    <button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onclick="my_modal_1.showModal()" hx-get="/api/Apps/create" hx-target="#my_modal" hx-headers='{"ui": true, "action": "create", "returnpath": "setup"}'>Create App</button>
+                    <dialog id="my_modal_1" class="modal">    
+                    <div class="modal-box w-4/12 max-w-5xl" id="my_modal"></div>
+                  </dialog>
+                    </td>
+                  <td class="text-center"></td>
+                </tr>
+                `
+                }
       
 
          
