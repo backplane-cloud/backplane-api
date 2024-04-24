@@ -1,4 +1,4 @@
-function appshell(name, email) {
+function appshell(name, email, orgId) {
   let html = `
 
   <div class="min-h-full" id="main-window">
@@ -61,7 +61,7 @@ function appshell(name, email) {
         </div>  
   
         <div> 
-          <nav-bar target='display-content' menu="Setup"></nav-bar>
+          <nav-bar target='display-content' menu='Orgs,Platforms,Products,Apps'></nav-bar>
         </div>
       </div>
         <div>
@@ -89,12 +89,14 @@ function appshell(name, email) {
             <img src='./img/backplane-logo-black.png' class="w-10 mb-10"/>
 
             <li>
-            <a hx-get="/api/dashboard" hx-target="#display-content" hx-headers='{"ui": true}'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-            <path fill-rule="evenodd" d="M1.5 7.125c0-1.036.84-1.875 1.875-1.875h6c1.036 0 1.875.84 1.875 1.875v3.75c0 1.036-.84 1.875-1.875 1.875h-6A1.875 1.875 0 0 1 1.5 10.875v-3.75Zm12 1.5c0-1.036.84-1.875 1.875-1.875h5.25c1.035 0 1.875.84 1.875 1.875v8.25c0 1.035-.84 1.875-1.875 1.875h-5.25a1.875 1.875 0 0 1-1.875-1.875v-8.25ZM3 16.125c0-1.036.84-1.875 1.875-1.875h5.25c1.036 0 1.875.84 1.875 1.875v2.25c0 1.035-.84 1.875-1.875 1.875h-5.25A1.875 1.875 0 0 1 3 18.375v-2.25Z" clip-rule="evenodd" />
-            </svg>
+            <a hx-get="api/orgs/${orgId}/setup" hx-target="#display-content" hx-headers='{"ui": true}'>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+          </svg>
           
-            Dashboard</a>
+          
+          
+            Setup</a>
             </li>
             <li>
             

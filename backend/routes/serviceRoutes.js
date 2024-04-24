@@ -214,12 +214,15 @@ import {
   setService,
   updateService,
   deleteService,
+  createServiceUI,
 } from "../controllers/serviceController.js";
 
 router
   .route("/")
   .get(protect, authz, getServices)
   .post(protect, authz, setService);
+
+router.route("/create").get(protect, authz, createServiceUI);
 router
   .route("/:id")
   .get(protect, authz, getService)

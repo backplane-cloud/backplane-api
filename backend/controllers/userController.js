@@ -448,7 +448,7 @@ const loginUser = asyncHandler(async (req, res) => {
     console.log(user);
 
     if (req.headers.ui) {
-      res.status(200).send(appshell(user.name, user.email));
+      res.status(200).send(appshell(user.name, user.email, user.orgId));
     } else {
       res.status(201).json({
         success: true,

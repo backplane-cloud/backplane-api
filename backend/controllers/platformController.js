@@ -14,6 +14,8 @@ import {
   resourceOverviewTab,
 } from "../views/tabs.js";
 
+import { setup } from "../views/setup.js";
+
 // These fields determine what to display on HTMX responses from Backplane UI
 const fields = [
   "code",
@@ -133,14 +135,15 @@ const getPlatform = asyncHandler(async (req, res) => {
 // @access Private
 const createPlatformUI = asyncHandler(async (req, res) => {
   // Handles return of HTMX for Create New Platform
-  // console.log(req.headers.action);
-
+  // console.log(req.user.orgId.toHexString());
   let HTML = createResource(
     {},
     ["name", "description"],
     "Create Platform",
     "platforms",
-    req.headers.action
+    req.headers.action,
+    req.user.orgId,
+    req.headers.returnpath
   );
   res.send(HTML);
 });
@@ -169,9 +172,18 @@ const findPlatform = asyncHandler(async (req, res) => {
   const platforms = await Platform.find(query);
 
   if (platforms) {
+    let HTML;
     if (req.headers.ui) {
-      let HTML = listResources(platforms, fields, "Platforms", "platforms");
-      res.send(HTML);
+      if (req.headers.returnpath) {
+        switch (req.headers.returnpath) {
+          case "setup":
+            HTML = setup(orgId, budget, csp);
+            res.send(HTML);
+        }
+      } else {
+        HTML = listResources(platforms, fields, "Platforms", "platforms");
+        res.send(HTML);
+      }
     } else {
       res.status(200).json(platforms);
     }
@@ -251,10 +263,18 @@ const setPlatform = asyncHandler(async (req, res) => {
   // res.status(200).json(platform);
 
   if (req.headers.ui) {
-    let breadcrumbs = `platforms,${platform.name}`;
-    let HTML = showResource(platform, tabs, breadcrumbs);
+    let HTML;
+    if (req.headers.returnpath) {
+      switch (req.headers.returnpath) {
+        case "setup":
+          HTML = setup(req.user.orgId, false, false);
+      }
+    } else {
+      let breadcrumbs = `platforms,${platform.name}`;
+      HTML = showResource(platform, tabs, breadcrumbs);
 
-    res.send(HTML);
+      res.send(HTML);
+    }
   } else {
     res.status(200).json(platform);
   }

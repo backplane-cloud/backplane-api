@@ -156,4 +156,29 @@ const deleteService = asyncHandler(async (req, res) => {
   }
 });
 
-export { getService, getServices, setService, updateService, deleteService };
+// @desc  Create Service UI
+// @route GET /api/platforms/create
+// @access Private
+const createServiceUI = asyncHandler(async (req, res) => {
+  // Handles return of HTMX for Create New Platform
+  // console.log(req.user.orgId.toHexString());
+  let HTML = createResource(
+    {},
+    ["name", "description", "url", "apikey"],
+    "Create Service",
+    "services",
+    req.headers.action,
+    req.user.orgId,
+    req.headers.returnpath
+  );
+  res.send(HTML);
+});
+
+export {
+  getService,
+  getServices,
+  setService,
+  updateService,
+  deleteService,
+  createServiceUI,
+};

@@ -67,8 +67,16 @@ function showResource(resource, tabs, breadcrumbs) {
   return html;
 }
 
-function createResource(jsonObject, fields, title, type, action, orgId) {
-  console.log("action", action);
+function createResource(
+  jsonObject,
+  fields,
+  title,
+  type,
+  action,
+  orgId,
+  returnpath
+) {
+  console.log("returnpath", returnpath);
   let html = `
       <div class="">
         <form class="space-y-6" action="#">
@@ -126,9 +134,13 @@ function createResource(jsonObject, fields, title, type, action, orgId) {
     if (title === "Create Budget") {
       html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-post="/api/${type}/${orgId}/budgets/create" hx-target="#display-content" hx-headers='{"ui": true}'>Create</button>`;
     } else {
-      html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-post="/api/${type}" hx-target="#display-content" hx-headers='{"ui": true}'>Create</button>`;
+      html += `<button type="submit" class="m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" hx-post="/api/${type}" hx-target="#display-content" hx-headers='{"ui": true, "returnpath": "setup"}'>Create</button>`;
     }
-    html += `<button class="btn" hx-get="/api/${type}" hx-target='#display-content' hx-headers='{"ui": true}'>Close</button>`;
+    if (returnpath) {
+      html += `<button class="btn" hx-get="/api/orgs/${orgId}/setup" hx-target='#display-content' hx-headers='{"ui": true}'>Close</button>`;
+    } else {
+      html += `<button class="btn" hx-get="/api/${type}" hx-target='#display-content' hx-headers='{"ui": true}'>Close</button>`;
+    }
   } else {
     html += `<button type="submit" class="m-3 text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800" hx-get="/api/${type}/${jsonObject.id}" hx-target="#display-content" hx-headers='{"ui": true, "action": "edit"}'>Edit</button>`;
   }

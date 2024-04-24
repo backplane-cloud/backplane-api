@@ -41,6 +41,7 @@ import {
 } from "../views/resource.js";
 
 import { orgCloudCredentialsTab, orgTab } from "../views/org.js";
+import { setup } from "../views/setup.js";
 
 import {
   showCostTab,
@@ -146,6 +147,30 @@ const getOrg = asyncHandler(async (req, res) => {
       } else {
         res.status(200).json(org);
       }
+    }
+  } else {
+    res.status(400);
+    throw new Error("No Orgs Found");
+  }
+});
+
+// @desc  Setup Org
+// @route GET /api/orgs/:id/setup
+// @access Private
+const setupOrg = asyncHandler(async (req, res) => {
+  //let orgId = req.user.orgId.toHexString();
+
+  let org;
+
+  // Retrieve Org
+  org = await Org.findOne({ _id: req.user.orgId });
+
+  if (org) {
+    if (req.headers?.ui) {
+      console.log("budget", org.budget.length);
+      let budget = org.budget.length !== 0 ? org.budget : "";
+      let HTML = setup(org.id, budget, org.csp);
+      res.send(HTML);
     }
   } else {
     res.status(400);
@@ -500,17 +525,26 @@ const addOrgCloud = asyncHandler(async (req, res) => {
   });
 
   if (req.headers.ui) {
-    let cloudCredentials = updatedOrg.csp.find(
-      (item) => item.provider === cloud
-    );
+    let HTML;
 
-    let HTML = orgCloudCredentialsTab(
-      cloudCredentials,
-      org.id,
-      req.headers.action
-    );
+    if (req.headers.returnpath) {
+      switch (req.headers.returnpath) {
+        case "setup":
+          HTML = setup(org.id, org.budget, updatedOrg.csp);
+      }
+      res.send(HTML);
+    } else {
+      let cloudCredentials = updatedOrg.csp.find(
+        (item) => item.provider === cloud
+      );
 
-    res.send(HTML);
+      HTML = orgCloudCredentialsTab(
+        cloudCredentials,
+        org.id,
+        req.headers.action
+      );
+      res.send(HTML);
+    }
   } else {
     res.status(200).json(updatedOrg);
   }
@@ -771,6 +805,56 @@ const updateOrg = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc  Set Org Budget
+// @route PUT /api/orgs/:id/budgets
+// @access Private
+const setOrgBudget = asyncHandler(async (req, res) => {
+  const org = await Org.findById(req.params.id);
+
+  if (!org) {
+    res.status(400);
+    throw new Error("Org not found");
+  }
+
+  let budget = [
+    {
+      year: req.body.year,
+      budget: parseInt(req.body.budget),
+      currency: req.body.currency,
+    },
+  ];
+  console.log(budget);
+
+  const updatedOrg = await Org.findByIdAndUpdate(
+    req.params.id,
+    { $set: { budget } },
+    {
+      new: true,
+    }
+  );
+
+  if (req.headers?.ui) {
+    let HTML;
+    if (req.headers.returnpath) {
+      switch (req.headers.returnpath) {
+        case "setup":
+          HTML = setup(req.user.orgId, updatedOrg.budget, updatedOrg.csp);
+          console.log("Returning SETUP");
+          res.send(HTML);
+      }
+    } else {
+      HTML = resourceOverviewTab(updatedOrg, fields);
+      res.send(HTML);
+    }
+  } else {
+    if (req.sync) {
+      return updatedOrg;
+    } else {
+      res.status(200).json(updatedOrg);
+    }
+  }
+});
+
 // @desc  Delete Org
 // @route DELETE /api/orgs/:id
 // @access Private
@@ -967,4 +1051,6 @@ export {
   createOrgUI,
   createOrgBudgetUI,
   addOrgBudget,
+  setOrgBudget,
+  setupOrg,
 };
