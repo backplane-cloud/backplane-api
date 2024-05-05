@@ -26,6 +26,8 @@ import requestRoutes from "./routes/requestRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
 import backlogRoutes from "./routes/backlogRoutes.js";
 
+import pageRoutes from "./routes/pageRoutes.js"; // These routes just return back HTML for UI
+
 import {
   syncAppCost,
   propagateAppCostToProduct,
@@ -97,6 +99,8 @@ export default function init(app) {
   app.get("/admin", (req, res) => {
     res.sendFile(path.join(__dirname, "../public", "index.html"));
   });
+
+  app.use("/api/", pageRoutes);
 
   app.post("/cloudshell", (req, res) => {
     const command = req.body.command;

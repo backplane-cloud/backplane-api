@@ -93,7 +93,12 @@ function setup(orgId, budget, csp) {
                                 }"   ${azure && "readonly"}/></td>
                               </tr>
                               <tr>
-                                <td colspan='2' class="text-right"><button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="submit"  ${
+                                <td colspan='2' class="text-right">
+                                <button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="submit"  ${
+                                  azure && "disabled"
+                                }>Validate</button>
+
+                                <button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="submit"  ${
                                   azure && "disabled"
                                 }>Save</button></td>
                               </tr>
@@ -159,7 +164,12 @@ function setup(orgId, budget, csp) {
                                   }" /></td>
                                 </tr>
                                 <tr>
-                                  <td colspan='2' class="text-right"><button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" ${
+                                  <td colspan='2' class="text-right">
+                                  <button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" type="submit"  ${
+                                    aws && "disabled"
+                                  }>Validate</button>
+
+                                  <button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" ${
                                     aws && "disabled"
                                   }>Save</button></td>
                                 </tr>
@@ -269,6 +279,8 @@ function setup(orgId, budget, csp) {
                                     `
                                       : `<form id="gcpForm">
                                     <input type="file" id="fileInput" accept=".json" class="file-input file-input-bordered w-full max-w-xs" />
+                                    
+                                    
                                     <button type="submit" class="text-right"><button class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" ${
                                       gcp && "disabled"
                                     }>Save</button><div id="result"></div>

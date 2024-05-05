@@ -55,7 +55,7 @@ import {
 // @access Private
 
 const getOrgs = asyncHandler(async (req, res) => {
-  const orgs = !req.user.allowedActions.includes("/*/")
+  const orgs = !req.user.allowedActions.includes("/*")
     ? await Org.findById(req.user.orgId)
     : await Org.find().select("");
 

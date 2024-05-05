@@ -166,7 +166,7 @@ class="mt-0"
   class="max-w-sm mx-auto"
   id="loginForm"
   
-><img src='img/backplane-logo-text.png' class='mx-auto'/>
+><img src='img/backplane-logo.png' class='mx-auto'/>
 
 <h1 class='text-3xl mb-10'>Register</h1>
  

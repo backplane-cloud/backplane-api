@@ -6,7 +6,7 @@ function appshell(name, email, orgId) {
     <header>
       <div class="flex items-center justify-between">  
         <div class="flex w-48 justify-center">
-          <img class="h-16 m-5 justify-center" src="img/backplane-logo-black.png" alt="Backplane Software" />
+          <img class="h-16 m-5 justify-center" src="img/backplane-logo.png" alt="Backplane Software" />
         </div>
     
         <div class="w-full justify-end">
@@ -61,11 +61,11 @@ function appshell(name, email, orgId) {
         </div>  
   
         <div> 
-          <nav-bar target='display-content' menu='Orgs,Platforms,Products,Apps'></nav-bar>
+          <nav-bar target='display-content' menu='Home,Orgs,Platforms,Products,Apps'></nav-bar>
         </div>
       </div>
         <div>
-          <h1 class="mr-10 p-3 align-start text-2xl font-bold tracking-tight text-gray-900">Management Console</h1>
+          <h1 class="mr-10 p-3 align-start text-2xl font-bold tracking-tight text-gray-950">Cloud Console</h1>
         </div>
       </div>
 
@@ -81,12 +81,12 @@ function appshell(name, email, orgId) {
         </div> 
         <div class="drawer-side z-50">
           <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-          
+         
           
           <ul class="menu p-4 w-64 min-h-full bg-gray-50 text-gray-800 text-base-content">
             <!-- Sidebar content here -->
-            
-            <img src='./img/backplane-logo-black.png' class="w-10 mb-10"/>
+            <h1 class="mb-10 mr-10 p-3 align-start text-2xl font-bold tracking-tight text-gray-950">Backplane</h1>
+            <!-- <img src='./img/backplane-logo-black.png' class="w-12 mb-10"/> -->
 
             <li>
             <a hx-get="api/orgs/${orgId}/setup" hx-target="#display-content" hx-headers='{"ui": true}'>
@@ -224,10 +224,7 @@ Cost Manager</a></li>
             Logout</a>
           </li>
 
-            <li><a hx-get="/api/teams" hx-target="#display-content" hx-headers='{"ui": true}'>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-            <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
-          </svg>Support Backplane</a></li>
+
           </ul>
 
           
@@ -242,12 +239,12 @@ Cost Manager</a></li>
       <p class="mt-10">
       We'll begin with setting your Organisation's Budget and adding Cloud Credentials to one of the major public Cloud Providers.
       </p>
-      <button hx-get="api/orgs/${orgId}/setup" hx-headers='{"ui": true}' hx-target='#display-content' class="btn m-3 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Click here to get started</button>
+      <button hx-get="api/orgs/${orgId}/setup" hx-headers='{"ui": true}' hx-target='#display-content' class="btn m-3 mt-5 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md px-5 py-2.5  text-sm text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Click here to get started</button>
       </div>
       
       <span class="htmx-indicator" id="loading"><img src="img/loader.gif" class="m-auto m-10 h-10"/></span>
      
-      <div id="terminalContainer" style="display: none" class="rounded-lg">
+      <div id="terminalContainer" style="display: none">
         <div id="terminal"></div>
       </div>
 
@@ -255,7 +252,7 @@ Cost Manager</a></li>
 
   </div>
 
-  <footer class="bg-gray-100 text-center fixed bottom-0 w-full h-24">
+  <footer class="bg-gray-800 text-center fixed bottom-0 w-full h-24">
     <div class="w-full  md:py-8 flex justify-between">
       <div class="flex items-center  ml-10">
         <a href="https://backplane.dev/" class="flex items-center mb-4 sm:mb-0 space-x-3 rtl:space-x-reverse">
@@ -266,7 +263,7 @@ Cost Manager</a></li>
       </div>
 
       <div>
-        <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-500 sm:mb-0 dark:text-gray-400">
+        <ul class="flex flex-wrap items-center mb-6 text-sm font-medium text-gray-200 sm:mb-0 dark:text-gray-400">
             <li>
                 <a href="https://backplane.dev/docs/intro" class="hover:underline me-4 md:me-6">Documentation</a>
             </li>
