@@ -391,6 +391,7 @@ const updateOrgCloud = asyncHandler(async (req, res) => {
 
     retain.push(csp);
   }
+
   if (cloud === "aws") {
     csp = {
       provider: "aws",
@@ -419,6 +420,24 @@ const updateOrgCloud = asyncHandler(async (req, res) => {
       provider: "gcp",
       tenantId: req.body.tenantId,
       gcpsecret,
+    };
+
+    retain.push(csp);
+  }
+
+  if (cloud === "oci") {
+    let ocisecret = {
+      tenancyId: req.body.tenancyId,
+      userId: req.body.userId,
+      fingerprint: req.body.fingerprint,
+      privateKey: req.body.privateKey,
+      region: req.body.region,
+      passphrase: req.body.passphrase,
+    };
+
+    csp = {
+      provider: "oci",
+      ocisecret,
     };
 
     retain.push(csp);
@@ -454,6 +473,7 @@ const updateOrgCloud = asyncHandler(async (req, res) => {
 // @access Private
 
 const addOrgCloud = asyncHandler(async (req, res) => {
+  console.log();
   // Retrieve the Cloud from the URL
   let url = req.url.split("/");
   let cloud = url[url.length - 1].toLowerCase();
@@ -511,6 +531,25 @@ const addOrgCloud = asyncHandler(async (req, res) => {
       provider: "gcp",
       tenantId: req.body.tenantId,
       gcpsecret,
+    };
+
+    retain.push(csp);
+  }
+
+  if (cloud === "oci") {
+    console.log("adding OCI)");
+    let ocisecret = {
+      tenancyId: req.body.tenancyId,
+      userId: req.body.userId,
+      fingerprint: req.body.fingerprint,
+      privateKey: req.body.privateKey,
+      region: req.body.region,
+      passphrase: req.body.passphrase,
+    };
+
+    csp = {
+      provider: "oci",
+      ocisecret,
     };
 
     retain.push(csp);
@@ -658,11 +697,26 @@ const setOrg = asyncHandler(async (req, res) => {
   // Create New Org
 
   // Set Default App Type
-  const appType = {
-    name: "default",
-    description: "Default App Type",
-    services: ["github"],
-  };
+  // const appType = {
+  //   name: "default",
+  //   description: "Default App Type",
+  //   services: ["github"],
+  // };
+
+  const appTemplate = [
+    {
+      name: "default",
+      description: "Default App type",
+      services: [],
+      environments: ["prod", "nonprod", "test", "dev"],
+    },
+    {
+      name: "sandbox",
+      description: "Sandbox",
+      services: [],
+      environments: ["sandbox"],
+    },
+  ];
 
   // Set Default Budget
   const budget = [
@@ -675,7 +729,6 @@ const setOrg = asyncHandler(async (req, res) => {
   ];
   console.log("Budget:", budget);
   console.log("Code:", req.body.name.toLowerCase().replace(" ", "-"));
-  console.log(appType);
 
   // If request from CLI then JSON.parse not required.
   // let csp = "";
@@ -696,8 +749,9 @@ const setOrg = asyncHandler(async (req, res) => {
     status: "active",
     type: "org",
     // csp,
-    appType,
+    // appType,
     budget,
+    appTemplate,
   });
 
   // console.log(req.body);
@@ -732,6 +786,7 @@ const setOrg = asyncHandler(async (req, res) => {
 // @route PUT /api/orgs/:id
 // @access Private
 const updateOrg = asyncHandler(async (req, res) => {
+  console.log("hi");
   const org = await Org.findById(req.params.id);
 
   if (!org) {
@@ -954,36 +1009,51 @@ const addOrgBudget = asyncHandler(async (req, res) => {
   // Retrieve the Cloud from the URL
 
   let year = req.body.year;
+  let budget = req.body.budget;
 
+  // Get Org
   const org = await Org.findById(req.params.id);
-
   if (!org) {
     res.status(400);
     throw new Error("Org not found");
   }
 
+  // Check if Budget already exists
+  let exist = org.budget.filter((item) => item.year == year);
+
+  // Create New Budget Entry or Update Budget Entry
+  let updatebudget;
+  let existingBudget = exist[0].toObject();
+  if (exist.length !== 0) {
+    // Update Existing Entry
+    console.log("Updating Existing Budget");
+    updatebudget = { ...existingBudget, budget };
+  } else {
+    // Create new Entry
+    console.log("Adding new Budget");
+    updatebudget = {
+      year: req.body.year,
+      budget: req.body.budget,
+      allocated: 0,
+      available: 0,
+      currency: req.body.currency,
+    };
+  }
+
+  console.log("Adding Budget", updatebudget);
+
+  // Retrieve Budgets to retain (i.e. does not equal year being added)
   let retain = [];
-  // Retrieve the Cloud Credentials to Retain and put in array
   if (org.budget !== undefined) {
     retain = org.budget.filter((item) => item.year !== year);
   }
 
-  let budget;
-
-  budget = {
-    year: req.body.year,
-    budget: req.body.budget,
-    allocated: 0,
-    available: 0,
-    currency: req.body.currency,
-  };
-
-  retain.push(budget);
-
+  // Add Budget
+  retain.push(updatebudget);
   budget = retain;
 
+  // Update Org with New Budget
   let updateOrg = { org, budget };
-
   const updatedOrg = await Org.findByIdAndUpdate(org.id, updateOrg, {
     new: true,
   });
@@ -995,7 +1065,6 @@ const addOrgBudget = asyncHandler(async (req, res) => {
       // req.headers.action,
       org._id
     );
-
     res.send(HTML);
   } else {
     res.status(200).json(budget);

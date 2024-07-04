@@ -42,6 +42,8 @@ import {
   createAWSEnv,
 } from "@backplane-software/backplane-aws";
 
+import { createOCIEnv, getOCICost } from "@backplane-software/backplane-oci";
+
 import { getOrg } from "./orgController.js";
 
 // These fields determine what to display on HTMX responses from Backplane UI
@@ -502,6 +504,9 @@ const getAppCost = asyncHandler(async (req, res) => {
       case "gcp":
         cost = await getGCPCost({ environments });
         break;
+      case "oci":
+        cost = await getOCICost({ environments });
+        break;
     }
   } else {
     // Get the Cost data stored on the App resource
@@ -680,6 +685,16 @@ const setApp = asyncHandler(async (req, res) => {
       appCode: code,
       client_email,
       private_key,
+    });
+  }
+
+  // OCI ENVIRONMENT CREATION
+  if (req.body.cloud === "oci") {
+    environments = await createOCIEnv({
+      config: cloudCredentials.ocisecret,
+      environs,
+      orgCode: org.code,
+      appCode: code,
     });
   }
 

@@ -8,6 +8,7 @@ const cloudSchema = mongoose.Schema({
   clientSecret: String,
   subscriptionId: String,
   gcpsecret: Object,
+  ocisecret: Object,
 });
 
 const budgetSchema = mongoose.Schema({
