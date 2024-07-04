@@ -25,7 +25,7 @@
     "@backplane-software/backplane-aws": "^0.3.1",
     "@backplane-software/backplane-azure": "^0.2.2",
     "@backplane-software/backplane-gcp": "^0.3.4",
-    "@backplane-software/backplane-oci": "^0.0.3",
+    "@backplane-software/backplane-oci": "^1.0.1",
     "@google-cloud/bigquery": "^6.2.1",
     "@google-cloud/billing": "^4.4.0",
     "@google-cloud/iam": "^1.0.0",
