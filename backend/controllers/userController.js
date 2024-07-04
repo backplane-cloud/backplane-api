@@ -241,13 +241,13 @@ const registerUser = asyncHandler(async (req, res) => {
     userType: "Organisation Owner",
     orgId: org.id,
   });
-  console.log("Created User", User.name);
+  console.log("Created User", user.name);
 
   // Update Owner on Org
   await Org.findByIdAndUpdate(org.id, { ownerId: user.id });
-  console.log("Updated Org Owner ID", Org.name);
+  console.log("Set Org Owner to", org.name);
 
-  // Create Role
+  // Role Creation - Org Owner
   const role = await setInternalRole({
     name: `Org Owner for ${org.name}`,
     type: "builtin",
@@ -255,19 +255,8 @@ const registerUser = asyncHandler(async (req, res) => {
     orgId: org.id,
     ownerId: user.id,
   });
-  console.log(role);
 
-  // Create Assignment
-  setAssignment({
-    type: "user",
-    principal: user.id,
-    principalRef: "user",
-    scope: `/orgs/${org.id}`,
-    role: role.id,
-    orgId: org.id,
-  });
-
-  // Create Contributor and Reader RBAC Roles for Org
+  // Role Creation - Contributor
   await setInternalRole({
     name: `Contributor for ${org.name}`,
     type: "builtin",
@@ -276,12 +265,23 @@ const registerUser = asyncHandler(async (req, res) => {
     ownerId: user.id,
   });
 
+  // Role Creation - Reader
   await setInternalRole({
     name: `Reader for ${org.name}`,
     type: "builtin",
     allowActions: [`/read`],
     orgId: org.id,
     ownerId: user.id,
+  });
+
+  // Role Assignment - Org Owner Role to Org Owner
+  await setAssignment({
+    type: "user",
+    principal: user.id,
+    principalRef: "user",
+    scope: `/orgs/${org.id}`,
+    role: role.id,
+    orgId: org.id,
   });
 
   // Raise Event to Send Welcome E-mail

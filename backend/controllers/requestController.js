@@ -44,116 +44,117 @@ const events = new EventEmitter();
 events.on("approvalRequest", async function (id, approvalStatus, data) {
   // Get Request
   const request = await Request.findById(id);
-  console.log("Approval Request Received for");
+  console.log("Approval Request Received for", request.id);
+
   // Get Requester
   const requester = await User.findById(request.requestedBy);
   console.log("Approval Status:", request.approvalStatus);
-  if (request.approvalStatus === "approved") {
-    // REQUEST - LINK
-    console.log("Request is approved");
+  // if (request.approvalStatus === "approved") {
+  // REQUEST - LINK
+  console.log("Request is approved");
 
-    if (request.requestType === "link") {
-      // Add the App ID to Product.apps
-      const product = await Product.findById(request.requestedForId);
+  if (request.requestType === "link") {
+    // Add the App ID to Product.apps
+    const product = await Product.findById(request.requestedForId);
 
-      if (product.apps.includes(data)) {
-        console.log(`Requested App is already linked to ${product.name}`);
-        return;
-      }
-
-      product.apps.push(request.data);
-      await product.save();
-
-      // Update App with parent Product ID
-      const app = await App.findById(request.data);
-      app.productId = request.requestedForId;
-      await app.save();
+    if (product.apps.includes(data)) {
+      console.log(`Requested App is already linked to ${product.name}`);
+      return;
     }
 
-    // REQUEST - BUDGET
-    if (request.requestType === "budget") {
-      console.log("Request for Budget");
-      if (request.requestedForType === "product") {
-        console.log("Request for Product Budget");
+    product.apps.push(request.data);
+    await product.save();
 
-        const product = await Product.findById(request.requestedForId);
-        const platform = await Platform.findById(product.platformId);
+    // Update App with parent Product ID
+    const app = await App.findById(request.data);
+    app.productId = request.requestedForId;
+    await app.save();
+  }
 
-        // Update Budget Allocated on Parent Platform
-        const currentBudget = platform.budget[platform.budget.length - 1];
-        platform.budget.pop(); // Remove last budget and replace with updated Budget
+  // REQUEST - BUDGET
+  if (request.requestType === "budget") {
+    console.log("Request for Budget");
+    if (request.requestedForType === "product") {
+      console.log("Request for Product Budget");
 
-        // Increase budget allocated
-        console.log("current budget allocated:", currentBudget.budgetAllocated);
-        console.log("request data:", request.data);
-        const budgetAllocated =
-          parseInt(currentBudget.budgetAllocated) + parseInt(request.data);
-        console.log("budget allocated:", budgetAllocated);
+      const product = await Product.findById(request.requestedForId);
+      const platform = await Platform.findById(product.platformId);
 
-        if (budgetAllocated <= currentBudget.budget) {
-          //Check budget allocation doesn't exceed budget
-          const updatedBudget = {
-            year: currentBudget.year,
-            budget: currentBudget.budget,
-            budgetAllocated,
-            currency: currentBudget.currency,
-          };
-          platform.budget.push(updatedBudget);
-          platform.save();
+      // Update Budget Allocated on Parent Platform
+      const currentBudget = platform.budget[platform.budget.length - 1];
+      platform.budget.pop(); // Remove last budget and replace with updated Budget
 
-          // Add Budget to Product
-          const budget = {
-            year: "2023",
-            budget: request.data,
-            currency: "USD",
-            approvalId: request.id,
-          };
-          product.budget = [budget];
-          product.save();
-        } else {
-          approvalStatus = "Insufficient Budget available";
-        }
+      // Increase budget allocated
+      console.log("current budget allocated:", currentBudget.budgetAllocated);
+      console.log("request data:", request.data);
+      const budgetAllocated =
+        parseInt(currentBudget.budgetAllocated) + parseInt(request.data);
+      console.log("budget allocated:", budgetAllocated);
+
+      if (budgetAllocated <= currentBudget.budget) {
+        //Check budget allocation doesn't exceed budget
+        const updatedBudget = {
+          year: currentBudget.year,
+          budget: currentBudget.budget,
+          budgetAllocated,
+          currency: currentBudget.currency,
+        };
+        platform.budget.push(updatedBudget);
+        platform.save();
+
+        // Add Budget to Product
+        const budget = {
+          year: "2023",
+          budget: request.data,
+          currency: "USD",
+          approvalId: request.id,
+        };
+        product.budget = [budget];
+        product.save();
+      } else {
+        approvalStatus = "Insufficient Budget available";
       }
+    }
 
-      if (request.requestedForType === "platform") {
-        // Update Budget Allocated on Parent Org
-        const platform = await Platform.findById(request.requestedForId);
-        const org = await Org.findById(platform.orgId);
-        const currentBudget = org.budget[org.budget.length - 1];
+    if (request.requestedForType === "platform") {
+      // Update Budget Allocated on Parent Org
+      const platform = await Platform.findById(request.requestedForId);
+      const org = await Org.findById(platform.orgId);
+      const currentBudget = org.budget[org.budget.length - 1];
 
-        org.budget.pop(); // Remove last budget and replace with updated Budget
-        const budgetAllocated =
-          parseInt(currentBudget.budgetAllocated) + parseInt(request.data);
-        console.log("budget allocated:", budgetAllocated);
+      org.budget.pop(); // Remove last budget and replace with updated Budget
+      const budgetAllocated =
+        parseInt(currentBudget.budgetAllocated) + parseInt(request.data);
+      console.log("budget allocated:", budgetAllocated);
 
-        if (budgetAllocated <= currentBudget.budget) {
-          //Check budget allocation doesn't exceed budget
-          const updatedBudget = {
-            year: currentBudget.year,
-            budget: currentBudget.budget,
-            budgetAllocated,
-            currency: currentBudget.currency,
-          };
-          org.budget.push(updatedBudget);
-          org.save();
+      if (budgetAllocated <= currentBudget.budget) {
+        //Check budget allocation doesn't exceed budget
+        const updatedBudget = {
+          year: currentBudget.year,
+          budget: currentBudget.budget,
+          budgetAllocated,
+          currency: currentBudget.currency,
+        };
+        org.budget.push(updatedBudget);
+        org.save();
 
-          // Add Budget to Platform
-          const budget = {
-            year: "2024",
-            budget: request.data,
-            currency: "USD",
-            budgetAllocated: 0,
-            approvalId: request.id,
-          };
-          console.log("platform budget:", budget);
-          platform.budget = [budget];
-          platform.save();
-        } else {
-          approvalStatus = "Insufficient Budget available";
-        }
+        // Add Budget to Platform
+        const budget = {
+          year: "2024",
+          budget: request.data,
+          currency: "USD",
+          budgetAllocated: 0,
+          approvalId: request.id,
+        };
+        console.log("platform budget:", budget);
+        platform.budget = [budget];
+        platform.save();
+      } else {
+        approvalStatus = "Insufficient Budget available";
       }
     }
   }
+  // }
 
   console.log(`Request ${approvalStatus}`);
   // Enter Code here for budget approval or applink approval.
@@ -428,6 +429,7 @@ const approveRequest = asyncHandler(async (req, res) => {
     throw new Error("Request not found");
   }
   console.log("payload:", request.approvalCode, req.query.code);
+
   if (request.approvalCode === req.query.code) {
     console.log("Approval Code Successfully Validated");
     if (
@@ -452,7 +454,7 @@ const approveRequest = asyncHandler(async (req, res) => {
     return;
   }
 
-  console.log(request);
+  // console.log(request);
   res.status(200).json("Request Successfully Approved");
 });
 

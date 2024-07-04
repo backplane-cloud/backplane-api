@@ -163,6 +163,7 @@ const setAssignment = asyncHandler(async (req, res) => {
 
   if (!req.body) {
     req.body = req; // This is for internal code calls for Registering first user
+    console.log("setAssignment", req.body);
   }
 
   if (req.body.type === "team") {
@@ -216,12 +217,14 @@ const setAssignment = asyncHandler(async (req, res) => {
 
   console.log("Created Assignment", assignment);
 
-  // if (req?.headers?.ui !== undefined && req?.headers?.action !== "register") {
-  //   // if (req.headers.ui) {
-  //   let HTML = createResource(assignment, fields, "Assignment", "assignments");
-  //   res.send(HTML);
-  // } else {
-  // res.status(200).json(assignment);
+  if (req?.headers?.ui !== undefined && req?.headers?.action !== "register") {
+    // If from UI send HTMX response
+    let HTML = createResource(assignment, fields, "Assignment", "assignments");
+    res.send(HTML);
+  }
+
+  // else {
+  //   res.status(200).json(assignment);
   // }
   return assignment;
 });

@@ -111,9 +111,9 @@ export async function propagateAppCostToProduct() {
           // console.log("latestCost", latestCost);
           acc += latestCost.cost;
         });
-        console.log("acc costs is", acc);
 
         console.log("retreiving cost for:", product);
+        console.log("acc costs is", acc);
 
         // Update Product with new Cost Record
         let costHistory = await getProductCost({
@@ -122,6 +122,7 @@ export async function propagateAppCostToProduct() {
         });
 
         let updateCost = costHistory ? costHistory : [{ cost: 0 }]; // Retrieve Existing Cost
+
         let newCost = { cost: acc };
 
         // Only Update if value has changed

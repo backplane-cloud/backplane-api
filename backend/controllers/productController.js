@@ -263,7 +263,7 @@ const setProduct = asyncHandler(async (req, res) => {
   // Check if Product already exists
   const exists = await Product.findOne({
     code,
-    id: orgId,
+    orgId,
   });
 
   if (exists) {
@@ -320,7 +320,7 @@ const setProduct = asyncHandler(async (req, res) => {
     let HTML = showResource(product, tabs, breadcrumbs);
     res.send(HTML);
   } else {
-    res.status(200).json(app);
+    res.status(200).json(product);
   }
 });
 
@@ -408,7 +408,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 // @access Private
 const getProductCost = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
-
+  console.log("processing", product.name, product.id);
   if (product.cost.length !== 0) {
     if (req.headers?.ui) {
       let HTML = showCostTab(product?.cost);
@@ -421,8 +421,12 @@ const getProductCost = asyncHandler(async (req, res) => {
       }
     }
   } else {
-    res.status(400).send("No Cost Data for Product");
-    throw new Error("No Cost Data for Product");
+    if (req.sync) {
+      return [{ cost: 0 }];
+    } else {
+      res.status(400).send("No Cost Data for Product");
+      throw new Error("No Cost Data for Product");
+    }
   }
 
   // // Get Product
