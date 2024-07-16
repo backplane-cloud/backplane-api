@@ -162,13 +162,9 @@ hx-target="#loginSection"
 class="mt-0"
 >
 
-<form
-  class="max-w-sm mx-auto"
-  id="loginForm"
-  
-><img src='img/backplane-logo.png' class='mx-auto'/>
+<form class="max-w-sm mx-auto" id="loginForm">
 
-<h1 class='text-3xl mb-10'>Register</h1>
+<h1 class='text-3xl mb-10'>Register New Organisation and User</h1>
  
   <div class="mb-5">
     <label
@@ -253,7 +249,7 @@ class="mt-0"
   
   hx-headers='{"ui": true}'
     type="submit"
-    class="bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
+    class="w-32 mr-10 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
   >
     Register
   </button>

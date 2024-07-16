@@ -8,17 +8,17 @@ const template = (version, release) => `
       hx-target="#loginSection" 
       hx-swap="innerHTML">
       
-      <img src="img/backplane-logo-black.png" class="mx-auto" />
+      <img src="img/backplane-logo-black.svg" class="mx-auto w-64" />
 
-      <h1 class="m-10 align-start text-2xl font-bold tracking-tight text-gray-900">
-      Management Console Login
+      <h1 class="m-10 align-start font-bold text-2xl text-slate-900">
+      Backplane Cloud Console
     </h1>
       <div class="mb-5">
         <label
           for="email"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="block mb-2 text-lg font-medium text-slate-700 dark:text-white"
         >
-          Your email
+          Email
         </label>
         <input
           type="email"
@@ -33,9 +33,9 @@ const template = (version, release) => `
       <div class="mb-5">
         <label
           for="password"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          class="block mb-2 text-lg font-medium text-slate-700 dark:text-white"
         >
-          Your password
+          Password
         </label>
         <input
           type="password"
@@ -46,32 +46,16 @@ const template = (version, release) => `
         />
       </div>
       
-      <div class="flex items-start mb-5">
-        <div class="flex items-center h-5">
-          <input
-            id="remember"
-            type="checkbox"
-            value=""
-            class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-            required
-          />
-        </div>
-        <label
-          for="remember"
-          class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-        >
-          Remember me
-        </label>
-      </div>
 
-      <div hx-boost="true" class="flex justify-around">
+
+      <div hx-boost="true" class="flex justify-between mt-5">
         <button
           hx-swap="outerHTML"
           hx-target="#loginSection"
           hx-post="/api/users/login"
           hx-headers='{"ui": true}'
           type="submit"
-          class="w-36 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
+          class="w-32 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
         >
           Login
         </button>
@@ -79,14 +63,14 @@ const template = (version, release) => `
           
           hx-get="/api/users/register"
           hx-target="#loginSection"
-          class="bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
+          class="w-32 bg-transparent hover:bg-blue text-blue-dark font-semibold hover:text-black py-2 px-4 border border-blue hover:border-solid rounded"
 
         >
-          Create Account
+          Register
         </button>
         
       </div>
-      <div class="text-xs mt-5">Version: ${version}-${release}</div>
+     
       <div class="text-red"></div>
     </form>
   </div>`;

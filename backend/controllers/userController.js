@@ -64,13 +64,13 @@ The organisation <b>${org.name}</b> has been successfully created.
 <h2>What's next ? </h2>
 
 <h3>Download CLI</h3>
-Download & Install <a href='https://backplane.dev/docs/cli'>Backplane CLI</a>
+Download & Install <a href='https://backplane.dev/blog/cli/'>Backplane CLI</a>
 
 <h3>Login</h3>
 bp auth login --email ${email} --password <password>
 
 <h3>Documentation</h3>
-<a href='https://backplane.dev/docs/category/tutorial'>Backplane Tutorials</a>
+<a href='https://backplane.dev/blog/'>Backplane Tutorials</a>
         `, // html body
     });
     //console.log(info);
