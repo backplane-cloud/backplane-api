@@ -1,33 +1,21 @@
-# Backplane Core
+# Backplane API
 
-Backplane Core is an open source cloud abstraction API.   
+Backplane is an open source cloud abstraction API.   
 
 The vision for Backplane is to build an abstracted Cloud API to remove the development complexity with interfacing with multiple public cloud providers. 
 
 By having a single, generic and cloud agnostic endpoint, cost, access and policy data can be easily retrieved and cloud environments easily provisioned. 
 
-API calls to cloud service providers can be sent to Backplane Core instead, removing integration and maintenance. Example use cases include Internal Development Platforms, Cloud Management platforms or any toolset that needs to interface with multiple cloud providers. 
+API calls to cloud service providers can be sent to Backplane API, removing integration and maintenance. Example use cases include Internal Development Platforms, Cloud Management platforms or any toolset that needs to interface with multiple cloud providers. 
 
-The heart of Backplane core is about cloud governance, cost governance, access management and cloud controls. 
+The heart of Backplane is about cloud governance, cost governance, access management and cloud controls. 
 
 Key functionality: 
 
   - Provision Cloud Environments
   - Retrieving Cost Data
   - Retrieving Policy Data
-  - Retrieving Access Data
-
-Backplane Core is licensed under Apache 2.0 and donated to the Cloud Native Compute Foundation.
-
-
-
-## Backplane Extensions
-
-Backplane X is a marketplane for custom extensions that extends Backplane's functionality, these can be open source and free, or under paid-for licenses. Third party and first party extensions will be available in the backplane marketplace host at x.backplane.cloud. 
-
-[Backplane Cloud](https://) is a hosted and managed SaaS offering provided by Backplane Software Ltd, this is provided under a subscription model which offers convenience for smaller organisations. 
-
-[Backplane Core](https://) is the open source engine upon which you can build your cloud management, development and governance platforms. 
+  - Retrieving Access Data 
 
 
 ## Architecture
@@ -64,7 +52,7 @@ Please refer to the technical documentation for more details.
 
 # Getting Started
 
-To get started, download and install the [Backplane CLI](https://cli.backplane.cloud)
+To get started, download and install the [Backplane CLI](https://backplane.dev/blog/cli/)
 
 The entry point to Backplane is registering your first user `/api/users/register`. This kicks off a set of activities: 
 
@@ -74,7 +62,7 @@ The entry point to Backplane is registering your first user `/api/users/register
 - Creates `Roles` and the initial `Assignment`
 
 ```
-bp user add --email lewis@backplane.cloud --password 12345 --orgname 'Backplane Software'
+bp user register --email lewis@backplane.cloud --password 12345 --orgname 'Backplane Software'
 ```
 
 With the Organisation created, the User will be assigned the role of **Org Administrator** which permits the allow actions of `/write, /delete` at `/orgs/:id` scope. 
@@ -136,7 +124,7 @@ Now, before we can begin creating Cloud Apps, we must first register a Cloud Pro
 
 With the above all in place, we're now ready to create our first cloud app. This is simple:
 
-`bp app add --displayname 'My App' --cloud azure`
+`bp app create --displayname 'My App' --cloud azure`
 
 Yes - it's as simple as that. This will make the necessary call to your CSP to provision the environments, share credentials, add the necessary access etc. In addition, a Repo will be created in Github (configure Repo and CSP doc). 
 
