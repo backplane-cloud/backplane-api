@@ -22,7 +22,7 @@ This project is currently MVP-status, and the build represents alpha.
 
 # Usage
 
-Refer to Quickstart guide [Backplane.dev - Quick Start](https://backplane.dev/blog/quick-start/)
+Refer to Quickstart guide [Backplane.dev - Quick Start](https://backplane.dev/docs/quick-start/)
 
 ## Support
 
